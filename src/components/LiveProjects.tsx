@@ -1,30 +1,39 @@
 import Image from "next/image";
 
-// Visual recreations below are built from real, current screenshots of each
-// live product (captured directly from playballpark.app, playvenny.app, and
-// dappled.minorworks.co) rather than stock art — colors and layout match
-// what's actually shipping.
+// Three equal vertical "slides," each a condensed recreation of the real
+// product's actual screen — built from live screenshots of playballpark.app,
+// playvenny.app, and dappled.minorworks.co, not stock art.
 
 function BallparkGraphic() {
   return (
-    <div className="relative flex h-full w-full items-center justify-center bg-mw-primary p-6 md:p-10">
-      <div className="w-full max-w-[300px] rounded-2xl bg-mw-background p-6 shadow-mw-lift">
-        <p className="mb-7 text-sm font-bold leading-snug">
-          <span className="text-mw-accent">Dimensions</span>{" "}
-          <span className="text-mw-primary">of a standard basketball hoop</span>
-        </p>
-        <div className="mb-6 flex items-center gap-2">
-          <span className="text-mw-text-light">−</span>
-          <div className="relative h-1.5 flex-1 rounded-full bg-mw-border">
-            <div className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-mw-primary/40" />
+    <div className="flex h-full w-full flex-col bg-mw-primary">
+      <div className="flex items-center justify-between bg-white px-3 py-2">
+        <span className="text-[10px] font-extrabold tracking-tight text-mw-primary">
+          BALLPARK
+        </span>
+        <span className="text-[8px] font-semibold text-mw-text-light">
+          More ▾
+        </span>
+      </div>
+      <div className="flex flex-1 items-center justify-center p-5">
+        <div className="w-full max-w-[210px] rounded-2xl bg-mw-background p-5 shadow-mw-lift">
+          <p className="mb-6 text-[13px] font-bold leading-snug">
+            <span className="text-mw-accent">Weight</span>{" "}
+            <span className="text-mw-primary">of all the ants on Earth</span>
+          </p>
+          <div className="mb-5 flex items-center gap-2">
+            <span className="text-xs text-mw-text-light">−</span>
+            <div className="relative h-1.5 flex-1 rounded-full bg-mw-border">
+              <div className="absolute left-1/2 top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-mw-primary/40" />
+            </div>
+            <span className="text-xs text-mw-text-light">+</span>
           </div>
-          <span className="text-mw-text-light">+</span>
-        </div>
-        <p className="mb-4 text-center text-xs font-semibold text-mw-text-muted">
-          Somewhere in here.
-        </p>
-        <div className="mx-auto w-fit rounded-full bg-mw-primary px-6 py-2 text-xs font-bold text-white">
-          Submit
+          <p className="mb-4 text-center text-[11px] font-semibold text-mw-text-muted">
+            Somewhere in here.
+          </p>
+          <div className="mx-auto w-fit rounded-full bg-mw-primary px-5 py-1.5 text-[10px] font-bold text-white">
+            Submit
+          </div>
         </div>
       </div>
     </div>
@@ -40,65 +49,152 @@ function VennyGraphic() {
     { ch: "Y", color: "#88C041" },
   ];
   return (
-    <div className="relative flex h-full w-full items-center justify-center bg-mw-primary p-5">
-      <div className="w-full max-w-[220px] rounded-2xl bg-white p-4 shadow-mw-lift">
-        <div className="mb-5 flex justify-center gap-0.5">
+    <div className="flex h-full w-full flex-col bg-mw-primary p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <div className="flex gap-0.5">
           {letters.map((l, i) => (
             <span
               key={i}
-              className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-extrabold text-white"
+              className="flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-extrabold text-white"
               style={{ backgroundColor: l.color }}
             >
               {l.ch}
             </span>
           ))}
         </div>
-        <div className="relative mx-auto h-20 w-32">
-          <div
-            className="absolute left-0 top-0 h-20 w-20 rounded-full opacity-90"
-            style={{ backgroundColor: "#5b6a9e" }}
-          />
-          <div
-            className="absolute right-0 top-0 h-20 w-20 rounded-full opacity-90"
-            style={{ backgroundColor: "#9446ED" }}
-          />
+        <span className="h-4 w-4 rounded bg-white/15" aria-hidden="true" />
+      </div>
+      <div className="flex flex-1 items-center justify-center">
+        <div className="w-full max-w-[220px] rounded-2xl bg-white p-4 shadow-mw-lift">
+          <svg viewBox="0 0 220 190" className="w-full">
+            <circle cx="82" cy="78" r="58" fill="#9446ED" opacity={0.82} />
+            <circle cx="140" cy="78" r="58" fill="#304193" opacity={0.82} />
+            <circle cx="111" cy="128" r="58" fill="#E64A41" opacity={0.8} />
+            <text x="14" y="24" fontSize="11" fontWeight={700} fill="#9446ED">
+              ABBA hit
+            </text>
+            <text x="206" y="24" fontSize="11" fontWeight={700} fill="#304193" textAnchor="end">
+              In London
+            </text>
+            <text x="111" y="182" fontSize="11" fontWeight={700} fill="#c23a2f" textAnchor="middle">
+              In Belgium
+            </text>
+            <circle cx="111" cy="100" r="30" fill="white" opacity={0.92} />
+            <text x="111" y="105" fontSize="13" fontWeight={800} fill="#0f172a" textAnchor="middle">
+              Waterloo
+            </text>
+          </svg>
         </div>
       </div>
     </div>
   );
 }
 
+const DAPPLED_TOYS: { name: string; colors: string[] }[] = [
+  { name: "Mosaic", colors: ["#FF48B0", "#FFD900", "#3A4FD8"] },
+  { name: "Flow", colors: ["#FF6C2F", "#0078BF"] },
+  { name: "Rhythm", colors: ["#765BA7", "#00A95C"] },
+  { name: "Beat", colors: ["#FF48B0", "#3A4FD8"] },
+  { name: "Fold", colors: ["#FF48B0", "#3A4FD8", "#00A95C"] },
+  { name: "Garden", colors: ["#00A95C", "#FFD900"] },
+];
+
 function DappledGraphic() {
-  const top = ["#FF48B0", "#FF6C2F", "#FFD900"];
-  const bottom = ["#00A95C", "#0078BF", "#3A4FD8"];
   return (
-    <div className="relative flex h-full w-full items-center justify-center bg-dappled-paper p-5">
-      <div className="w-full max-w-[220px] rounded-2xl bg-white p-4 shadow-mw-lift">
-        <p className="mb-3 text-center text-[10px] font-bold uppercase tracking-widest text-dappled-fade">
+    <div className="flex h-full w-full flex-col bg-dappled-paper p-4">
+      <div className="mb-3 text-center">
+        <p className="text-[11px] font-bold tracking-[0.2em] text-dappled-ink">
+          d a p p l e d
+        </p>
+        <p className="text-[9px] italic text-dappled-fade">
+          a small place to pause
+        </p>
+      </div>
+      <div className="mb-3 rounded-xl bg-white p-2.5 shadow-mw">
+        <p className="mb-1.5 text-[7px] font-bold uppercase tracking-widest text-dappled-fade">
           Today&apos;s dapple
         </p>
-        <div className="mx-auto grid w-fit grid-cols-3 gap-0">
-          {top.map((c, i) => (
-            <div
-              key={`t${i}`}
-              className="h-8 w-8 rounded-full opacity-90"
-              style={{ backgroundColor: c, marginLeft: i === 0 ? 0 : -6 }}
-            />
-          ))}
+        <div className="flex items-center gap-2">
+          <div className="flex -space-x-1.5">
+            {["#FF48B0", "#FFD900", "#00A95C"].map((c) => (
+              <span
+                key={c}
+                className="h-4 w-4 rounded-full border border-white opacity-90"
+                style={{ backgroundColor: c }}
+              />
+            ))}
+          </div>
+          <span className="text-[10px] font-bold text-dappled-ink">
+            Weave
+          </span>
         </div>
-        <div className="mx-auto -mt-1.5 grid w-fit grid-cols-3 gap-0">
-          {bottom.map((c, i) => (
-            <div
-              key={`b${i}`}
-              className="h-8 w-8 rounded-full opacity-90"
-              style={{ backgroundColor: c, marginLeft: i === 0 ? 0 : -6 }}
-            />
-          ))}
-        </div>
+      </div>
+      <div className="grid flex-1 grid-cols-2 gap-1.5">
+        {DAPPLED_TOYS.map((t) => (
+          <div
+            key={t.name}
+            className="flex flex-col items-center justify-center gap-1 rounded-lg bg-white py-2 shadow-mw"
+          >
+            <div className="flex -space-x-1">
+              {t.colors.map((c) => (
+                <span
+                  key={c}
+                  className="h-2.5 w-2.5 rounded-full border border-white opacity-90"
+                  style={{ backgroundColor: c }}
+                />
+              ))}
+            </div>
+            <span className="text-[8px] font-semibold text-dappled-ink">
+              {t.name}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );
 }
+
+type Slide = {
+  key: string;
+  name: string;
+  tagline: string;
+  href: string;
+  cta: string;
+  Graphic: () => React.JSX.Element;
+  logo: string;
+};
+
+const SLIDES: Slide[] = [
+  {
+    key: "venny",
+    name: "Venny",
+    tagline: "A daily puzzle about what belongs together — and what sits in between.",
+    href: "https://playvenny.app",
+    cta: "Play today's Venny",
+    Graphic: VennyGraphic,
+    logo: "/logos/venny-logo.png",
+  },
+  {
+    key: "ballpark",
+    name: "Ballpark",
+    tagline:
+      "A daily game about scale, estimation, and how surprisingly hard it is to know how big anything really is.",
+    href: "https://playballpark.app",
+    cta: "Play today's five",
+    Graphic: BallparkGraphic,
+    logo: "/logos/ballpark-logo.png",
+  },
+  {
+    key: "dappled",
+    name: "Dappled",
+    tagline:
+      "Dozens of quiet toys made from color, movement, and sound. Touch, make, focus, or just watch.",
+    href: "https://dappled.minorworks.co",
+    cta: "Enter Dappled",
+    Graphic: DappledGraphic,
+    logo: "/logos/dappled-icon.png",
+  },
+];
 
 export default function LiveProjects() {
   return (
@@ -106,106 +202,46 @@ export default function LiveProjects() {
       <h2 className="mb-5 text-center text-xs font-bold uppercase tracking-widest text-mw-text-muted">
         Live now
       </h2>
-
-      {/* Featured: Ballpark */}
-      <a
-        href="https://playballpark.app"
-        target="_blank"
-        rel="noreferrer"
-        className="mw-focus-ring group mb-5 grid overflow-hidden rounded-mw shadow-mw-lift md:grid-cols-2"
-      >
-        <div className="h-[220px] md:h-auto md:min-h-[280px]">
-          <BallparkGraphic />
-        </div>
-        <div className="flex flex-col justify-center bg-white p-8 md:p-10">
-          <div className="mb-2 flex items-center gap-2">
-            <Image
-              src="/logos/ballpark-logo.png"
-              alt=""
-              width={26}
-              height={26}
-              className="rounded-md"
-            />
-            <h3 className="text-lg font-bold text-mw-text-dark">Ballpark</h3>
-          </div>
-          <p className="mb-6 text-sm leading-relaxed text-mw-text-muted md:text-base">
-            A daily game about scale, estimation, and how surprisingly hard
-            it is to know how big anything really is.
-          </p>
-          <span className="inline-flex w-fit items-center gap-1.5 text-sm font-bold text-mw-accent">
-            Play today&apos;s five
-            <span
-              aria-hidden="true"
-              className="transition-transform duration-200 group-hover:translate-x-0.5"
-            >
-              →
-            </span>
-          </span>
-        </div>
-      </a>
-
-      {/* Venny + Dappled, smaller, side by side */}
-      <div className="grid gap-5 sm:grid-cols-2">
-        <a
-          href="https://playvenny.app"
-          target="_blank"
-          rel="noreferrer"
-          className="mw-focus-ring group flex flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw transition-shadow hover:shadow-mw-lift"
-        >
-          <div className="h-[170px] w-full">
-            <VennyGraphic />
-          </div>
-          <div className="flex flex-1 flex-col p-5">
-            <div className="mb-1.5 flex items-center gap-2">
-              <Image
-                src="/logos/venny-logo.png"
-                alt=""
-                width={20}
-                height={20}
-                className="rounded-md"
-              />
-              <h3 className="text-sm font-bold text-mw-text-dark">Venny</h3>
+      <div className="grid gap-5 sm:grid-cols-3">
+        {SLIDES.map(({ key, name, tagline, href, cta, Graphic, logo }) => (
+          <a
+            key={key}
+            href={href}
+            target="_blank"
+            rel="noreferrer"
+            className="mw-focus-ring group flex flex-col overflow-hidden rounded-mw border border-mw-border bg-white shadow-mw transition-shadow hover:shadow-mw-lift"
+          >
+            <div className="h-[380px] w-full sm:h-[420px]">
+              <Graphic />
             </div>
-            <p className="mb-4 flex-1 text-[13px] leading-relaxed text-mw-text-muted">
-              A daily puzzle about what belongs together — and what sits in
-              between.
-            </p>
-            <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-mw-accent">
-              Play today&apos;s Venny
-              <span aria-hidden="true">→</span>
-            </span>
-          </div>
-        </a>
-
-        <a
-          href="https://dappled.minorworks.co"
-          target="_blank"
-          rel="noreferrer"
-          className="mw-focus-ring group flex flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw transition-shadow hover:shadow-mw-lift"
-        >
-          <div className="h-[170px] w-full">
-            <DappledGraphic />
-          </div>
-          <div className="flex flex-1 flex-col p-5">
-            <div className="mb-1.5 flex items-center gap-2">
-              <Image
-                src="/logos/dappled-icon.png"
-                alt=""
-                width={20}
-                height={20}
-                className="rounded-md"
-              />
-              <h3 className="text-sm font-bold text-mw-text-dark">Dappled</h3>
+            <div className="flex flex-1 flex-col p-5">
+              <div className="mb-1.5 flex items-center gap-2">
+                <Image
+                  src={logo}
+                  alt=""
+                  width={20}
+                  height={20}
+                  className="rounded-md"
+                />
+                <h3 className="text-sm font-bold text-mw-text-dark">
+                  {name}
+                </h3>
+              </div>
+              <p className="mb-4 flex-1 text-[13px] leading-relaxed text-mw-text-muted">
+                {tagline}
+              </p>
+              <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-mw-accent">
+                {cta}
+                <span
+                  aria-hidden="true"
+                  className="transition-transform duration-200 group-hover:translate-x-0.5"
+                >
+                  →
+                </span>
+              </span>
             </div>
-            <p className="mb-4 flex-1 text-[13px] leading-relaxed text-mw-text-muted">
-              Thirty-six quiet toys made from color, movement, and sound.
-            </p>
-            <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-mw-accent">
-              Enter Dappled
-              <span aria-hidden="true">→</span>
-            </span>
-          </div>
-        </a>
+          </a>
+        ))}
       </div>
     </section>
   );

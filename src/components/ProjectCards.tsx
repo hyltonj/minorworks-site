@@ -38,6 +38,21 @@ function RankAndFileArt() {
   );
 }
 
+function UnitedStatsArt() {
+  const bars = [30, 55, 40, 70, 50, 85];
+  return (
+    <div className="flex h-32 items-end justify-center gap-1.5 bg-mw-background pb-4">
+      {bars.map((h, i) => (
+        <div
+          key={i}
+          className="w-3 rounded-t-sm bg-mw-primary/70"
+          style={{ height: `${h}%` }}
+        />
+      ))}
+    </div>
+  );
+}
+
 function DealemmaArt() {
   return (
     <div className="relative h-40 w-full bg-[#0f1b2e]">
@@ -108,7 +123,22 @@ export default function ProjectCards() {
         </div>
       </a>
 
-      <div className="grid gap-5 sm:grid-cols-3">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="flex flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw">
+          <UnitedStatsArt />
+          <div className="p-5">
+            <h3 className="mb-1 text-sm font-bold text-mw-text-dark">
+              United Stats of America
+            </h3>
+            <p className="text-[13px] leading-relaxed text-mw-text-muted">
+              A new project from Minor Works.
+            </p>
+            <p className="mt-3 text-[10px] font-bold uppercase tracking-wide text-mw-accent">
+              Launching soon
+            </p>
+          </div>
+        </div>
+
         <div className="flex flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw">
           <DealemmaArt />
           <div className="p-5">

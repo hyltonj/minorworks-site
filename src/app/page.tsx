@@ -14,11 +14,11 @@ export default function Home() {
       <Hero />
       <Philosophy />
       <LiveProjects />
-      <Moments />
       <TrySomething />
       <ProjectCards />
       <StudioNote />
       <Contact />
+      <Moments />
       <Footer />
     </main>
   );
