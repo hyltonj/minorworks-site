@@ -12,7 +12,7 @@ export default function Contact() {
         href="mailto:hyltonj@gmail.com"
         className="mw-focus-ring inline-flex rounded-mw-sm bg-mw-primary px-6 py-3 text-sm font-bold tracking-wide text-white"
       >
-        hyltonj@gmail.com
+        Get in touch
       </a>
     </section>
   );
