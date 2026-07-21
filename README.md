@@ -17,47 +17,70 @@ changes — that's the part most likely to break silently.
 
 ## Structure
 
-- `src/app/page.tsx` — assembles the homepage sections
-- `src/components/Hero.tsx`, `About.tsx` — top-of-page copy
-- `src/components/DappledWindow.tsx` — ambient placeholder feature window,
-  links to `/dappled`. Swap in real Dappled preview media/link once it
-  exists.
+- `src/app/page.tsx` — assembles the homepage sections, in order:
+  Hero → Philosophy → LiveProjects → Moments → TrySomething → ProjectCards
+  (secondary) → Contact → Footer
+- `src/components/Hero.tsx`, `Philosophy.tsx` — top-of-page copy
+- `src/components/LiveProjects.tsx` — the three equal-prominence cards
+  (Ballpark, Venny, Dappled), each with a code-built graphic matching the
+  real product's colors/layout (not photos — see caveat below)
+- `src/components/Moments.tsx` — 8-tile showcase of small recreated moments
+  across all four products
 - `src/components/TrySomething.tsx` — tab switcher (user-controlled, no
-  autoplay) wrapping the two teasers
+  autoplay) wrapping the two playable teasers
 - `src/components/BallparkTeaser.tsx` — evergreen "tennis balls in Fenway
   Park" estimation slider
 - `src/components/VennyTeaser.tsx` — evergreen "Where would Saturn go?"
   3-circle Venn diagram (click/tap/drag + keyboard region buttons)
-- `src/components/ProjectCards.tsx` — Ballpark / Venny / Rank and File cards
-  + "in development" list (Dealemma, Sylly, Fall Line)
+- `src/components/ProjectCards.tsx` — Rank and File (real card), Dealemma,
+  Sylly, Fall Line
 - `src/components/Contact.tsx`, `Footer.tsx`
 
-Brand tokens (colors, fonts, radii) live in `tailwind.config.ts` and were
-pulled directly from `~/dev/games-clean/shared/src/theme/brand.ts` (the
-`BRAND` object used by Ballpark/Venny) so this site matches the real games
-rather than inventing a new look.
+Brand tokens live in `tailwind.config.ts`: Ballpark/Venny tokens pulled from
+`~/dev/games-clean/shared/src/theme/brand.ts`; Dappled tokens pulled from its
+real build spec (paper `#F8F5EE`, ink `#3A362F`, riso palette).
 
-## Deploying (mirrors the playvenny.app setup)
+## Known placeholder / caveat items
 
-1. Push this repo to GitHub.
-2. In Vercel: New Project → import the repo. Framework preset: Next.js
-   (auto-detected). No special build command needed — defaults work.
-3. Add the `minorworks.co` domain in Vercel project settings.
-4. In GoDaddy DNS for minorworks.co, replace whatever currently points at
-   Website Builder with the records Vercel shows you (typically an A record
-   on `@` and a CNAME on `www` → `cname.vercel-dns.com`).
-5. Once DNS propagates, minorworks.co serves this site instead of the
-   GoDaddy template. You can then cancel/downgrade the GoDaddy Website
-   Builder product if you don't need it for anything else.
+- The Ballpark/Venny/Dappled card graphics and the Moments tiles are
+  code-built recreations (real colors/copy/layout, observed live), not
+  screenshots — a screenshot-capture attempt didn't produce usable files.
+  Drop real screenshots into `public/` and swap the `<Image>`/graphic
+  components in if you'd rather have photos.
+- Dealemma's card uses a typographic stand-in for the box art. Attach the
+  real box photo as a file (not a pasted image) and it'll get saved to
+  `public/dealemma/box.jpg`.
+- Sylly has no card of its own yet — only named in "also in the works",
+  since its playability status wasn't confirmed.
 
-## Known placeholder decisions (flagging so you can override)
+## Deploying on Netlify
 
-- Dappled has no real build yet, so its homepage window is a purely
-  atmospheric CSS animation (no real screenshot/preview) linking to an
-  internal `/dappled` "coming soon" page. Swap this out once Dappled has
-  something real to show.
-- Sylly has no card of its own yet — it's only named in the "in
-  development" list, since its playability status wasn't confirmed.
-- Rank and File links to playballpark.app generally (its real entry point
-  inside Ballpark's screens) rather than a dedicated URL, since it doesn't
-  have one.
+1. **Push to GitHub** (git is already initialized locally with one commit).
+   On your Mac, in this folder:
+   ```bash
+   cd ~/dev/minorworks-site
+   ```
+   Create a new empty repo at https://github.com/new (name it
+   `minorworks-site`, don't add a README/gitignore — this repo already has
+   one). Then:
+   ```bash
+   git remote add origin https://github.com/<your-username>/minorworks-site.git
+   git branch -M main
+   git push -u origin main
+   ```
+2. **Connect Netlify**: at https://app.netlify.com → "Add new site" →
+   "Import an existing project" → GitHub → pick `minorworks-site`. Netlify
+   auto-detects Next.js and installs its Next.js runtime plugin — no build
+   command changes needed. Click Deploy.
+3. **Add the domain**: in the Netlify site → Domain settings → Add a domain
+   → `minorworks.co`. Netlify shows you the DNS records to use.
+4. **Repoint DNS at GoDaddy**: in GoDaddy DNS for minorworks.co, replace
+   whatever currently points at Website Builder with Netlify's records
+   (typically an A record on `@` pointing at Netlify's load balancer IP, and
+   a CNAME on `www` → your Netlify site's `.netlify.app` address — Netlify's
+   domain settings page gives you the exact current values).
+5. Once DNS propagates (can take a few hours), minorworks.co serves this
+   site. You can then cancel/downgrade the GoDaddy Website Builder product.
+
+After this is connected, every `git push` to `main` auto-deploys — so future
+edits (mine or yours) just need a commit + push to go live.
