@@ -15,8 +15,8 @@ export default function TrySomething() {
   const [active, setActive] = useState<TabKey>("ballpark");
 
   return (
-    <section className="px-6 max-w-3xl mx-auto pb-16 md:pb-24">
-      <h2 className="mb-6 text-center text-sm font-bold uppercase tracking-widest text-mw-text-light">
+    <section className="px-6 max-w-[720px] mx-auto pb-14 md:pb-20">
+      <h2 className="mb-5 text-center text-sm font-bold uppercase tracking-widest text-mw-text-muted">
         Try a little something
       </h2>
 
@@ -48,7 +48,7 @@ export default function TrySomething() {
         role="tabpanel"
         id={`panel-${active}`}
         aria-labelledby={`tab-${active}`}
-        className="min-h-[440px] rounded-mw border border-mw-border bg-white p-6 shadow-mw md:p-10"
+        className="min-h-[360px] rounded-mw border border-mw-border bg-white p-6 shadow-mw md:p-8"
       >
         {active === "ballpark" ? <BallparkTeaser /> : <VennyTeaser />}
       </div>

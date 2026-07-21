@@ -42,14 +42,9 @@ export default function BallparkTeaser() {
       </h3>
 
       <div className="flex-1 flex flex-col justify-center">
-        <div className="mb-3 text-center">
-          <span className="text-2xl font-extrabold text-mw-accent md:text-3xl">
-            {formatFromLog10(logGuess)}
-          </span>
-          <span className="ml-1.5 text-sm font-semibold text-mw-text-muted">
-            tennis balls
-          </span>
-        </div>
+        <p className="mb-4 text-center text-sm font-semibold text-mw-text-muted">
+          Somewhere in here.
+        </p>
 
         <input
           type="range"
@@ -81,7 +76,10 @@ export default function BallparkTeaser() {
           </button>
         ) : (
           <div className="mt-8 text-center">
-            <p className="text-base font-semibold text-mw-text-dark">
+            <p className="text-sm text-mw-text-muted">
+              You guessed {formatFromLog10(logGuess)}.
+            </p>
+            <p className="mt-1 text-base font-semibold text-mw-text-dark">
               {resultLine}
             </p>
             <p className="mt-1 text-sm text-mw-text-muted">

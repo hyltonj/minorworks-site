@@ -4,6 +4,7 @@ import LiveProjects from "@/components/LiveProjects";
 import Moments from "@/components/Moments";
 import TrySomething from "@/components/TrySomething";
 import ProjectCards from "@/components/ProjectCards";
+import StudioNote from "@/components/StudioNote";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 
@@ -16,6 +17,7 @@ export default function Home() {
       <Moments />
       <TrySomething />
       <ProjectCards />
+      <StudioNote />
       <Contact />
       <Footer />
     </main>
