@@ -1,11 +1,8 @@
+import Image from "next/image";
+
 // Ballpark, Venny, and Dappled have their own prominent cards in
 // LiveProjects — this section is everything else: a real but secondary
 // project (Rank and File), and what's still taking shape.
-//
-// Dealemma's box art hasn't been added as a file yet (it only exists as a
-// pasted image, not a saved asset) — this renders a typographic stand-in
-// matching the real box art's navy/orange styling until a real photo lands
-// at /public/dealemma/box.jpg.
 //
 // Sylly and Fall Line have no real visual identity yet — the teaser art
 // below is intentionally restrained and invented (word fragments for
@@ -43,13 +40,14 @@ function RankAndFileArt() {
 
 function DealemmaArt() {
   return (
-    <div className="flex h-40 flex-col items-center justify-center gap-1.5 bg-[#0f1b2e] px-4">
-      <p className="text-lg font-bold tracking-wide text-white">
-        DE<span className="text-mw-accent">A</span>LEMMA.
-      </p>
-      <p className="text-center text-[11px] italic text-white/50">
-        Bet on what everyone else will do.
-      </p>
+    <div className="relative h-40 w-full bg-[#0f1b2e]">
+      <Image
+        src="/dealemma/box.jpg"
+        alt="Dealemma box art — a card and chip game about betting on what everyone else will do"
+        fill
+        sizes="(min-width: 640px) 33vw, 100vw"
+        className="object-cover"
+      />
     </div>
   );
 }
