@@ -1,6 +1,6 @@
 export default function Philosophy() {
   return (
-    <section className="px-6 max-w-xl mx-auto text-center pb-8 md:pb-12">
+    <section className="px-6 max-w-xl mx-auto text-center pb-[26px] md:pb-10">
       <p className="text-base leading-relaxed text-mw-primary/80">
         Minor Works makes small games, quiet tools, and curious
         experiments—each built around one clear idea, with nothing designed
