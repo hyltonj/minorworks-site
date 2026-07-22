@@ -90,66 +90,17 @@ function VennyGraphic() {
   );
 }
 
-const DAPPLED_TOYS: { name: string; colors: string[] }[] = [
-  { name: "Mosaic", colors: ["#FF48B0", "#FFD900", "#3A4FD8"] },
-  { name: "Flow", colors: ["#FF6C2F", "#0078BF"] },
-  { name: "Rhythm", colors: ["#765BA7", "#00A95C"] },
-  { name: "Beat", colors: ["#FF48B0", "#3A4FD8"] },
-  { name: "Fold", colors: ["#FF48B0", "#3A4FD8", "#00A95C"] },
-  { name: "Garden", colors: ["#00A95C", "#FFD900"] },
-];
-
 function DappledGraphic() {
+  // Real screenshot of Dappled's Studio toy, cropped from the top.
   return (
-    <div className="flex h-full w-full flex-col bg-dappled-paper p-4">
-      <div className="mb-3 text-center">
-        <p className="text-[11px] font-bold tracking-[0.2em] text-dappled-ink">
-          d a p p l e d
-        </p>
-        <p className="text-[9px] italic text-dappled-fade">
-          a small place to pause
-        </p>
-      </div>
-      <div className="mb-3 rounded-xl bg-white p-2.5 shadow-mw">
-        <p className="mb-1.5 text-[7px] font-bold uppercase tracking-widest text-dappled-fade">
-          Today&apos;s dapple
-        </p>
-        <div className="flex items-center gap-2">
-          <div className="flex -space-x-1.5">
-            {["#FF48B0", "#FFD900", "#00A95C"].map((c) => (
-              <span
-                key={c}
-                className="h-4 w-4 rounded-full border border-white opacity-90"
-                style={{ backgroundColor: c }}
-              />
-            ))}
-          </div>
-          <span className="text-[10px] font-bold text-dappled-ink">
-            Weave
-          </span>
-        </div>
-      </div>
-      <div className="grid flex-1 grid-cols-2 gap-1.5">
-        {DAPPLED_TOYS.map((t) => (
-          <div
-            key={t.name}
-            className="flex flex-col items-center justify-center gap-1 rounded-lg bg-white py-2 shadow-mw"
-          >
-            <div className="flex -space-x-1">
-              {t.colors.map((c) => (
-                <span
-                  key={c}
-                  className="h-2.5 w-2.5 rounded-full border border-white opacity-90"
-                  style={{ backgroundColor: c }}
-                />
-              ))}
-            </div>
-            <span className="text-[8px] font-semibold text-dappled-ink">
-              {t.name}
-            </span>
-          </div>
-        ))}
-      </div>
+    <div className="relative h-full w-full bg-dappled-paper">
+      <Image
+        src="/screenshots/dappled2.jpg"
+        alt="Dappled's Studio toy — layered, colorful circles on a cream canvas"
+        fill
+        sizes="(min-width: 640px) 33vw, 100vw"
+        className="object-cover object-top"
+      />
     </div>
   );
 }

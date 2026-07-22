@@ -39,16 +39,15 @@ function RankAndFileArt() {
 }
 
 function UnitedStatsArt() {
-  const bars = [30, 55, 40, 70, 50, 85];
   return (
-    <div className="flex h-32 items-end justify-center gap-1.5 bg-mw-background pb-4">
-      {bars.map((h, i) => (
-        <div
-          key={i}
-          className="w-3 rounded-t-sm bg-mw-primary/70"
-          style={{ height: `${h}%` }}
-        />
-      ))}
+    <div className="relative h-40 w-full bg-dappled-paper">
+      <Image
+        src="/screenshots/united2.png"
+        alt="United Stats of America — a state-by-state data explorer for offbeat subjects like Bigfoot sightings and Waffle Houses"
+        fill
+        sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+        className="object-cover object-top"
+      />
     </div>
   );
 }
@@ -131,7 +130,9 @@ export default function ProjectCards() {
               United Stats of America
             </h3>
             <p className="text-[13px] leading-relaxed text-mw-text-muted">
-              A new project from Minor Works.
+              Real data on really random and remarkable subjects — Bigfoot
+              sightings, Waffle Houses, UFO reports, and more, state by
+              state.
             </p>
             <p className="mt-3 text-[10px] font-bold uppercase tracking-wide text-mw-accent">
               Launching soon
