@@ -37,8 +37,8 @@ function VennyArtboard() {
 
 function BallparkArtboard() {
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center bg-white p-6">
-      <div className="w-full max-w-[230px] overflow-hidden rounded-2xl bg-mw-primary shadow-mw-lift">
+    <div className="flex h-full w-full flex-col items-center justify-center bg-white p-5">
+      <div className="w-full max-w-[230px] origin-center scale-[1.13] overflow-hidden rounded-2xl bg-mw-primary shadow-mw-lift">
         <div className="flex items-center justify-between px-4 py-2.5">
           <span className="text-[11px] font-extrabold tracking-tight text-white">
             BALLPARK
