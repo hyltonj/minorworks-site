@@ -131,8 +131,8 @@ export default function ProjectCards() {
               United Stats of America
             </h3>
             <p className="text-[13px] leading-relaxed text-mw-text-muted">
-              Real data on really random and remarkable subjects — Bigfoot
-              sightings, Waffle Houses, UFO reports, and more, state by
+              Real data on random, remarkable and ridiculous things—Bigfoot
+              sightings, Waffle Houses, UFO reports and more—state by
               state.
             </p>
             <p className="mt-3 text-[10px] font-bold uppercase tracking-wide text-mw-accent">
@@ -148,8 +148,8 @@ export default function ProjectCards() {
               Dealemma
             </h3>
             <p className="text-[13px] leading-relaxed text-mw-text-muted">
-              A tabletop card game about reading the room. Your challenge:
-              bet on what everyone else will do.
+              A tabletop game about reading the room—and betting on what
+              everyone else will do.
             </p>
             <p className="mt-3 text-[10px] font-bold uppercase tracking-wide text-mw-text-muted">
               In development
@@ -162,8 +162,8 @@ export default function ProjectCards() {
           <div className="p-5">
             <h3 className="mb-1 text-sm font-bold text-mw-text-dark">Sylly</h3>
             <p className="text-[13px] leading-relaxed text-mw-text-muted">
-              A word game about taking words apart and finding something new
-              inside. Still working on finding itself...
+              Words come apart. Their pieces find new places to belong.
+              Still finding its own shape.
             </p>
             <p className="mt-3 text-[10px] font-bold uppercase tracking-wide text-mw-text-muted">
               In development
@@ -178,8 +178,9 @@ export default function ProjectCards() {
               Fall Line
             </h3>
             <p className="text-[13px] leading-relaxed text-mw-text-muted">
-              A tabletop game about finding the natural way down—or making
-              your own. Gravity has a plan. You may have other ideas.
+              A tabletop game of shifting paths, rolling marbles and finding
+              the natural way down—or making your own. Gravity has a plan.
+              You may have other ideas.
             </p>
             <p className="mt-3 text-[10px] font-bold uppercase tracking-wide text-mw-text-muted">
               In development
