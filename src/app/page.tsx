@@ -1,5 +1,4 @@
 import Hero from "@/components/Hero";
-import Philosophy from "@/components/Philosophy";
 import LiveProjects from "@/components/LiveProjects";
 import Moments from "@/components/Moments";
 import TrySomething from "@/components/TrySomething";
@@ -12,7 +11,6 @@ export default function Home() {
   return (
     <main>
       <Hero />
-      <Philosophy />
       <LiveProjects />
       <TrySomething />
       <ProjectCards />
