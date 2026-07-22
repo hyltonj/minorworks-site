@@ -4,8 +4,9 @@ export default function Hero() {
       <p className="text-xs md:text-sm font-bold uppercase tracking-[0.2em] text-mw-text-muted mb-4">
         Minor Works
       </p>
-      <h1 className="text-2xl md:text-4xl font-semibold leading-snug text-mw-text-dark">
-        clarity over noise, craft over scale, curiosity over compulsion
+      <h1 className="text-lg md:text-2xl lg:text-[26px] font-medium leading-snug text-mw-text-dark">
+        thoughtful things for{" "}
+        <span className="text-mw-accent">playful minds</span>.
       </h1>
     </section>
   );
