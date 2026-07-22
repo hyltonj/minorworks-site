@@ -45,7 +45,7 @@ function VennyGraphic() {
   return (
     <div className="relative h-full w-full bg-white">
       <Image
-        src="/screenshots/venny.png"
+        src="/screenshots/venny_cropped.png"
         alt="Venny's 3-circle puzzle — Party, Parasite, and MC overlapping"
         fill
         sizes="(min-width: 640px) 33vw, 100vw"
@@ -60,7 +60,7 @@ function DappledGraphic() {
   return (
     <div className="relative h-full w-full bg-dappled-paper">
       <Image
-        src="/screenshots/dappled.png"
+        src="/screenshots/dappled_cropped.png"
         alt="Dappled's toy library — dozens of small colorful interactions"
         fill
         sizes="(min-width: 640px) 33vw, 100vw"

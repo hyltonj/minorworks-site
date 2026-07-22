@@ -42,7 +42,7 @@ function UnitedStatsArt() {
   return (
     <div className="relative h-40 w-full bg-dappled-paper">
       <Image
-        src="/screenshots/united2.png"
+        src="/screenshots/united2_cropped.png"
         alt="United Stats of America — a state-by-state data explorer for offbeat subjects like Bigfoot sightings and Waffle Houses"
         fill
         sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
