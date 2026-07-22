@@ -41,62 +41,27 @@ function BallparkGraphic() {
 }
 
 function VennyGraphic() {
-  const letters = [
-    { ch: "V", color: "#304193" },
-    { ch: "E", color: "#9446ED" },
-    { ch: "N", color: "#E64A41" },
-    { ch: "N", color: "#F28D35" },
-    { ch: "Y", color: "#88C041" },
-  ];
+  // Real screenshot of a live Venny puzzle, cropped from the top.
   return (
-    <div className="flex h-full w-full flex-col bg-mw-primary p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <div className="flex gap-0.5">
-          {letters.map((l, i) => (
-            <span
-              key={i}
-              className="flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-extrabold text-white"
-              style={{ backgroundColor: l.color }}
-            >
-              {l.ch}
-            </span>
-          ))}
-        </div>
-        <span className="h-4 w-4 rounded bg-white/15" aria-hidden="true" />
-      </div>
-      <div className="flex flex-1 items-center justify-center">
-        <div className="w-full max-w-[220px] rounded-2xl bg-white p-4 shadow-mw-lift">
-          <svg viewBox="0 0 220 190" className="w-full">
-            <circle cx="82" cy="78" r="58" fill="#9446ED" opacity={0.82} />
-            <circle cx="140" cy="78" r="58" fill="#304193" opacity={0.82} />
-            <circle cx="111" cy="128" r="58" fill="#E64A41" opacity={0.8} />
-            <text x="14" y="24" fontSize="11" fontWeight={700} fill="#9446ED">
-              ABBA hit
-            </text>
-            <text x="206" y="24" fontSize="11" fontWeight={700} fill="#304193" textAnchor="end">
-              In London
-            </text>
-            <text x="111" y="182" fontSize="11" fontWeight={700} fill="#c23a2f" textAnchor="middle">
-              In Belgium
-            </text>
-            <circle cx="111" cy="100" r="30" fill="white" opacity={0.92} />
-            <text x="111" y="105" fontSize="13" fontWeight={800} fill="#0f172a" textAnchor="middle">
-              Waterloo
-            </text>
-          </svg>
-        </div>
-      </div>
+    <div className="relative h-full w-full bg-white">
+      <Image
+        src="/screenshots/venny.png"
+        alt="Venny's 3-circle puzzle — Party, Parasite, and MC overlapping"
+        fill
+        sizes="(min-width: 640px) 33vw, 100vw"
+        className="object-cover object-top"
+      />
     </div>
   );
 }
 
 function DappledGraphic() {
-  // Real screenshot of Dappled's Studio toy, cropped from the top.
+  // Real screenshot of Dappled's toy library, cropped from the top.
   return (
     <div className="relative h-full w-full bg-dappled-paper">
       <Image
-        src="/screenshots/dappled2.jpg"
-        alt="Dappled's Studio toy — layered, colorful circles on a cream canvas"
+        src="/screenshots/dappled.png"
+        alt="Dappled's toy library — dozens of small colorful interactions"
         fill
         sizes="(min-width: 640px) 33vw, 100vw"
         className="object-cover object-top"
