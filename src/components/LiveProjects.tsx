@@ -1,37 +1,70 @@
 import Image from "next/image";
 
-// Three equal, restrained cards: Venny | Ballpark | Dappled. No project is
-// featured over another — same width, height, radius, border, shadow, and
-// internal padding for all three.
+// Three equal, restrained cards: Venny | Ballpark | Dappled. Each preview is
+// a purpose-built composition (HTML/CSS + brand colors), not a screenshot —
+// so nothing is ever cropped through a logo, circle, tile, or control.
 
-function BallparkGraphic() {
+function VennyArtboard() {
+  const letters: { char: string; bg: string }[] = [
+    { char: "V", bg: "bg-venny-1" },
+    { char: "E", bg: "bg-venny-2" },
+    { char: "N", bg: "bg-venny-3" },
+    { char: "N", bg: "bg-venny-4" },
+    { char: "Y", bg: "bg-venny-5" },
+  ];
   return (
-    <div className="flex h-full w-full flex-col bg-mw-primary">
-      <div className="flex items-center justify-between px-4 pt-4 pb-2">
-        <span className="text-[11px] font-extrabold tracking-tight text-white">
-          BALLPARK
-        </span>
-        <span className="text-[9px] font-semibold text-white/60">
-          More ▾
-        </span>
+    <div className="flex h-full w-full flex-col items-center justify-center gap-7 bg-white px-6 py-6">
+      <div className="flex items-center">
+        {letters.map(({ char, bg }, i) => (
+          <span
+            key={i}
+            className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-extrabold text-white ${bg} ${
+              i === 0 ? "" : "-ml-2"
+            }`}
+          >
+            {char}
+          </span>
+        ))}
       </div>
-      <div className="flex flex-1 flex-col justify-center gap-4 bg-mw-background px-5 py-5">
-        <p className="text-sm font-bold leading-snug text-mw-primary">
-          Weight of all the ants on Earth
-        </p>
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-mw-text-light">−</span>
-          <div className="relative h-2 flex-1 rounded-full bg-mw-border">
-            <div className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-mw-primary/40" />
-          </div>
-          <span className="text-xs text-mw-text-light">+</span>
+      <div className="relative h-[148px] w-[168px]">
+        <div className="absolute left-1/2 top-0 h-24 w-24 -translate-x-1/2 rounded-full bg-venny-3/85" />
+        <div className="absolute bottom-0 left-0 h-24 w-24 rounded-full bg-venny-1/85" />
+        <div className="absolute bottom-0 right-0 h-24 w-24 rounded-full bg-venny-2/85" />
+      </div>
+    </div>
+  );
+}
+
+function BallparkArtboard() {
+  return (
+    <div className="flex h-full w-full flex-col items-center justify-center bg-white p-6">
+      <div className="w-full max-w-[230px] overflow-hidden rounded-2xl bg-mw-primary shadow-mw-lift">
+        <div className="flex items-center justify-between px-4 py-2.5">
+          <span className="text-[11px] font-extrabold tracking-tight text-white">
+            BALLPARK
+          </span>
+          <span className="text-[9px] font-semibold text-white/60">
+            More ▾
+          </span>
         </div>
-        <div className="flex items-center justify-between">
-          <p className="text-[11px] font-semibold text-mw-text-muted">
-            Somewhere in here.
+        <div className="flex flex-col gap-4 bg-mw-background px-5 py-5">
+          <p className="text-sm font-bold leading-snug text-mw-primary">
+            Weight of all the ants on Earth
           </p>
-          <div className="rounded-full bg-mw-primary px-4 py-1.5 text-[11px] font-bold text-white">
-            Submit
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-mw-text-light">−</span>
+            <div className="relative h-2 flex-1 rounded-full bg-mw-border">
+              <div className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-mw-primary/40" />
+            </div>
+            <span className="text-xs text-mw-text-light">+</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-semibold text-mw-text-muted">
+              Somewhere in here.
+            </p>
+            <div className="rounded-full bg-mw-primary px-4 py-1.5 text-[11px] font-bold text-white">
+              Submit
+            </div>
           </div>
         </div>
       </div>
@@ -39,30 +72,21 @@ function BallparkGraphic() {
   );
 }
 
-function VennyGraphic() {
+function DappledArtboard() {
   return (
-    <div className="relative h-full w-full bg-white">
-      <Image
-        src="/screenshots/venny_preview.png"
-        alt="Venny's 3-circle puzzle — Party, Parasite, and MC overlapping"
-        fill
-        sizes="(min-width: 640px) 33vw, 100vw"
-        className="object-cover object-top"
-      />
-    </div>
-  );
-}
-
-function DappledGraphic() {
-  return (
-    <div className="relative h-full w-full bg-dappled-paper">
-      <Image
-        src="/screenshots/dappled_preview.png"
-        alt="Three of Dappled's toys — Constellation, Bloom, and Weave"
-        fill
-        sizes="(min-width: 640px) 33vw, 100vw"
-        className="object-cover object-top"
-      />
+    <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-dappled-paper">
+      <div className="absolute left-[16%] top-[22%] h-28 w-24 -rotate-6 rounded-2xl bg-white/70 shadow-sm" />
+      <div className="absolute right-[16%] top-[26%] h-28 w-24 rotate-6 rounded-2xl bg-white/70 shadow-sm" />
+      <div className="relative z-10 flex h-40 w-40 flex-col items-center justify-center gap-3 rounded-2xl bg-white p-4 shadow-mw-lift">
+        <div className="relative h-14 w-14">
+          <span className="absolute left-0 top-1 h-4 w-4 rounded-full bg-dappled-yellow" />
+          <span className="absolute right-0 top-0 h-4 w-4 rounded-full bg-dappled-pink" />
+          <span className="absolute left-1/2 top-1/2 h-9 w-9 -translate-x-1/2 -translate-y-1/2 rounded-full bg-dappled-orange" />
+          <span className="absolute bottom-0 left-1 h-3 w-3 rounded-full bg-dappled-green" />
+          <span className="absolute bottom-0 right-1 h-3 w-3 rounded-full bg-dappled-blue" />
+        </div>
+        <span className="text-sm font-bold text-dappled-ink">Bloom</span>
+      </div>
     </div>
   );
 }
@@ -73,7 +97,7 @@ type Project = {
   tagline: string;
   href: string;
   cta: string;
-  Graphic: () => React.JSX.Element;
+  Artboard: () => React.JSX.Element;
   logo: string;
 };
 
@@ -85,7 +109,7 @@ const PROJECTS: Project[] = [
       "A daily puzzle about what belongs together — and what sits in between.",
     href: "https://playvenny.app",
     cta: "Play today's Venny",
-    Graphic: VennyGraphic,
+    Artboard: VennyArtboard,
     logo: "/logos/venny-logo.png",
   },
   {
@@ -95,7 +119,7 @@ const PROJECTS: Project[] = [
       "A daily game about scale, estimation, and how surprisingly hard it is to know how big anything really is.",
     href: "https://playballpark.app",
     cta: "Play today's five",
-    Graphic: BallparkGraphic,
+    Artboard: BallparkArtboard,
     logo: "/logos/ballpark-logo.png",
   },
   {
@@ -105,7 +129,7 @@ const PROJECTS: Project[] = [
       "Dozens of quiet toys made from color, movement, and sound. Touch, make, focus, or just watch.",
     href: "https://dappled.minorworks.co",
     cta: "Enter Dappled",
-    Graphic: DappledGraphic,
+    Artboard: DappledArtboard,
     logo: "/logos/dappled-icon.png",
   },
 ];
@@ -113,11 +137,14 @@ const PROJECTS: Project[] = [
 export default function LiveProjects() {
   return (
     <section className="px-6 max-w-5xl mx-auto pb-14 md:pb-20">
-      <h2 className="mb-5 text-center text-xs font-bold uppercase tracking-widest text-mw-text-muted">
-        Live now
-      </h2>
+      <div className="relative mb-10 md:mb-12">
+        <hr className="border-t border-mw-border" />
+        <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-mw-background px-4 text-xs font-bold uppercase tracking-widest text-mw-text-muted">
+          Live now
+        </span>
+      </div>
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {PROJECTS.map(({ key, name, tagline, href, cta, Graphic, logo }) => (
+        {PROJECTS.map(({ key, name, tagline, href, cta, Artboard, logo }) => (
           <a
             key={key}
             href={href}
@@ -127,7 +154,7 @@ export default function LiveProjects() {
           >
             <div className="px-[18px] pt-[18px]">
               <div className="relative h-[336px] w-full overflow-hidden rounded-mw-sm">
-                <Graphic />
+                <Artboard />
               </div>
             </div>
             <div className="flex flex-1 flex-col justify-between gap-6 p-6 md:p-7">
