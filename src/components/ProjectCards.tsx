@@ -95,32 +95,33 @@ export default function ProjectCards() {
         More from the studio
       </h2>
 
-      <a
-        href="https://playballpark.app"
-        target="_blank"
-        rel="noreferrer"
-        className="mw-focus-ring group mb-8 flex flex-col overflow-hidden rounded-mw border border-mw-border bg-white shadow-mw transition-shadow hover:shadow-mw-lift sm:flex-row sm:items-stretch"
-      >
+      <div className="mb-8 flex flex-col overflow-hidden rounded-mw border border-mw-border bg-white shadow-mw sm:flex-row sm:items-stretch">
         <div className="w-full sm:w-[220px]">
           <RankAndFileArt />
         </div>
-        <div className="flex flex-1 flex-col justify-center gap-3 p-6 sm:flex-row sm:items-center">
-          <div className="flex-1">
-            <h3 className="mb-1 text-base font-bold text-mw-text-dark">
-              Rank and File
-            </h3>
-            <p className="text-sm leading-relaxed text-mw-text-muted">
-              A side game and experiment from Minor Works, built right into
-              Ballpark — put things in order and see how wrong your
-              instincts were.
-            </p>
-          </div>
-          <span className="inline-flex shrink-0 items-center gap-1.5 text-sm font-bold text-[#152B4D]">
-            Play inside Ballpark
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
+          <h3 className="text-lg font-bold text-mw-text-dark">
+            Rank and File
+          </h3>
+          <p className="max-w-md text-base leading-relaxed text-mw-text-muted">
+            Everything has its place, though rarely quite where you think it
+            does. Rank five familiar things from most to least, longest to
+            shortest or earliest to latest—and see how the world compares
+            with the one in your head.
+          </p>
+        </div>
+        <a
+          href="https://playballpark.app/rank"
+          target="_blank"
+          rel="noreferrer"
+          className="mw-focus-ring group flex w-full shrink-0 items-center justify-center bg-mw-primary p-6 transition-colors hover:bg-mw-primary/90 sm:w-[160px]"
+        >
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-6 py-2.5 text-sm font-bold text-mw-primary transition-transform group-hover:translate-x-0.5">
+            Play
             <span aria-hidden="true">→</span>
           </span>
-        </div>
-      </a>
+        </a>
+      </div>
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <div className="flex flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw">
@@ -147,7 +148,8 @@ export default function ProjectCards() {
               Dealemma
             </h3>
             <p className="text-[13px] leading-relaxed text-mw-text-muted">
-              A tabletop card game about reading the room.
+              A tabletop card game about reading the room. Your challenge:
+              bet on what everyone else will do.
             </p>
             <p className="mt-3 text-[10px] font-bold uppercase tracking-wide text-mw-text-muted">
               In development
@@ -160,7 +162,8 @@ export default function ProjectCards() {
           <div className="p-5">
             <h3 className="mb-1 text-sm font-bold text-mw-text-dark">Sylly</h3>
             <p className="text-[13px] leading-relaxed text-mw-text-muted">
-              A word game, still finding its shape.
+              A word game about taking words apart and finding something new
+              inside. Still working on finding itself...
             </p>
             <p className="mt-3 text-[10px] font-bold uppercase tracking-wide text-mw-text-muted">
               In development
@@ -175,7 +178,8 @@ export default function ProjectCards() {
               Fall Line
             </h3>
             <p className="text-[13px] leading-relaxed text-mw-text-muted">
-              A game about finding the natural line down. Early days.
+              A tabletop game about finding the natural way down—or making
+              your own. Gravity has a plan. You may have other ideas.
             </p>
             <p className="mt-3 text-[10px] font-bold uppercase tracking-wide text-mw-text-muted">
               In development
