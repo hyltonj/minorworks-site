@@ -5,27 +5,15 @@ import Image from "next/image";
 // so nothing is ever cropped through a logo, circle, tile, or control.
 
 function VennyArtboard() {
-  const letters: { char: string; bg: string }[] = [
-    { char: "V", bg: "bg-venny-1" },
-    { char: "E", bg: "bg-venny-2" },
-    { char: "N", bg: "bg-venny-3" },
-    { char: "N", bg: "bg-venny-4" },
-    { char: "Y", bg: "bg-venny-5" },
-  ];
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-7 bg-white px-6 py-6">
-      <div className="flex items-center">
-        {letters.map(({ char, bg }, i) => (
-          <span
-            key={i}
-            className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-extrabold text-white ${bg} ${
-              i === 0 ? "" : "-ml-2"
-            }`}
-          >
-            {char}
-          </span>
-        ))}
-      </div>
+      <Image
+        src="/logos/venny-wordmark.png"
+        alt="Venny"
+        width={178}
+        height={46}
+        className="h-auto w-[178px]"
+      />
       <div className="relative h-[148px] w-[168px]">
         <div className="absolute left-1/2 top-0 h-24 w-24 -translate-x-1/2 rounded-full bg-venny-3/85" />
         <div className="absolute bottom-0 left-0 h-24 w-24 rounded-full bg-venny-1/85" />
@@ -38,12 +26,16 @@ function VennyArtboard() {
 function BallparkArtboard() {
   return (
     <div className="flex h-full w-full flex-col items-center justify-center bg-white p-5">
-      <div className="w-full max-w-[230px] origin-center scale-[1.13] overflow-hidden rounded-2xl bg-mw-primary shadow-mw-lift">
-        <div className="flex items-center justify-between px-4 py-2.5">
-          <span className="text-[11px] font-extrabold tracking-tight text-white">
-            BALLPARK
-          </span>
-          <span className="text-[9px] font-semibold text-white/60">
+      <div className="w-full max-w-[230px] origin-center scale-[1.13] overflow-hidden rounded-2xl bg-white shadow-mw-lift">
+        <div className="flex items-center justify-between border-b border-mw-border px-4 py-2.5">
+          <Image
+            src="/logos/ballpark-wordmark.png"
+            alt="Ballpark"
+            width={108}
+            height={18}
+            className="h-auto w-[108px]"
+          />
+          <span className="text-[9px] font-semibold text-mw-text-light">
             More ▾
           </span>
         </div>
@@ -74,7 +66,7 @@ function BallparkArtboard() {
 
 function DappledArtboard() {
   return (
-    <div className="relative flex h-full w-full items-center justify-center bg-dappled-paper p-5">
+    <div className="relative flex h-full w-full items-center justify-center bg-dappled-paper p-2">
       <div className="relative h-full w-full">
         <Image
           src="/screenshots/dappled_tiles.png"
