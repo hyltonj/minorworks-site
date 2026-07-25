@@ -77,6 +77,20 @@ function SyllyArt() {
   );
 }
 
+function WinthropCipherArt() {
+  return (
+    <div className="relative h-full min-h-[140px] w-full">
+      <Image
+        src="/winthrop/map.png"
+        alt="A seventeenth-century map of the Massachusetts coastline"
+        fill
+        sizes="(min-width: 640px) 220px, 100vw"
+        className="object-cover"
+      />
+    </div>
+  );
+}
+
 function ThroughlineArt() {
   return (
     <div className="relative h-40 w-full bg-[#647992]">
@@ -125,6 +139,34 @@ export default function ProjectCards() {
           </span>
         </a>
       </div>
+
+      <a
+        href="https://winthropcipher.netlify.app"
+        target="_blank"
+        rel="noreferrer"
+        className="mw-focus-ring group mb-8 flex flex-col overflow-hidden rounded-mw border border-mw-border bg-white shadow-mw transition-shadow hover:shadow-mw-lift sm:flex-row sm:items-stretch"
+      >
+        <div className="w-full sm:w-[220px]">
+          <WinthropCipherArt />
+        </div>
+        <div className="flex flex-1 flex-col justify-center gap-2 p-6 text-center sm:text-left">
+          <h3 className="text-lg font-bold text-mw-text-dark">
+            The Winthrop Cipher
+          </h3>
+          <p className="max-w-md text-base leading-relaxed text-mw-text-muted">
+            A historian, a dead archivist&apos;s papers, and a cipher hidden
+            in four centuries of Massachusetts correspondence. Ten gold
+            coins are already in the ground. Everything else is in the
+            letters.
+          </p>
+        </div>
+        <div className="flex w-full shrink-0 items-center justify-center bg-[#1c1917] p-6 transition-colors group-hover:bg-[#26221d] sm:w-[190px]">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#c9a961] px-6 py-2.5 text-sm font-bold text-[#1c1917] transition-transform group-hover:translate-x-0.5">
+            Follow the investigation
+            <span aria-hidden="true">→</span>
+          </span>
+        </div>
+      </a>
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <a
