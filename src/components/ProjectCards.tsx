@@ -4,10 +4,10 @@ import Image from "next/image";
 // LiveProjects — this section is everything else: a real but secondary
 // project (Rank and File), and what's still taking shape.
 //
-// Sylly and Fall Line have no real visual identity yet — the teaser art
-// below is intentionally restrained and invented (word fragments for
-// Sylly, a marble-on-a-diagonal for Fall Line's skiing reference), not a
-// claim about what the real products will look like.
+// Sylly has no real visual identity yet — the teaser art below is
+// intentionally restrained and invented (word fragments), not a claim
+// about what the real product will look like. Throughline uses its
+// actual puzzle board art.
 
 function RankAndFileArt() {
   const rows = ["Thriller", "Hotel California", "21", "Back in Black"];
@@ -77,13 +77,16 @@ function SyllyArt() {
   );
 }
 
-function FallLineArt() {
+function ThroughlineArt() {
   return (
-    <div className="relative flex h-32 items-center justify-center overflow-hidden bg-mw-background">
-      <svg viewBox="0 0 80 80" className="h-16 w-16 opacity-40">
-        <line x1="8" y1="8" x2="72" y2="72" stroke="#1e293b" strokeWidth="1.5" strokeDasharray="3 4" />
-      </svg>
-      <div className="absolute h-3 w-3 animate-marble rounded-full bg-mw-accent shadow-mw" />
+    <div className="relative h-40 w-full bg-[#647992]">
+      <Image
+        src="/throughline/board.png"
+        alt="Throughline's hexagonal tile board — turn each tile to route the ball home"
+        fill
+        sizes="(min-width: 640px) 33vw, 100vw"
+        className="object-cover"
+      />
     </div>
   );
 }
@@ -172,15 +175,15 @@ export default function ProjectCards() {
         </div>
 
         <div className="flex flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw">
-          <FallLineArt />
+          <ThroughlineArt />
           <div className="p-5">
             <h3 className="mb-1 text-sm font-bold text-mw-text-dark">
-              Fall Line
+              Throughline
             </h3>
             <p className="text-[13px] leading-relaxed text-mw-text-muted">
-              A tabletop game of shifting paths, rolling marbles and finding
-              the natural way down—or making your own. Gravity has a plan.
-              You may have other ideas.
+              Throughline is a shifting route puzzle about finding a way
+              through. Turn the tiles, choose a direction, and help your
+              ball find its way home.
             </p>
             <p className="mt-3 text-[10px] font-bold uppercase tracking-wide text-mw-text-muted">
               In development

@@ -74,18 +74,15 @@ function BallparkArtboard() {
 
 function DappledArtboard() {
   return (
-    <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-dappled-paper">
-      <div className="absolute left-[16%] top-[22%] h-28 w-24 -rotate-6 rounded-2xl bg-white/70 shadow-sm" />
-      <div className="absolute right-[16%] top-[26%] h-28 w-24 rotate-6 rounded-2xl bg-white/70 shadow-sm" />
-      <div className="relative z-10 flex h-40 w-40 flex-col items-center justify-center gap-3 rounded-2xl bg-white p-4 shadow-mw-lift">
-        <div className="relative h-14 w-14">
-          <span className="absolute left-0 top-1 h-4 w-4 rounded-full bg-dappled-yellow" />
-          <span className="absolute right-0 top-0 h-4 w-4 rounded-full bg-dappled-pink" />
-          <span className="absolute left-1/2 top-1/2 h-9 w-9 -translate-x-1/2 -translate-y-1/2 rounded-full bg-dappled-orange" />
-          <span className="absolute bottom-0 left-1 h-3 w-3 rounded-full bg-dappled-green" />
-          <span className="absolute bottom-0 right-1 h-3 w-3 rounded-full bg-dappled-blue" />
-        </div>
-        <span className="text-sm font-bold text-dappled-ink">Bloom</span>
+    <div className="relative flex h-full w-full items-center justify-center bg-dappled-paper p-5">
+      <div className="relative h-full w-full">
+        <Image
+          src="/screenshots/dappled_tiles.png"
+          alt="Four of Dappled's toys — Still, Current, Flock, and Orbit"
+          fill
+          sizes="(min-width: 640px) 33vw, 100vw"
+          className="object-contain"
+        />
       </div>
     </div>
   );
