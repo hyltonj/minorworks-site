@@ -127,7 +127,12 @@ export default function ProjectCards() {
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="flex flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw">
+        <a
+          href="https://unitedstats.minorworks.co"
+          target="_blank"
+          rel="noreferrer"
+          className="mw-focus-ring group flex flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw transition-shadow hover:shadow-mw-lift"
+        >
           <UnitedStatsArt />
           <div className="p-5">
             <h3 className="mb-1 text-sm font-bold text-mw-text-dark">
@@ -142,7 +147,7 @@ export default function ProjectCards() {
               Launching soon
             </p>
           </div>
-        </div>
+        </a>
 
         <div className="flex flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw">
           <DealemmaArt />
@@ -174,7 +179,12 @@ export default function ProjectCards() {
           </div>
         </div>
 
-        <div className="flex flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw">
+        <a
+          href="https://playthroughline.netlify.app"
+          target="_blank"
+          rel="noreferrer"
+          className="mw-focus-ring group flex flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw transition-shadow hover:shadow-mw-lift"
+        >
           <ThroughlineArt />
           <div className="p-5">
             <h3 className="mb-1 text-sm font-bold text-mw-text-dark">
@@ -189,7 +199,7 @@ export default function ProjectCards() {
               In development
             </p>
           </div>
-        </div>
+        </a>
       </div>
     </section>
   );
