@@ -77,7 +77,7 @@ function QRTipsheetArt() {
 
 function DealemmaArt() {
   return (
-    <div className="relative h-40 w-full bg-[#0f1b2e]">
+    <div className="relative h-40 w-full bg-[#0f1b2e] sm:h-full">
       <Image
         src="/dealemma/box.jpg"
         alt="Dealemma box art — a party game about betting on what everyone else will do"
@@ -142,11 +142,13 @@ export default function ProjectCards() {
           <h3 className="text-lg font-bold text-mw-text-dark">
             Rank and File
           </h3>
+          <p className="max-w-md text-sm italic leading-relaxed text-mw-text-muted">
+            Everything has its place, though rarely where you think it does.
+          </p>
           <p className="max-w-md text-sm leading-relaxed text-mw-text-muted">
-            Everything has its place, though rarely quite where you think it
-            does. Rank five familiar things from most to least, longest to
-            shortest or earliest to latest—and see how the world compares
-            with the one in your head.
+            Rank five familiar things from most to least, longest to
+            shortest, earliest to latest—and then learn how the real world
+            compares with the one in your head.
           </p>
         </div>
         <a
@@ -175,12 +177,14 @@ export default function ProjectCards() {
           <h3 className="text-lg font-bold text-mw-text-dark">
             QR Tipsheet
           </h3>
+          <p className="max-w-md text-sm italic leading-relaxed text-mw-text-muted">
+            A printable homepage for your fridge or bulletin board.
+          </p>
           <p className="max-w-md text-sm leading-relaxed text-mw-text-muted">
-            A printable homepage for your fridge or bulletin board — QR
-            codes for the links you&apos;re always digging for: the
-            calendar, the WiFi, the team schedule, the playlist.
-            Customizable with suggested links for local teams, schools, and
-            community resources, or build your own from a blank sheet.
+            QR codes for the links you&apos;re always digging for: the
+            calendar, the team schedule, the WiFi password, the playlist.
+            Customizable with suggested links for local pro teams, schools
+            and community resources, or build your own from a blank sheet.
           </p>
         </div>
         <div className="flex w-full shrink-0 items-center justify-center bg-mw-accent p-6 transition-colors group-hover:bg-mw-accent/90 sm:w-[160px]">
@@ -204,11 +208,11 @@ export default function ProjectCards() {
         </div>
         <div className="flex flex-1 flex-col justify-center gap-2 p-6 text-center sm:text-left">
           <h3 className="text-lg font-bold text-mw-text-dark">Dealemma</h3>
-          <p className="text-sm font-semibold text-mw-accent">
+          <p className="-mt-1 text-sm font-semibold text-mw-accent">
             A game about reading the room—and betting on what everyone else
             will do.
           </p>
-          <p className="max-w-md text-sm leading-relaxed text-mw-text-muted">
+          <p className="text-sm leading-relaxed text-mw-text-muted">
             Dealemma is a game about predicting people. Each round begins
             with an everyday situation, everyone secretly chooses what
             they&apos;d do, and then the market opens. Bluff, bargain, and
@@ -234,11 +238,11 @@ export default function ProjectCards() {
         <div className="absolute inset-0 bg-mw-accent opacity-70 mix-blend-color" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-black/25" />
         <div className="relative max-w-lg">
-          <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-black">
+          <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white">
             Massachusetts · 1630–2030
           </p>
           <h3 className="mb-3 font-serif text-3xl text-white sm:text-4xl">
-            The Winthrop <span className="italic text-black">Cipher</span>
+            The Winthrop <span className="italic text-white">Cipher</span>
           </h3>
           <p className="mb-5 text-sm leading-relaxed text-white/85">
             A historian, a dead archivist&apos;s papers, and a cipher hidden
@@ -247,7 +251,7 @@ export default function ProjectCards() {
             them found—eventually. Everything else you need is already in
             the letters, if you know how to read them.
           </p>
-          <span className="inline-flex items-center gap-1.5 text-sm font-bold text-black transition-transform group-hover:translate-x-0.5">
+          <span className="inline-flex items-center gap-1.5 text-sm font-bold text-white transition-transform group-hover:translate-x-0.5">
             Follow the investigation
             <span aria-hidden="true">→</span>
           </span>
@@ -260,9 +264,10 @@ export default function ProjectCards() {
           <div className="flex flex-1 flex-col p-5">
             <h3 className="mb-1 text-sm font-bold text-mw-text-dark">Sylly</h3>
             <p className="text-[13px] leading-relaxed text-mw-text-muted">
-              Sylly is a word game about taking words apart and putting
-              language back together—rearranging syllables, chasing sound,
-              and finding words hiding in plain sight.
+              Sylly is a word game about taking language apart and
+              discovering what else it wants to become. Split and swap
+              syllables, uncover surprising connections, and find words
+              hiding in plain sight.
             </p>
           </div>
         </div>

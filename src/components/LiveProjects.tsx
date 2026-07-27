@@ -87,7 +87,7 @@ function UnitedStatsArtboard() {
   return (
     <div className="relative h-full w-full bg-dappled-paper">
       <Image
-        src="/screenshots/united2_cropped.png"
+        src="/screenshots/united3.png"
         alt="United Stats of America — a state-by-state data explorer for offbeat subjects like Bigfoot sightings and Waffle Houses"
         fill
         sizes="(min-width: 640px) 33vw, 100vw"
@@ -118,11 +118,11 @@ function ThreeStarsArtboard() {
     <div className="flex h-full w-full flex-col items-center justify-center gap-7 bg-mw-primary px-7 py-10">
       <div className="flex items-center justify-center gap-2">
         {words.map((word, wi) => (
-          <div key={wi} className="flex gap-[3px]">
+          <div key={wi} className="flex gap-[2px]">
             {word.split("").map((letter, i) => (
               <span
                 key={i}
-                className="flex h-6 w-6 items-center justify-center rounded-md bg-[#8FB8E8] text-xs font-extrabold text-mw-primary"
+                className="flex h-5 w-5 items-center justify-center rounded-md bg-[#8FB8E8] text-[10px] font-extrabold text-mw-primary"
               >
                 {letter}
               </span>
@@ -141,7 +141,7 @@ function ThreeStarsArtboard() {
         ))}
       </div>
       <p className="text-center text-sm italic leading-snug text-white/80">
-        &ldquo;Teen comedy about a forgotten 16th birthday.&rdquo;
+        &ldquo;Teen comedy about a forgotten birthday.&rdquo;
       </p>
     </div>
   );
@@ -163,7 +163,7 @@ const PROJECTS: Project[] = [
     key: "dappled",
     name: "Dappled",
     tagline:
-      "Dozens of quiet toys made from color, movement, and sound. Touch, make, focus, or just watch.",
+      "Dozens of little toys made from color, movement and sound. Touch, move, make, manipulate or just watch, listen and breathe.",
     href: "https://dappled.minorworks.co",
     cta: "Enter Dappled",
     Artboard: DappledArtboard,
@@ -183,7 +183,7 @@ const PROJECTS: Project[] = [
     key: "venny",
     name: "Venny",
     tagline:
-      "A daily puzzle about what belongs together — and what sits in between.",
+      "A calm daily word puzzle about convergence — finding the one answer that belongs at the center of it all.",
     href: "https://playvenny.app",
     cta: "Play today's Venny",
     Artboard: VennyArtboard,
