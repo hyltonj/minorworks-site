@@ -113,16 +113,17 @@ function ThroughlineArtboard() {
 
 function ThreeStarsArtboard() {
   const words = ["THREE", "STARS"];
+  const actors = ["Molly Ringwald", "Anthony Michael Hall", "John Cusack"];
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center gap-6 bg-white px-6 py-6">
-      <div className="w-full max-w-[280px] rounded-2xl bg-mw-primary px-3 py-6 shadow-mw-lift">
-        <div className="mb-2 flex items-center justify-center gap-2">
+    <div className="flex h-full w-full items-center justify-center bg-white p-4">
+      <div className="flex h-full w-full max-w-[260px] flex-col items-center justify-center gap-6 rounded-2xl bg-mw-primary px-5 py-8 shadow-mw-lift">
+        <div className="flex items-center justify-center gap-2">
           {words.map((word, wi) => (
             <div key={wi} className="flex gap-[3px]">
               {word.split("").map((letter, i) => (
                 <span
                   key={i}
-                  className="flex h-6 w-6 items-center justify-center rounded-md bg-[#8FB8E8] text-xs font-extrabold text-mw-primary"
+                  className="flex h-5 w-5 items-center justify-center rounded-md bg-[#8FB8E8] text-[10px] font-extrabold text-mw-primary"
                 >
                   {letter}
                 </span>
@@ -130,13 +131,20 @@ function ThreeStarsArtboard() {
             </div>
           ))}
         </div>
-        <p className="text-center text-[11px] italic text-white/80">
-          three actors. one movie. name it.
+        <div className="flex w-full flex-col gap-2.5">
+          {actors.map((name) => (
+            <div
+              key={name}
+              className="rounded-lg bg-[#8FB8E8] px-3 py-2.5 text-center text-[11px] font-extrabold uppercase tracking-wide text-mw-primary"
+            >
+              {name}
+            </div>
+          ))}
+        </div>
+        <p className="text-center text-[12px] italic leading-snug text-white/80">
+          &ldquo;Teen comedy about a forgotten 16th birthday.&rdquo;
         </p>
       </div>
-      <p className="text-center text-[13px] font-semibold text-mw-text-muted">
-        Five rounds a day. Clues cost points.
-      </p>
     </div>
   );
 }
@@ -207,7 +215,7 @@ const PROJECTS: Project[] = [
     key: "threestars",
     name: "Three Stars",
     tagline:
-      "Three actors, one shared film, five rounds a day. Name it before the clues run out.",
+      "A trivia game for movie lovers! 1k movies, 100s of actors, awesome clues from arthouse to classic to recent hits!",
     href: "https://threestars.netlify.app",
     cta: "Play today's five",
     Artboard: ThreeStarsArtboard,

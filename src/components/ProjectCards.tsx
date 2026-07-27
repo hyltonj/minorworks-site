@@ -142,7 +142,7 @@ export default function ProjectCards() {
           <h3 className="text-lg font-bold text-mw-text-dark">
             Rank and File
           </h3>
-          <p className="max-w-md text-base leading-relaxed text-mw-text-muted">
+          <p className="max-w-md text-sm leading-relaxed text-mw-text-muted">
             Everything has its place, though rarely quite where you think it
             does. Rank five familiar things from most to least, longest to
             shortest or earliest to latest—and see how the world compares
@@ -175,7 +175,7 @@ export default function ProjectCards() {
           <h3 className="text-lg font-bold text-mw-text-dark">
             QR Tipsheet
           </h3>
-          <p className="max-w-md text-base leading-relaxed text-mw-text-muted">
+          <p className="max-w-md text-sm leading-relaxed text-mw-text-muted">
             A printable homepage for your fridge or bulletin board — QR
             codes for the links you&apos;re always digging for: the
             calendar, the WiFi, the team schedule, the playlist.
@@ -209,7 +209,7 @@ export default function ProjectCards() {
               In development
             </span>
           </div>
-          <p className="max-w-md text-base leading-relaxed text-mw-text-muted">
+          <p className="max-w-md text-sm leading-relaxed text-mw-text-muted">
             Dealemma is a game about predicting people. Each round begins
             with an everyday situation, everyone secretly chooses what
             they&apos;d do, and then the market opens. Bluff, bargain, and
@@ -265,9 +265,6 @@ export default function ProjectCards() {
               language back together—rearranging syllables, chasing sound,
               and finding words hiding in plain sight.
             </p>
-            <p className="mt-auto pt-3 text-[10px] font-bold uppercase tracking-wide text-mw-text-muted">
-              In development
-            </p>
           </div>
         </div>
 
@@ -283,9 +280,6 @@ export default function ProjectCards() {
               at a time. Guess as soon as you think you know what all the
               clues are pointing toward—the less that needs to be said, the
               better.
-            </p>
-            <p className="mt-auto pt-3 text-[10px] font-bold uppercase tracking-wide text-mw-text-muted">
-              In development
             </p>
           </div>
         </div>
