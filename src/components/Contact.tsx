@@ -6,10 +6,7 @@ import { useEffect, useState, type FormEvent } from "react";
 // needed, and hyltonj@gmail.com never appears in the page source. The
 // access key below is safe to be public: Web3Forms treats it as an alias
 // for the destination inbox, not a secret.
-//
-// TODO: replace with the real key from https://web3forms.com once
-// generated (enter hyltonj@gmail.com there to get one emailed).
-const WEB3FORMS_ACCESS_KEY = "YOUR_ACCESS_KEY_HERE";
+const WEB3FORMS_ACCESS_KEY = "76d65fbb-aa57-48c7-b9c1-9241093dadb8";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
