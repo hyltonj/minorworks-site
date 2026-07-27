@@ -38,6 +38,20 @@ function RankAndFileArt() {
   );
 }
 
+function QRTipsheetArt() {
+  return (
+    <div className="relative h-full min-h-[140px] w-full bg-mw-background">
+      <Image
+        src="/qrtipsheet/cards.png"
+        alt="QR Tipsheet — a printable QR-code card for a family calendar link"
+        fill
+        sizes="(min-width: 640px) 220px, 100vw"
+        className="object-cover object-center"
+      />
+    </div>
+  );
+}
+
 function UnitedStatsArt() {
   return (
     <div className="relative h-40 w-full bg-dappled-paper">
@@ -125,6 +139,33 @@ export default function ProjectCards() {
           </span>
         </a>
       </div>
+
+      <a
+        href="https://qrtipsheet.netlify.app"
+        target="_blank"
+        rel="noreferrer"
+        className="mw-focus-ring group mb-8 flex flex-col overflow-hidden rounded-mw border border-mw-border bg-white shadow-mw transition-shadow hover:shadow-mw-lift sm:flex-row sm:items-stretch"
+      >
+        <div className="w-full sm:w-[220px]">
+          <QRTipsheetArt />
+        </div>
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
+          <h3 className="text-lg font-bold text-mw-text-dark">
+            QR Tipsheet
+          </h3>
+          <p className="max-w-md text-base leading-relaxed text-mw-text-muted">
+            A printable homepage for your fridge or bulletin board — QR
+            codes for the links you&apos;re always digging for: the
+            calendar, the WiFi, the team schedule, the playlist.
+          </p>
+        </div>
+        <div className="flex w-full shrink-0 items-center justify-center bg-mw-accent p-6 transition-colors group-hover:bg-mw-accent/90 sm:w-[160px]">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-6 py-2.5 text-sm font-bold text-mw-accent transition-transform group-hover:translate-x-0.5">
+            Open
+            <span aria-hidden="true">→</span>
+          </span>
+        </div>
+      </a>
 
       <a
         href="https://winthropcipher.netlify.app"

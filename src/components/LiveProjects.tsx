@@ -92,14 +92,14 @@ type Project = {
 
 const PROJECTS: Project[] = [
   {
-    key: "venny",
-    name: "Venny",
+    key: "dappled",
+    name: "Dappled",
     tagline:
-      "A daily puzzle about what belongs together — and what sits in between.",
-    href: "https://playvenny.app",
-    cta: "Play today's Venny",
-    Artboard: VennyArtboard,
-    logo: "/logos/venny-logo.png",
+      "Dozens of quiet toys made from color, movement, and sound. Touch, make, focus, or just watch.",
+    href: "https://dappled.minorworks.co",
+    cta: "Enter Dappled",
+    Artboard: DappledArtboard,
+    logo: "/logos/dappled-icon.png",
   },
   {
     key: "ballpark",
@@ -112,14 +112,14 @@ const PROJECTS: Project[] = [
     logo: "/logos/ballpark-logo.png",
   },
   {
-    key: "dappled",
-    name: "Dappled",
+    key: "venny",
+    name: "Venny",
     tagline:
-      "Dozens of quiet toys made from color, movement, and sound. Touch, make, focus, or just watch.",
-    href: "https://dappled.minorworks.co",
-    cta: "Enter Dappled",
-    Artboard: DappledArtboard,
-    logo: "/logos/dappled-icon.png",
+      "A daily puzzle about what belongs together — and what sits in between.",
+    href: "https://playvenny.app",
+    cta: "Play today's Venny",
+    Artboard: VennyArtboard,
+    logo: "/logos/venny-logo.png",
   },
 ];
 
