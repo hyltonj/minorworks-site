@@ -93,7 +93,7 @@ function DealemmaArt() {
     <div className="relative h-40 w-full bg-[#0f1b2e]">
       <Image
         src="/dealemma/box.jpg"
-        alt="Dealemma box art — a card and chip game about betting on what everyone else will do"
+        alt="Dealemma box art — a party game about betting on what everyone else will do"
         fill
         sizes="(min-width: 640px) 33vw, 100vw"
         className="object-cover"
@@ -215,8 +215,9 @@ export default function ProjectCards() {
           <p className="mb-5 text-sm leading-relaxed text-white/85">
             A historian, a dead archivist&apos;s papers, and a cipher hidden
             in four centuries of Massachusetts correspondence. Ten gold
-            coins are already in the ground. Everything else is in the
-            letters.
+            coins are already in the ground, buried by someone who wanted
+            them found—eventually. Everything else you need is already in
+            the letters, if you know how to read them.
           </p>
           <span className="inline-flex items-center gap-1.5 text-sm font-bold text-[#c9a961] transition-transform group-hover:translate-x-0.5">
             Follow the investigation
@@ -230,10 +231,10 @@ export default function ProjectCards() {
           href="https://unitedstats.minorworks.co"
           target="_blank"
           rel="noreferrer"
-          className="mw-focus-ring group flex flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw transition-shadow hover:shadow-mw-lift"
+          className="mw-focus-ring group flex h-full flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw transition-shadow hover:shadow-mw-lift"
         >
           <UnitedStatsArt />
-          <div className="p-5">
+          <div className="flex flex-1 flex-col p-5">
             <h3 className="mb-1 text-sm font-bold text-mw-text-dark">
               United Stats of America
             </h3>
@@ -242,37 +243,48 @@ export default function ProjectCards() {
               sightings, Waffle Houses, UFO reports and more—state by
               state.
             </p>
-            <p className="mt-3 text-[10px] font-bold uppercase tracking-wide text-mw-accent">
+            <p className="mt-auto pt-3 text-[10px] font-bold uppercase tracking-wide text-mw-accent">
               Launching soon
             </p>
           </div>
         </a>
 
-        <div className="flex flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw">
+        <div className="flex h-full flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw">
           <DealemmaArt />
-          <div className="p-5">
+          <div className="flex flex-1 flex-col p-5">
             <h3 className="mb-1 text-sm font-bold text-mw-text-dark">
               Dealemma
             </h3>
-            <p className="text-[13px] leading-relaxed text-mw-text-muted">
-              A tabletop game about reading the room—and betting on what
-              everyone else will do.
+            <p className="mb-2 text-[11px] font-bold uppercase tracking-wide text-mw-accent">
+              Bet on what everyone else will do.
             </p>
-            <p className="mt-3 text-[10px] font-bold uppercase tracking-wide text-mw-text-muted">
+            <p className="text-[13px] leading-relaxed text-mw-text-muted">
+              Dealemma is the party game where you don&apos;t just make
+              choices—you bet on everyone else&apos;s. Each round puts a
+              dilemma on the table; read the room, cut deals, and discover
+              that guessing what everyone else will do is harder than
+              deciding for yourself.
+            </p>
+            <p className="mt-auto pt-3 text-[10px] font-bold uppercase tracking-wide text-mw-text-muted">
               In development
             </p>
           </div>
         </div>
 
-        <div className="flex flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw">
+        <div className="flex h-full flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw">
           <SyllyArt />
-          <div className="p-5">
+          <div className="flex flex-1 flex-col p-5">
             <h3 className="mb-1 text-sm font-bold text-mw-text-dark">Sylly</h3>
-            <p className="text-[13px] leading-relaxed text-mw-text-muted">
-              Words come apart. Their pieces find new places to belong.
-              Still finding its own shape.
+            <p className="mb-2 text-[11px] font-bold uppercase tracking-wide text-mw-accent">
+              Take words apart. Put language back together.
             </p>
-            <p className="mt-3 text-[10px] font-bold uppercase tracking-wide text-mw-text-muted">
+            <p className="text-[13px] leading-relaxed text-mw-text-muted">
+              Sylly is a word game about taking language apart and
+              discovering what else it wants to become. Rearrange
+              syllables, uncover surprising connections, and find words
+              hiding in plain sound.
+            </p>
+            <p className="mt-auto pt-3 text-[10px] font-bold uppercase tracking-wide text-mw-text-muted">
               In development
             </p>
           </div>
@@ -282,10 +294,10 @@ export default function ProjectCards() {
           href="https://playthroughline.netlify.app"
           target="_blank"
           rel="noreferrer"
-          className="mw-focus-ring group flex flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw transition-shadow hover:shadow-mw-lift"
+          className="mw-focus-ring group flex h-full flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw transition-shadow hover:shadow-mw-lift"
         >
           <ThroughlineArt />
-          <div className="p-5">
+          <div className="flex flex-1 flex-col p-5">
             <h3 className="mb-1 text-sm font-bold text-mw-text-dark">
               Throughline
             </h3>
@@ -294,7 +306,7 @@ export default function ProjectCards() {
               through. Turn the tiles, choose a direction, and help your
               ball find its way home.
             </p>
-            <p className="mt-3 text-[10px] font-bold uppercase tracking-wide text-mw-text-muted">
+            <p className="mt-auto pt-3 text-[10px] font-bold uppercase tracking-wide text-mw-text-muted">
               In development
             </p>
           </div>
