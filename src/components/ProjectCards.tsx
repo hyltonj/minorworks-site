@@ -40,14 +40,36 @@ function RankAndFileArt() {
 
 function QRTipsheetArt() {
   return (
-    <div className="relative h-full min-h-[140px] w-full bg-mw-background">
-      <Image
-        src="/qrtipsheet/cards.png"
-        alt="QR Tipsheet — a printable QR-code card for a family calendar link"
-        fill
-        sizes="(min-width: 640px) 220px, 100vw"
-        className="object-cover object-center"
-      />
+    <div className="flex h-full min-h-[140px] w-full items-center justify-center bg-[#1b3a5c] p-4">
+      <div className="w-full max-w-[190px] rounded-xl bg-[#eef2f7] p-3 shadow-mw-lift">
+        <Image
+          src="/qrtipsheet/wordmark2.png"
+          alt="QR Tipsheet"
+          width={221}
+          height={67}
+          className="mx-auto mb-3 h-auto w-[160px]"
+        />
+        <div className="flex justify-center gap-2">
+          <div className="relative h-[92px] w-[86px] overflow-hidden rounded-lg border border-mw-border bg-white shadow-sm">
+            <Image
+              src="/qrtipsheet/card1.png"
+              alt="Family Calendar QR card"
+              fill
+              sizes="86px"
+              className="object-cover object-top"
+            />
+          </div>
+          <div className="relative h-[92px] w-[86px] overflow-hidden rounded-lg border border-mw-border bg-white shadow-sm">
+            <Image
+              src="/qrtipsheet/card2.png"
+              alt="Weekend Playlist QR card"
+              fill
+              sizes="86px"
+              className="object-cover object-top"
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
