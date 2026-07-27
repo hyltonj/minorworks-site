@@ -115,36 +115,34 @@ function ThreeStarsArtboard() {
   const words = ["THREE", "STARS"];
   const actors = ["Molly Ringwald", "Anthony Michael Hall", "John Cusack"];
   return (
-    <div className="flex h-full w-full items-center justify-center bg-white p-4">
-      <div className="flex h-full w-full max-w-[260px] flex-col items-center justify-center gap-6 rounded-2xl bg-mw-primary px-5 py-8 shadow-mw-lift">
-        <div className="flex items-center justify-center gap-2">
-          {words.map((word, wi) => (
-            <div key={wi} className="flex gap-[3px]">
-              {word.split("").map((letter, i) => (
-                <span
-                  key={i}
-                  className="flex h-5 w-5 items-center justify-center rounded-md bg-[#8FB8E8] text-[10px] font-extrabold text-mw-primary"
-                >
-                  {letter}
-                </span>
-              ))}
-            </div>
-          ))}
-        </div>
-        <div className="flex w-full flex-col gap-2.5">
-          {actors.map((name) => (
-            <div
-              key={name}
-              className="rounded-lg bg-[#8FB8E8] px-3 py-2.5 text-center text-[11px] font-extrabold uppercase tracking-wide text-mw-primary"
-            >
-              {name}
-            </div>
-          ))}
-        </div>
-        <p className="text-center text-[12px] italic leading-snug text-white/80">
-          &ldquo;Teen comedy about a forgotten 16th birthday.&rdquo;
-        </p>
+    <div className="flex h-full w-full flex-col items-center justify-center gap-7 bg-mw-primary px-7 py-10">
+      <div className="flex items-center justify-center gap-2">
+        {words.map((word, wi) => (
+          <div key={wi} className="flex gap-[3px]">
+            {word.split("").map((letter, i) => (
+              <span
+                key={i}
+                className="flex h-6 w-6 items-center justify-center rounded-md bg-[#8FB8E8] text-xs font-extrabold text-mw-primary"
+              >
+                {letter}
+              </span>
+            ))}
+          </div>
+        ))}
       </div>
+      <div className="flex w-full max-w-[240px] flex-col gap-3">
+        {actors.map((name) => (
+          <div
+            key={name}
+            className="rounded-lg bg-white px-3 py-3 text-center text-xs font-extrabold uppercase tracking-wide text-mw-primary"
+          >
+            {name}
+          </div>
+        ))}
+      </div>
+      <p className="text-center text-sm italic leading-snug text-white/80">
+        &ldquo;Teen comedy about a forgotten 16th birthday.&rdquo;
+      </p>
     </div>
   );
 }

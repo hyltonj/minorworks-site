@@ -203,12 +203,11 @@ export default function ProjectCards() {
           <DealemmaArt />
         </div>
         <div className="flex flex-1 flex-col justify-center gap-2 p-6 text-center sm:text-left">
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-            <h3 className="text-lg font-bold text-mw-text-dark">Dealemma</h3>
-            <span className="rounded-full bg-mw-text-light/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-mw-text-muted">
-              In development
-            </span>
-          </div>
+          <h3 className="text-lg font-bold text-mw-text-dark">Dealemma</h3>
+          <p className="text-sm font-semibold text-mw-accent">
+            A game about reading the room—and betting on what everyone else
+            will do.
+          </p>
           <p className="max-w-md text-sm leading-relaxed text-mw-text-muted">
             Dealemma is a game about predicting people. Each round begins
             with an everyday situation, everyone secretly chooses what
