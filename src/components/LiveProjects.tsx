@@ -215,68 +215,81 @@ const PROJECTS: Project[] = [
   },
 ];
 
+function SectionDivider({ label }: { label: string }) {
+  return (
+    <div className="relative mb-10 md:mb-12">
+      <hr className="border-t border-mw-border" />
+      <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-mw-background px-4 text-xs font-bold uppercase tracking-widest text-mw-text-muted">
+        {label}
+      </span>
+    </div>
+  );
+}
+
+function ProjectGrid({ projects }: { projects: Project[] }) {
+  return (
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {projects.map(({ key, name, tagline, href, cta, Artboard, logo }) => (
+        <a
+          key={key}
+          href={href}
+          target="_blank"
+          rel="noreferrer"
+          className="mw-focus-ring group flex flex-col overflow-hidden rounded-mw border border-mw-border bg-white shadow-mw transition-shadow hover:shadow-mw-lift"
+        >
+          <div className="px-[18px] pt-[18px]">
+            <div className="relative h-[336px] w-full overflow-hidden rounded-mw-sm">
+              <Artboard />
+            </div>
+          </div>
+          <div className="flex flex-1 flex-col justify-between gap-6 p-6 md:p-7">
+            <div>
+              <div className="mb-2 flex items-center gap-2">
+                {logo && (
+                  <Image
+                    src={logo}
+                    alt=""
+                    width={20}
+                    height={20}
+                    className="rounded-md"
+                  />
+                )}
+                <h3 className="text-sm font-bold text-mw-text-dark">
+                  {name}
+                </h3>
+              </div>
+              <p className="text-[13px] leading-relaxed text-mw-text-muted">
+                {tagline}
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-mw-accent">
+              {cta}
+              <span
+                aria-hidden="true"
+                className="transition-transform duration-200 group-hover:translate-x-0.5"
+              >
+                →
+              </span>
+            </span>
+          </div>
+        </a>
+      ))}
+    </div>
+  );
+}
+
 export default function LiveProjects() {
+  const flagship = PROJECTS.slice(0, 3);
+  const beta = PROJECTS.slice(3);
+
   return (
     <section className="px-6 max-w-5xl mx-auto pb-14 md:pb-20">
-      <div className="relative mb-10 md:mb-12">
-        <hr className="border-t border-mw-border" />
-        <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-mw-background px-4 text-xs font-bold uppercase tracking-widest text-mw-text-muted">
-          Live now
-        </span>
-      </div>
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {PROJECTS.map(
-          ({ key, name, tagline, href, cta, Artboard, logo, status }) => (
-            <a
-              key={key}
-              href={href}
-              target="_blank"
-              rel="noreferrer"
-              className="mw-focus-ring group flex flex-col overflow-hidden rounded-mw border border-mw-border bg-white shadow-mw transition-shadow hover:shadow-mw-lift"
-            >
-              <div className="px-[18px] pt-[18px]">
-                <div className="relative h-[336px] w-full overflow-hidden rounded-mw-sm">
-                  <Artboard />
-                </div>
-              </div>
-              <div className="flex flex-1 flex-col justify-between gap-6 p-6 md:p-7">
-                <div>
-                  <div className="mb-2 flex items-center gap-2">
-                    {logo && (
-                      <Image
-                        src={logo}
-                        alt=""
-                        width={20}
-                        height={20}
-                        className="rounded-md"
-                      />
-                    )}
-                    <h3 className="text-sm font-bold text-mw-text-dark">
-                      {name}
-                    </h3>
-                    {status && (
-                      <span className="ml-auto rounded-full bg-mw-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-mw-accent">
-                        {status}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[13px] leading-relaxed text-mw-text-muted">
-                    {tagline}
-                  </p>
-                </div>
-                <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-mw-accent">
-                  {cta}
-                  <span
-                    aria-hidden="true"
-                    className="transition-transform duration-200 group-hover:translate-x-0.5"
-                  >
-                    →
-                  </span>
-                </span>
-              </div>
-            </a>
-          )
-        )}
+      <SectionDivider label="Live now" />
+      <ProjectGrid projects={flagship} />
+
+      <div className="mt-10 md:mt-12">
+        <SectionDivider label="In Beta" />
+        <ProjectGrid projects={beta} />
       </div>
     </section>
   );

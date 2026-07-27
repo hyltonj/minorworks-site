@@ -18,9 +18,12 @@ export default function TrySomething() {
 
   return (
     <section className="px-6 max-w-[720px] mx-auto pb-14 md:pb-20">
-      <h2 className="mb-5 text-center text-sm font-bold uppercase tracking-widest text-mw-text-muted">
-        Try a little something
-      </h2>
+      <div className="relative mb-10 md:mb-12">
+        <hr className="border-t border-mw-border" />
+        <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-mw-background px-4 text-xs font-bold uppercase tracking-widest text-mw-text-muted">
+          Try a little something
+        </span>
+      </div>
 
       <div
         role="tablist"

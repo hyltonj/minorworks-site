@@ -100,12 +100,39 @@ function SyllyArt() {
   );
 }
 
+function UnsaidArt() {
+  const dots = [0, 1, 2, 3, 4];
+  return (
+    <div className="flex h-40 flex-col items-center justify-center gap-4 bg-mw-background">
+      <div className="flex items-center text-2xl font-extrabold tracking-tight">
+        <span className="text-sylly">Un</span>
+        <span className="text-mw-primary">Said</span>
+      </div>
+      <div className="flex items-center gap-1.5">
+        {dots.map((i) => (
+          <span
+            key={i}
+            className="h-1.5 w-1.5 rounded-full bg-mw-primary"
+            style={{
+              opacity: 0.15 + i * 0.2,
+              filter: `blur(${(4 - i) * 0.6}px)`,
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function ProjectCards() {
   return (
     <section className="px-6 max-w-5xl mx-auto pb-14 md:pb-20">
-      <h2 className="mb-5 text-center text-xs font-bold uppercase tracking-widest text-mw-text-muted">
-        More from the studio
-      </h2>
+      <div className="relative mb-10 md:mb-12">
+        <hr className="border-t border-mw-border" />
+        <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-mw-background px-4 text-xs font-bold uppercase tracking-widest text-mw-text-muted">
+          More from the studio
+        </span>
+      </div>
 
       <div className="mb-8 flex flex-col overflow-hidden rounded-mw border border-mw-border bg-white shadow-mw sm:flex-row sm:items-stretch">
         <div className="w-full sm:w-[220px]">
@@ -164,6 +191,34 @@ export default function ProjectCards() {
         </div>
       </a>
 
+      <div className="relative mb-8 mt-2">
+        <hr className="border-t border-mw-border" />
+        <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-mw-background px-4 text-xs font-bold uppercase tracking-widest text-mw-text-muted">
+          In development
+        </span>
+      </div>
+
+      <div className="mb-8 flex flex-col overflow-hidden rounded-mw border border-mw-border bg-white shadow-mw sm:flex-row sm:items-stretch">
+        <div className="w-full sm:w-[220px]">
+          <DealemmaArt />
+        </div>
+        <div className="flex flex-1 flex-col justify-center gap-2 p-6 text-center sm:text-left">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+            <h3 className="text-lg font-bold text-mw-text-dark">Dealemma</h3>
+            <span className="rounded-full bg-mw-text-light/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-mw-text-muted">
+              In development
+            </span>
+          </div>
+          <p className="max-w-md text-base leading-relaxed text-mw-text-muted">
+            Dealemma is a game about predicting people. Each round begins
+            with an everyday situation, everyone secretly chooses what
+            they&apos;d do, and then the market opens. Bluff, bargain, and
+            second-guess your friends before discovering which choices were
+            actually worth making.
+          </p>
+        </div>
+      </div>
+
       <a
         href="https://winthropcipher.netlify.app"
         target="_blank"
@@ -177,13 +232,14 @@ export default function ProjectCards() {
           sizes="100vw"
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-black/45" />
+        <div className="absolute inset-0 bg-mw-accent opacity-70 mix-blend-color" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-black/25" />
         <div className="relative max-w-lg">
-          <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#c9a961]">
+          <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-black">
             Massachusetts · 1630–2030
           </p>
           <h3 className="mb-3 font-serif text-3xl text-white sm:text-4xl">
-            The Winthrop <span className="italic text-[#c9a961]">Cipher</span>
+            The Winthrop <span className="italic text-black">Cipher</span>
           </h3>
           <p className="mb-5 text-sm leading-relaxed text-white/85">
             A historian, a dead archivist&apos;s papers, and a cipher hidden
@@ -192,7 +248,7 @@ export default function ProjectCards() {
             them found—eventually. Everything else you need is already in
             the letters, if you know how to read them.
           </p>
-          <span className="inline-flex items-center gap-1.5 text-sm font-bold text-[#c9a961] transition-transform group-hover:translate-x-0.5">
+          <span className="inline-flex items-center gap-1.5 text-sm font-bold text-black transition-transform group-hover:translate-x-0.5">
             Follow the investigation
             <span aria-hidden="true">→</span>
           </span>
@@ -201,15 +257,13 @@ export default function ProjectCards() {
 
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="flex h-full flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw">
-          <DealemmaArt />
+          <SyllyArt />
           <div className="flex flex-1 flex-col p-5">
-            <h3 className="mb-1 text-sm font-bold text-mw-text-dark">
-              Dealemma
-            </h3>
+            <h3 className="mb-1 text-sm font-bold text-mw-text-dark">Sylly</h3>
             <p className="text-[13px] leading-relaxed text-mw-text-muted">
-              Dealemma is the party game about betting on what everyone
-              else will do. Read the room, cut a deal, and see how well
-              you really know your friends.
+              Sylly is a word game about taking words apart and putting
+              language back together—rearranging syllables, chasing sound,
+              and finding words hiding in plain sight.
             </p>
             <p className="mt-auto pt-3 text-[10px] font-bold uppercase tracking-wide text-mw-text-muted">
               In development
@@ -218,13 +272,17 @@ export default function ProjectCards() {
         </div>
 
         <div className="flex h-full flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw">
-          <SyllyArt />
+          <UnsaidArt />
           <div className="flex flex-1 flex-col p-5">
-            <h3 className="mb-1 text-sm font-bold text-mw-text-dark">Sylly</h3>
+            <h3 className="mb-1 text-sm font-bold text-mw-text-dark">
+              Unsaid
+            </h3>
             <p className="text-[13px] leading-relaxed text-mw-text-muted">
-              Sylly is a word game about taking words apart and putting
-              language back together—rearranging syllables, chasing sound,
-              and finding words hiding in plain sight.
+              Unsaid is a game of recognition, where a hidden person, place,
+              work, or event comes into focus one carefully chosen detail
+              at a time. Guess as soon as you think you know what all the
+              clues are pointing toward—the less that needs to be said, the
+              better.
             </p>
             <p className="mt-auto pt-3 text-[10px] font-bold uppercase tracking-wide text-mw-text-muted">
               In development
