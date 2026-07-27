@@ -104,7 +104,7 @@ function DealemmaArt() {
 
 function SyllyArt() {
   return (
-    <div className="flex h-32 items-center justify-center bg-mw-background">
+    <div className="flex h-40 items-center justify-center bg-mw-background">
       <div className="flex items-center text-2xl font-extrabold tracking-tight">
         <span className="animate-sylly-merge text-sylly">syl</span>
         <span className="animate-sylly-merge-right text-mw-primary">ly</span>
