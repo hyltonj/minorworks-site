@@ -1,8 +1,11 @@
 import Image from "next/image";
 
-// Three equal, restrained cards: Venny | Ballpark | Dappled. Each preview is
-// a purpose-built composition (HTML/CSS + brand colors), not a screenshot —
-// so nothing is ever cropped through a logo, circle, tile, or control.
+// Six cards in two rows. Row one (Dappled, Ballpark, Venny) is the
+// established flagship trio. Row two (United Stats, Throughline, Three
+// Stars) is real and playable but newer — marked "In Beta" rather than
+// given full parity, until they've had more runway. Each preview is a
+// purpose-built composition or a real screenshot — never cropped through a
+// logo, circle, tile, or control.
 
 function VennyArtboard() {
   return (
@@ -80,6 +83,64 @@ function DappledArtboard() {
   );
 }
 
+function UnitedStatsArtboard() {
+  return (
+    <div className="relative h-full w-full bg-dappled-paper">
+      <Image
+        src="/screenshots/united2_cropped.png"
+        alt="United Stats of America — a state-by-state data explorer for offbeat subjects like Bigfoot sightings and Waffle Houses"
+        fill
+        sizes="(min-width: 640px) 33vw, 100vw"
+        className="object-cover object-top"
+      />
+    </div>
+  );
+}
+
+function ThroughlineArtboard() {
+  return (
+    <div className="relative h-full w-full bg-[#647992]">
+      <Image
+        src="/throughline/board.png"
+        alt="Throughline's hexagonal tile board — turn each tile to route the ball home"
+        fill
+        sizes="(min-width: 640px) 33vw, 100vw"
+        className="object-cover"
+      />
+    </div>
+  );
+}
+
+function ThreeStarsArtboard() {
+  const words = ["THREE", "STARS"];
+  return (
+    <div className="flex h-full w-full flex-col items-center justify-center gap-6 bg-white px-6 py-6">
+      <div className="w-full max-w-[280px] rounded-2xl bg-mw-primary px-3 py-6 shadow-mw-lift">
+        <div className="mb-2 flex items-center justify-center gap-2">
+          {words.map((word, wi) => (
+            <div key={wi} className="flex gap-[3px]">
+              {word.split("").map((letter, i) => (
+                <span
+                  key={i}
+                  className="flex h-6 w-6 items-center justify-center rounded-md bg-[#8FB8E8] text-xs font-extrabold text-mw-primary"
+                >
+                  {letter}
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+        <p className="text-center text-[11px] italic text-white/80">
+          three actors. one movie. name it.
+        </p>
+      </div>
+      <p className="text-center text-[13px] font-semibold text-mw-text-muted">
+        Five rounds a day. Clues cost points.
+      </p>
+    </div>
+  );
+}
+
 type Project = {
   key: string;
   name: string;
@@ -87,7 +148,8 @@ type Project = {
   href: string;
   cta: string;
   Artboard: () => React.JSX.Element;
-  logo: string;
+  logo?: string;
+  status?: string;
 };
 
 const PROJECTS: Project[] = [
@@ -121,6 +183,36 @@ const PROJECTS: Project[] = [
     Artboard: VennyArtboard,
     logo: "/logos/venny-logo.png",
   },
+  {
+    key: "unitedstats",
+    name: "United Stats of America",
+    tagline:
+      "Real data on random, remarkable and ridiculous things—Bigfoot sightings, Waffle Houses, UFO reports and more—state by state.",
+    href: "https://unitedstats.minorworks.co",
+    cta: "Explore the data",
+    Artboard: UnitedStatsArtboard,
+    status: "In Beta",
+  },
+  {
+    key: "throughline",
+    name: "Throughline",
+    tagline:
+      "A shifting route puzzle about finding a way through. Turn the tiles, choose a direction, and help your ball find its way home.",
+    href: "https://playthroughline.netlify.app",
+    cta: "Play Throughline",
+    Artboard: ThroughlineArtboard,
+    status: "In Beta",
+  },
+  {
+    key: "threestars",
+    name: "Three Stars",
+    tagline:
+      "Three actors, one shared film, five rounds a day. Name it before the clues run out.",
+    href: "https://threestars.netlify.app",
+    cta: "Play today's five",
+    Artboard: ThreeStarsArtboard,
+    status: "In Beta",
+  },
 ];
 
 export default function LiveProjects() {
@@ -133,49 +225,58 @@ export default function LiveProjects() {
         </span>
       </div>
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {PROJECTS.map(({ key, name, tagline, href, cta, Artboard, logo }) => (
-          <a
-            key={key}
-            href={href}
-            target="_blank"
-            rel="noreferrer"
-            className="mw-focus-ring group flex flex-col overflow-hidden rounded-mw border border-mw-border bg-white shadow-mw transition-shadow hover:shadow-mw-lift"
-          >
-            <div className="px-[18px] pt-[18px]">
-              <div className="relative h-[336px] w-full overflow-hidden rounded-mw-sm">
-                <Artboard />
-              </div>
-            </div>
-            <div className="flex flex-1 flex-col justify-between gap-6 p-6 md:p-7">
-              <div>
-                <div className="mb-2 flex items-center gap-2">
-                  <Image
-                    src={logo}
-                    alt=""
-                    width={20}
-                    height={20}
-                    className="rounded-md"
-                  />
-                  <h3 className="text-sm font-bold text-mw-text-dark">
-                    {name}
-                  </h3>
+        {PROJECTS.map(
+          ({ key, name, tagline, href, cta, Artboard, logo, status }) => (
+            <a
+              key={key}
+              href={href}
+              target="_blank"
+              rel="noreferrer"
+              className="mw-focus-ring group flex flex-col overflow-hidden rounded-mw border border-mw-border bg-white shadow-mw transition-shadow hover:shadow-mw-lift"
+            >
+              <div className="px-[18px] pt-[18px]">
+                <div className="relative h-[336px] w-full overflow-hidden rounded-mw-sm">
+                  <Artboard />
                 </div>
-                <p className="text-[13px] leading-relaxed text-mw-text-muted">
-                  {tagline}
-                </p>
               </div>
-              <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-mw-accent">
-                {cta}
-                <span
-                  aria-hidden="true"
-                  className="transition-transform duration-200 group-hover:translate-x-0.5"
-                >
-                  →
+              <div className="flex flex-1 flex-col justify-between gap-6 p-6 md:p-7">
+                <div>
+                  <div className="mb-2 flex items-center gap-2">
+                    {logo && (
+                      <Image
+                        src={logo}
+                        alt=""
+                        width={20}
+                        height={20}
+                        className="rounded-md"
+                      />
+                    )}
+                    <h3 className="text-sm font-bold text-mw-text-dark">
+                      {name}
+                    </h3>
+                    {status && (
+                      <span className="ml-auto rounded-full bg-mw-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-mw-accent">
+                        {status}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[13px] leading-relaxed text-mw-text-muted">
+                    {tagline}
+                  </p>
+                </div>
+                <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-mw-accent">
+                  {cta}
+                  <span
+                    aria-hidden="true"
+                    className="transition-transform duration-200 group-hover:translate-x-0.5"
+                  >
+                    →
+                  </span>
                 </span>
-              </span>
-            </div>
-          </a>
-        ))}
+              </div>
+            </a>
+          )
+        )}
       </div>
     </section>
   );

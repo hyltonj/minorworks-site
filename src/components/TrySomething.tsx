@@ -3,10 +3,12 @@
 import { useState } from "react";
 import BallparkTeaser from "./BallparkTeaser";
 import VennyTeaser from "./VennyTeaser";
+import ThreeStarsTeaser from "./ThreeStarsTeaser";
 
 const TABS = [
   { key: "ballpark", label: "Ballpark" },
   { key: "venny", label: "Venny" },
+  { key: "threestars", label: "Three Stars" },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -50,7 +52,13 @@ export default function TrySomething() {
         aria-labelledby={`tab-${active}`}
         className="min-h-[360px] rounded-mw border border-mw-border bg-white p-6 shadow-mw md:p-8"
       >
-        {active === "ballpark" ? <BallparkTeaser /> : <VennyTeaser />}
+        {active === "ballpark" ? (
+          <BallparkTeaser />
+        ) : active === "venny" ? (
+          <VennyTeaser />
+        ) : (
+          <ThreeStarsTeaser />
+        )}
       </div>
     </section>
   );

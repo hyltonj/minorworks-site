@@ -1,13 +1,14 @@
 import Image from "next/image";
 
-// Ballpark, Venny, and Dappled have their own prominent cards in
-// LiveProjects — this section is everything else: a real but secondary
-// project (Rank and File), and what's still taking shape.
+// Ballpark, Venny, Dappled, United Stats, Throughline, and Three Stars all
+// have their own cards in LiveProjects — this section is everything else: a
+// real but secondary project (Rank and File), a real live tool (QR
+// Tipsheet), the Winthrop Cipher banner, and what's still taking shape
+// (Dealemma, Sylly).
 //
 // Sylly has no real visual identity yet — the teaser art below is
 // intentionally restrained and invented (word fragments), not a claim
-// about what the real product will look like. Throughline uses its
-// actual puzzle board art.
+// about what the real product will look like.
 
 function RankAndFileArt() {
   const rows = ["Thriller", "Hotel California", "21", "Back in Black"];
@@ -74,20 +75,6 @@ function QRTipsheetArt() {
   );
 }
 
-function UnitedStatsArt() {
-  return (
-    <div className="relative h-40 w-full bg-dappled-paper">
-      <Image
-        src="/screenshots/united2_cropped.png"
-        alt="United Stats of America — a state-by-state data explorer for offbeat subjects like Bigfoot sightings and Waffle Houses"
-        fill
-        sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-        className="object-cover object-top"
-      />
-    </div>
-  );
-}
-
 function DealemmaArt() {
   return (
     <div className="relative h-40 w-full bg-[#0f1b2e]">
@@ -109,20 +96,6 @@ function SyllyArt() {
         <span className="animate-sylly-merge text-sylly">syl</span>
         <span className="animate-sylly-merge-right text-mw-primary">ly</span>
       </div>
-    </div>
-  );
-}
-
-function ThroughlineArt() {
-  return (
-    <div className="relative h-40 w-full bg-[#647992]">
-      <Image
-        src="/throughline/board.png"
-        alt="Throughline's hexagonal tile board — turn each tile to route the ball home"
-        fill
-        sizes="(min-width: 640px) 33vw, 100vw"
-        className="object-cover"
-      />
     </div>
   );
 }
@@ -226,29 +199,7 @@ export default function ProjectCards() {
         </div>
       </a>
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <a
-          href="https://unitedstats.minorworks.co"
-          target="_blank"
-          rel="noreferrer"
-          className="mw-focus-ring group flex h-full flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw transition-shadow hover:shadow-mw-lift"
-        >
-          <UnitedStatsArt />
-          <div className="flex flex-1 flex-col p-5">
-            <h3 className="mb-1 text-sm font-bold text-mw-text-dark">
-              United Stats of America
-            </h3>
-            <p className="text-[13px] leading-relaxed text-mw-text-muted">
-              Real data on random, remarkable and ridiculous things—Bigfoot
-              sightings, Waffle Houses, UFO reports and more—state by
-              state.
-            </p>
-            <p className="mt-auto pt-3 text-[10px] font-bold uppercase tracking-wide text-mw-accent">
-              Launching soon
-            </p>
-          </div>
-        </a>
-
+      <div className="grid gap-5 sm:grid-cols-2">
         <div className="flex h-full flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw">
           <DealemmaArt />
           <div className="flex flex-1 flex-col p-5">
@@ -280,28 +231,6 @@ export default function ProjectCards() {
             </p>
           </div>
         </div>
-
-        <a
-          href="https://playthroughline.netlify.app"
-          target="_blank"
-          rel="noreferrer"
-          className="mw-focus-ring group flex h-full flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw transition-shadow hover:shadow-mw-lift"
-        >
-          <ThroughlineArt />
-          <div className="flex flex-1 flex-col p-5">
-            <h3 className="mb-1 text-sm font-bold text-mw-text-dark">
-              Throughline
-            </h3>
-            <p className="text-[13px] leading-relaxed text-mw-text-muted">
-              Throughline is a shifting route puzzle about finding a way
-              through. Turn the tiles, choose a direction, and help your
-              ball find its way home.
-            </p>
-            <p className="mt-auto pt-3 text-[10px] font-bold uppercase tracking-wide text-mw-text-muted">
-              In development
-            </p>
-          </div>
-        </a>
       </div>
     </section>
   );
