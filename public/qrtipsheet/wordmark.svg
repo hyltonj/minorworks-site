@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 110" width="440" height="110">
+  <defs>
+    <linearGradient id="lozengeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F68620"/>
+      <stop offset="100%" stop-color="#FBA84D"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Orange QR lozenge -->
+  <rect x="8" y="13" width="84" height="84" rx="22" fill="url(#lozengeGradient)"/>
+  <text x="50" y="65" text-anchor="middle"
+        font-family="'Space Grotesk', 'Helvetica Neue', Arial, sans-serif"
+        font-weight="800" font-size="34" letter-spacing="1" fill="#FFFFFF">QR</text>
+
+  <!-- TIPSHEET wordmark -->
+  <text x="114" y="58"
+        font-family="'Space Grotesk', 'Helvetica Neue', Arial, sans-serif"
+        font-weight="700" font-size="46" letter-spacing="4" fill="#395886">TIPSHEET</text>
+
+  <!-- Underline rule -->
+  <rect x="114" y="70" width="300" height="5" rx="2.5" fill="#395886"/>
+</svg>

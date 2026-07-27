@@ -43,10 +43,10 @@ function QRTipsheetArt() {
     <div className="flex h-full min-h-[140px] w-full items-center justify-center bg-[#1b3a5c] p-4">
       <div className="w-full max-w-[190px] rounded-xl bg-[#eef2f7] p-3 shadow-mw-lift">
         <Image
-          src="/qrtipsheet/wordmark2.png"
+          src="/qrtipsheet/wordmark.svg"
           alt="QR Tipsheet"
-          width={221}
-          height={67}
+          width={440}
+          height={110}
           className="mx-auto mb-3 h-auto w-[160px]"
         />
         <div className="flex justify-center gap-2">
@@ -179,6 +179,8 @@ export default function ProjectCards() {
             A printable homepage for your fridge or bulletin board — QR
             codes for the links you&apos;re always digging for: the
             calendar, the WiFi, the team schedule, the playlist.
+            Customizable with suggested links for local teams, schools, and
+            community resources, or build your own from a blank sheet.
           </p>
         </div>
         <div className="flex w-full shrink-0 items-center justify-center bg-mw-accent p-6 transition-colors group-hover:bg-mw-accent/90 sm:w-[160px]">
