@@ -255,15 +255,10 @@ export default function ProjectCards() {
             <h3 className="mb-1 text-sm font-bold text-mw-text-dark">
               Dealemma
             </h3>
-            <p className="mb-2 text-[11px] font-bold uppercase tracking-wide text-mw-accent">
-              Bet on what everyone else will do.
-            </p>
             <p className="text-[13px] leading-relaxed text-mw-text-muted">
-              Dealemma is the party game where you don&apos;t just make
-              choices—you bet on everyone else&apos;s. Each round puts a
-              dilemma on the table; read the room, cut deals, and discover
-              that guessing what everyone else will do is harder than
-              deciding for yourself.
+              Dealemma is the party game about betting on what everyone
+              else will do. Read the room, cut a deal, and see how well
+              you really know your friends.
             </p>
             <p className="mt-auto pt-3 text-[10px] font-bold uppercase tracking-wide text-mw-text-muted">
               In development
@@ -275,14 +270,10 @@ export default function ProjectCards() {
           <SyllyArt />
           <div className="flex flex-1 flex-col p-5">
             <h3 className="mb-1 text-sm font-bold text-mw-text-dark">Sylly</h3>
-            <p className="mb-2 text-[11px] font-bold uppercase tracking-wide text-mw-accent">
-              Take words apart. Put language back together.
-            </p>
             <p className="text-[13px] leading-relaxed text-mw-text-muted">
-              Sylly is a word game about taking language apart and
-              discovering what else it wants to become. Rearrange
-              syllables, uncover surprising connections, and find words
-              hiding in plain sound.
+              Sylly is a word game about taking words apart and putting
+              language back together—rearranging syllables, chasing sound,
+              and finding words hiding in plain sight.
             </p>
             <p className="mt-auto pt-3 text-[10px] font-bold uppercase tracking-wide text-mw-text-muted">
               In development
