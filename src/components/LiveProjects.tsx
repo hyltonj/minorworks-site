@@ -201,17 +201,28 @@ function MarginArtboard() {
 
 function OnceUponAPhotoArtboard() {
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center gap-4 bg-[#a45338] px-6 py-10 text-center">
-      <span className="flex h-9 w-9 items-center justify-center rounded-md border-2 border-white font-serif text-lg italic text-white">
-        O
-      </span>
-      <h3 className="font-serif text-2xl italic leading-snug text-white">
-        Once Upon
-        <br />a Photo
-      </h3>
-      <p className="text-xs italic leading-snug text-white/80">
-        There&apos;s always more to the picture.
-      </p>
+    <div className="relative flex h-full w-full items-center justify-center">
+      <Image
+        src="/onceuponaphoto/chicago1941.jpg"
+        alt="A crowd outside a Chicago church, April 1941 — one of the found photographs featured on Once Upon a Photo"
+        fill
+        sizes="(min-width: 640px) 33vw, 100vw"
+        className="object-cover"
+      />
+      <div className="absolute inset-0 bg-[#a45338] opacity-60 mix-blend-color" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-black/35" />
+      <div className="relative flex flex-col items-center gap-4 px-6 text-center">
+        <span className="flex h-9 w-9 items-center justify-center rounded-md border-2 border-white font-serif text-lg italic text-white">
+          O
+        </span>
+        <h3 className="font-serif text-2xl italic leading-snug text-white">
+          Once Upon
+          <br />a Photo
+        </h3>
+        <p className="text-xs italic leading-snug text-white/80">
+          There&apos;s always more to the picture.
+        </p>
+      </div>
     </div>
   );
 }
