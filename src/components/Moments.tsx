@@ -34,7 +34,7 @@ export default function Moments() {
       <h2 className="mb-5 text-center text-xs font-bold uppercase tracking-widest text-mw-text-muted">
         A few moments
       </h2>
-      <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-6">
+      <div className="mx-auto grid max-w-xl grid-cols-3 gap-3">
         <Tile bg="#1e293b" label="Ballpark — the guess">
           <div className="relative h-1.5 w-16 rounded-full bg-white/20">
             <div className="absolute top-1/2 h-3 w-3 -translate-y-1/2 animate-slide-bar rounded-full bg-white/70" />
