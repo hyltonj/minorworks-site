@@ -116,6 +116,20 @@ const config: Config = {
           "75%": { transform: "translate(11px, 11px)" },
           "100%": { transform: "translate(22px, 22px)" },
         },
+        flip: {
+          "0%, 100%": { transform: "rotateY(0deg)" },
+          "50%": { transform: "rotateY(180deg)" },
+        },
+        orbit: {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
+        },
+        sweep: {
+          "0%": { transform: "translateX(-120%)", opacity: "0" },
+          "15%": { opacity: "1" },
+          "85%": { opacity: "1" },
+          "100%": { transform: "translateX(120%)", opacity: "0" },
+        },
       },
       animation: {
         drift: "drift 18s ease-in-out infinite",
@@ -128,6 +142,9 @@ const config: Config = {
         "sylly-merge": "syllyMerge 3.2s ease-in-out infinite",
         "sylly-merge-right": "syllyMergeRight 3.2s ease-in-out infinite",
         marble: "marble 2.4s ease-in-out infinite alternate",
+        flip: "flip 1.4s ease-in-out infinite",
+        orbit: "orbit 3s linear infinite",
+        sweep: "sweep 1.6s ease-in-out infinite",
       },
     },
   },
