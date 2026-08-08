@@ -199,6 +199,23 @@ function MarginArtboard() {
   );
 }
 
+function OnceUponAPhotoArtboard() {
+  return (
+    <div className="flex h-full w-full flex-col items-center justify-center gap-4 bg-[#a45338] px-6 py-10 text-center">
+      <span className="flex h-9 w-9 items-center justify-center rounded-md border-2 border-white font-serif text-lg italic text-white">
+        O
+      </span>
+      <h3 className="font-serif text-2xl italic leading-snug text-white">
+        Once Upon
+        <br />a Photo
+      </h3>
+      <p className="text-xs italic leading-snug text-white/80">
+        There&apos;s always more to the picture.
+      </p>
+    </div>
+  );
+}
+
 type Project = {
   key: string;
   name: string;
@@ -279,6 +296,16 @@ const PROJECTS: Project[] = [
     href: "https://chromewebstore.google.com/detail/margin/pancmfmghplcafdmbhnojncbjekkgjjm",
     cta: "Add to Chrome",
     Artboard: MarginArtboard,
+    status: "In Beta",
+  },
+  {
+    key: "onceuponaphoto",
+    name: "Once Upon a Photo",
+    tagline:
+      "Once Upon a Photo reconnects old photographs and home movies to the people, places, and stories that time has obscured. A shared effort—shared on Instagram, gathered here as it grows.",
+    href: "https://onceuponaphoto.minorworks.co",
+    cta: "See what people added",
+    Artboard: OnceUponAPhotoArtboard,
     status: "In Beta",
   },
 ];
