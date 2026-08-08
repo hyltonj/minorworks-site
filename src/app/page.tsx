@@ -5,7 +5,11 @@ import TrySomething from "@/components/TrySomething";
 import ProjectCards from "@/components/ProjectCards";
 import StudioNote from "@/components/StudioNote";
 import Contact from "@/components/Contact";
-import PassionProjects from "@/components/PassionProjects";
+// PassionProjects ("Outside the Studio" — Little Free Herbary, The Thickening
+// Plot) is built and ready in ./PassionProjects.tsx, just not rendered right
+// now — felt like too big a tonal jump from the product-focused rest of the
+// page. Re-add the import above and the <PassionProjects /> line below to
+// bring it back.
 import Footer from "@/components/Footer";
 
 export default function Home() {
@@ -18,7 +22,7 @@ export default function Home() {
       <StudioNote />
       <Contact />
       <Moments />
-      <PassionProjects />
+      {/* <PassionProjects /> */}
       <Footer />
     </main>
   );
