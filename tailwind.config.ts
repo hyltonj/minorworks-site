@@ -32,6 +32,9 @@ const config: Config = {
           5: "#88C041",
         },
         sylly: "#84cc16",
+        // Sampled directly from the live product sites, same approach as sylly above.
+        margin: "#cf5727",
+        highlightr: "#97792c",
         // Dappled's real design tokens, pulled from its actual build spec
         // (studio-brief-complete.md) — not guessed.
         dappled: {

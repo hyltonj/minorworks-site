@@ -147,6 +147,58 @@ function ThreeStarsArtboard() {
   );
 }
 
+function MarginArtboard() {
+  const items = [
+    { label: "Flights", amount: "$821.60" },
+    { label: "Lodging", amount: "$636.00" },
+    { label: "Activities", amount: "$300.00" },
+  ];
+  return (
+    <div className="flex h-full w-full flex-col items-center justify-center bg-dappled-paper p-5">
+      <div className="w-full max-w-[240px] overflow-hidden rounded-2xl bg-white shadow-mw-lift">
+        <div className="flex items-center justify-between border-b border-mw-border px-4 py-3">
+          <span className="flex items-center text-base font-extrabold text-margin">
+            Margin
+            <span className="ml-[3px] h-[7px] w-[7px] bg-mw-primary" />
+          </span>
+          <span className="text-[8px] font-semibold text-mw-text-light">
+            a Minor Works utility
+          </span>
+        </div>
+        <div className="flex flex-col gap-3 px-4 py-4">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-mw-text-muted">
+            Costa Rica Trip
+          </p>
+          {items.map((item) => (
+            <div
+              key={item.label}
+              className="flex items-center justify-between text-xs"
+            >
+              <span className="flex items-center gap-1.5 font-semibold text-mw-text-dark">
+                <span className="flex h-3.5 w-3.5 items-center justify-center rounded-[3px] bg-mw-primary text-[8px] text-white">
+                  ✓
+                </span>
+                {item.label}
+              </span>
+              <span className="font-bold text-mw-text-dark">
+                {item.amount}
+              </span>
+            </div>
+          ))}
+          <div className="mt-1 flex items-center justify-between rounded-lg bg-mw-primary px-3 py-2">
+            <span className="text-[9px] font-bold uppercase tracking-wide text-white/70">
+              Trip total
+            </span>
+            <span className="text-sm font-extrabold text-white">
+              $1,757.60
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 type Project = {
   key: string;
   name: string;
@@ -217,6 +269,16 @@ const PROJECTS: Project[] = [
     href: "https://threestars.netlify.app",
     cta: "Play today's five",
     Artboard: ThreeStarsArtboard,
+    status: "In Beta",
+  },
+  {
+    key: "margin",
+    name: "Margin",
+    tagline:
+      "A scratch calculator and ledger for Chrome. Collect numbers from around the web, keep each one tied to its source, and see what they add up to.",
+    href: "https://chromewebstore.google.com/detail/margin/pancmfmghplcafdmbhnojncbjekkgjjm",
+    cta: "Add to Chrome",
+    Artboard: MarginArtboard,
     status: "In Beta",
   },
 ];

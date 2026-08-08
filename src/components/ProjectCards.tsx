@@ -100,6 +100,20 @@ function SyllyArt() {
   );
 }
 
+function HighlightrArt() {
+  return (
+    <div className="flex h-40 flex-col items-center justify-center gap-3 bg-mw-background">
+      <div className="flex items-center text-2xl font-extrabold tracking-tight text-mw-text-dark">
+        Highlightr
+        <span className="ml-1 h-2 w-2 rounded-full bg-highlightr" />
+      </div>
+      <p className="text-[10px] font-semibold uppercase tracking-widest text-mw-text-light">
+        Coming soon
+      </p>
+    </div>
+  );
+}
+
 function UnsaidArt() {
   const dots = [0, 1, 2, 3, 4];
   return (
@@ -258,7 +272,7 @@ export default function ProjectCards() {
         </div>
       </a>
 
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         <div className="flex h-full flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw">
           <SyllyArt />
           <div className="flex flex-1 flex-col p-5">
@@ -287,6 +301,25 @@ export default function ProjectCards() {
             </p>
           </div>
         </div>
+
+        <a
+          href="https://highlightr.netlify.app"
+          target="_blank"
+          rel="noreferrer"
+          className="mw-focus-ring group flex h-full flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw transition-shadow hover:shadow-mw-lift"
+        >
+          <HighlightrArt />
+          <div className="flex flex-1 flex-col p-5">
+            <h3 className="mb-1 text-sm font-bold text-mw-text-dark">
+              Highlightr
+            </h3>
+            <p className="text-[13px] leading-relaxed text-mw-text-muted">
+              Highlightr is a better memory for what you read. Save the
+              exact passage that mattered, keep it connected to its source,
+              and add a note or topic while the thought is still fresh.
+            </p>
+          </div>
+        </a>
       </div>
     </section>
   );
