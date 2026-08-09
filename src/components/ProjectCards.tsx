@@ -39,42 +39,6 @@ function RankAndFileArt() {
   );
 }
 
-function QRTipsheetArt() {
-  return (
-    <div className="flex h-full min-h-[140px] w-full items-center justify-center bg-[#1b3a5c] p-4">
-      <div className="w-full max-w-[190px] rounded-xl bg-[#eef2f7] p-3 shadow-mw-lift">
-        <Image
-          src="/qrtipsheet/wordmark.svg"
-          alt="QR Tipsheet"
-          width={440}
-          height={110}
-          className="mx-auto mb-3 h-auto w-[160px]"
-        />
-        <div className="flex justify-center gap-2">
-          <div className="relative h-[92px] w-[86px] overflow-hidden rounded-lg border border-mw-border bg-white shadow-sm">
-            <Image
-              src="/qrtipsheet/card1.png"
-              alt="Family Calendar QR card"
-              fill
-              sizes="86px"
-              className="object-cover object-top"
-            />
-          </div>
-          <div className="relative h-[92px] w-[86px] overflow-hidden rounded-lg border border-mw-border bg-white shadow-sm">
-            <Image
-              src="/qrtipsheet/card2.png"
-              alt="Weekend Playlist QR card"
-              fill
-              sizes="86px"
-              className="object-cover object-top"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function DealemmaArt() {
   return (
     <div className="relative h-40 w-full bg-[#0f1b2e] sm:h-full">
@@ -177,37 +141,6 @@ export default function ProjectCards() {
           </span>
         </a>
       </div>
-
-      <a
-        href="https://qrtipsheet.netlify.app"
-        target="_blank"
-        rel="noreferrer"
-        className="mw-focus-ring group mb-8 flex flex-col overflow-hidden rounded-mw border border-mw-border bg-white shadow-mw transition-shadow hover:shadow-mw-lift sm:flex-row sm:items-stretch"
-      >
-        <div className="w-full sm:w-[220px]">
-          <QRTipsheetArt />
-        </div>
-        <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
-          <h3 className="text-lg font-bold text-mw-text-dark">
-            QR Tipsheet
-          </h3>
-          <p className="max-w-md text-sm italic leading-relaxed text-mw-text-muted">
-            A printable homepage for your fridge or bulletin board.
-          </p>
-          <p className="max-w-md text-sm leading-relaxed text-mw-text-muted">
-            QR codes for the links you&apos;re always digging for: the
-            calendar, the team schedule, the WiFi password, the playlist.
-            Customizable with suggested links for local pro teams, schools
-            and community resources, or build your own from a blank sheet.
-          </p>
-        </div>
-        <div className="flex w-full shrink-0 items-center justify-center bg-mw-accent p-6 transition-colors group-hover:bg-mw-accent/90 sm:w-[160px]">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-6 py-2.5 text-sm font-bold text-mw-accent transition-transform group-hover:translate-x-0.5">
-            Open
-            <span aria-hidden="true">→</span>
-          </span>
-        </div>
-      </a>
 
       <div className="relative mb-8 mt-2">
         <hr className="border-t border-mw-border" />

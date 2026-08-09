@@ -227,6 +227,42 @@ function OnceUponAPhotoArtboard() {
   );
 }
 
+function QRTipsheetArtboard() {
+  return (
+    <div className="flex h-full w-full items-center justify-center bg-[#1b3a5c] p-6">
+      <div className="w-full max-w-[220px] rounded-xl bg-[#eef2f7] p-4 shadow-mw-lift">
+        <Image
+          src="/qrtipsheet/wordmark.svg"
+          alt="QR Tipsheet"
+          width={440}
+          height={110}
+          className="mx-auto mb-4 h-auto w-[170px]"
+        />
+        <div className="flex justify-center gap-2.5">
+          <div className="relative h-[110px] w-[100px] overflow-hidden rounded-lg border border-mw-border bg-white shadow-sm">
+            <Image
+              src="/qrtipsheet/card1.png"
+              alt="Family Calendar QR card"
+              fill
+              sizes="100px"
+              className="object-cover object-top"
+            />
+          </div>
+          <div className="relative h-[110px] w-[100px] overflow-hidden rounded-lg border border-mw-border bg-white shadow-sm">
+            <Image
+              src="/qrtipsheet/card2.png"
+              alt="Weekend Playlist QR card"
+              fill
+              sizes="100px"
+              className="object-cover object-top"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 type Project = {
   key: string;
   name: string;
@@ -317,6 +353,16 @@ const PROJECTS: Project[] = [
     href: "https://onceuponaphoto.minorworks.co",
     cta: "See what people added",
     Artboard: OnceUponAPhotoArtboard,
+    status: "In Beta",
+  },
+  {
+    key: "qrtipsheet",
+    name: "QR Tipsheet",
+    tagline:
+      "A printable homepage for your fridge or bulletin board — QR codes for the calendar, WiFi password, team schedule, and playlist links you're always digging for.",
+    href: "https://qrtipsheet.netlify.app",
+    cta: "Open QR Tipsheet",
+    Artboard: QRTipsheetArtboard,
     status: "In Beta",
   },
 ];
