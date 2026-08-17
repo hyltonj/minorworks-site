@@ -1,7 +1,6 @@
 import Hero from "@/components/Hero";
 import LiveProjects from "@/components/LiveProjects";
 import Moments from "@/components/Moments";
-import TrySomething from "@/components/TrySomething";
 import ProjectCards from "@/components/ProjectCards";
 import StudioNote from "@/components/StudioNote";
 import Contact from "@/components/Contact";
@@ -11,13 +10,18 @@ import Contact from "@/components/Contact";
 // page. Re-add the import above and the <PassionProjects /> line below to
 // bring it back.
 import Footer from "@/components/Footer";
+// TrySomething ("Try a little something" — Ballpark/Venny/Three Stars
+// interactive teasers) is built and ready in ./TrySomething.tsx, just not
+// rendered right now. Even after the Aug 2026 rebuild to match each game's
+// real mechanics and visual design, it still doesn't capture what the
+// actual games feel like well enough. Re-add the import above and the
+// <TrySomething /> line below to bring it back.
 
 export default function Home() {
   return (
     <main>
       <Hero />
       <LiveProjects />
-      <TrySomething />
       <ProjectCards />
       <StudioNote />
       <Contact />
