@@ -340,8 +340,8 @@ const PROJECTS: Project[] = [
     name: "Margin",
     tagline:
       "A scratch calculator and ledger for Chrome. Collect numbers from around the web, keep each one tied to its source, and see what they add up to.",
-    href: "https://chromewebstore.google.com/detail/margin/pancmfmghplcafdmbhnojncbjekkgjjm",
-    cta: "Add to Chrome",
+    href: "https://margin.minorworks.co",
+    cta: "See Margin",
     Artboard: MarginArtboard,
     status: "In Beta",
   },
