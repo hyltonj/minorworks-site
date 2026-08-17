@@ -126,7 +126,7 @@ export default function ThreeStarsTeaser() {
               That&apos;s it — {ANSWER}.
             </p>
             <a
-              href="https://threestars.netlify.app"
+              href="https://threestars.minorworks.co"
               target="_blank"
               rel="noreferrer"
               className="mw-focus-ring mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-mw-accent"

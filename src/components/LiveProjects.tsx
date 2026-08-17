@@ -320,7 +320,7 @@ const PROJECTS: Project[] = [
     name: "Throughline",
     tagline:
       "A shifting route puzzle about finding a way through. Turn the tiles, choose a direction, and help your ball find its way home.",
-    href: "https://playthroughline.netlify.app",
+    href: "https://throughline.minorworks.co",
     cta: "Play Throughline",
     Artboard: ThroughlineArtboard,
     status: "In Beta",
@@ -330,7 +330,7 @@ const PROJECTS: Project[] = [
     name: "Three Stars",
     tagline:
       "A trivia game for movie lovers! 1k movies, 100s of actors, awesome clues from arthouse to classic to recent hits!",
-    href: "https://threestars.netlify.app",
+    href: "https://threestars.minorworks.co",
     cta: "Play today's five",
     Artboard: ThreeStarsArtboard,
     status: "In Beta",
@@ -360,7 +360,7 @@ const PROJECTS: Project[] = [
     name: "QR Tipsheet",
     tagline:
       "A printable homepage for your fridge or bulletin board — QR codes for the calendar, WiFi password, team schedule, and playlist links you're always digging for.",
-    href: "https://qrtipsheet.netlify.app",
+    href: "https://qrtipsheet.minorworks.co",
     cta: "Open QR Tipsheet",
     Artboard: QRTipsheetArtboard,
     status: "In Beta",

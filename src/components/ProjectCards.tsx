@@ -170,7 +170,7 @@ export default function ProjectCards() {
       </div>
 
       <a
-        href="https://winthropcipher.netlify.app"
+        href="https://winthropcipher.minorworks.co"
         target="_blank"
         rel="noreferrer"
         className="mw-focus-ring group relative mb-8 flex flex-col items-center overflow-hidden rounded-mw border border-mw-border px-6 py-14 text-center shadow-mw transition-shadow hover:shadow-mw-lift sm:py-20"
