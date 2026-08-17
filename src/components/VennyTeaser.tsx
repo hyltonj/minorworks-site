@@ -1,66 +1,69 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
-// Evergreen sample clue — not a real daily Venny, so playing it doesn't
-// spoil or consume the day's puzzle.
+// Evergreen sample clue set — not a real daily Venny, so playing it doesn't
+// spoil or consume the day's puzzle. The mechanic below (clues revealed one
+// at a time as overlapping circles that converge toward a single typed
+// answer, checked live as you type — no separate "guess" button) matches
+// the real Venny app, not a tap-a-region Venn diagram.
+const ANSWER = "SATURN";
+
 const CIRCLES = [
-  { key: "A", label: "Things with rings", cx: 118, cy: 108, r: 84, color: "#304193" },
-  { key: "B", label: "Things found in space", cx: 182, cy: 108, r: 84, color: "#9446ED" },
-  { key: "C", label: "Things with “moon” in their name", cx: 150, cy: 168, r: 84, color: "#F28D35" },
+  { id: "a", color: "#304193", clue: "Has rings" },
+  { id: "b", color: "#9446ED", clue: "Sixth from the sun" },
+  { id: "c", color: "#E64A41", clue: "Named for a Roman god" },
 ] as const;
 
-const CORRECT = new Set(["A", "B"]);
-
-const REGIONS: { key: string; label: string; sets: string[] }[] = [
-  { key: "A", label: "Rings only", sets: ["A"] },
-  { key: "B", label: "Space only", sets: ["B"] },
-  { key: "C", label: '"Moon" in the name only', sets: ["C"] },
-  { key: "AB", label: "Rings & space", sets: ["A", "B"] },
-  { key: "AC", label: 'Rings & "moon" in the name', sets: ["A", "C"] },
-  { key: "BC", label: 'Space & "moon" in the name', sets: ["B", "C"] },
-  { key: "ABC", label: "All three", sets: ["A", "B", "C"] },
-  { key: "NONE", label: "None of these", sets: [] },
+// Positions mirror the real app's 3-circle triangle layout (bottom-left,
+// bottom-right, top-center), scaled to a 220px diagram.
+const CIRCLE_LAYOUT = [
+  { left: 14, top: 78 },
+  { left: 96, top: 78 },
+  { left: 55, top: 8 },
 ];
+const CIRCLE_SIZE = 110;
 
-function regionFromSets(sets: Set<string>): { key: string; label: string } {
-  const sorted = [...sets].sort();
-  const match = REGIONS.find(
-    (r) => r.sets.length === sorted.length && r.sets.every((s) => sorted.includes(s))
-  );
-  return match ?? REGIONS[REGIONS.length - 1];
+function normalize(s: string): string {
+  return s.toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
 export default function VennyTeaser() {
-  const [status, setStatus] = useState<"idle" | "correct" | "incorrect">("idle");
-  const [lastGuessLabel, setLastGuessLabel] = useState<string>("");
+  const [revealedCount, setRevealedCount] = useState(1);
+  const [guess, setGuess] = useState("");
+  const [status, setStatus] = useState<"idle" | "correct" | "wrong">("idle");
+  const [shaking, setShaking] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const evaluate = useCallback((sets: Set<string>) => {
-    const region = regionFromSets(sets);
-    setLastGuessLabel(region.label);
-    const isCorrect = sets.size === CORRECT.size && [...CORRECT].every((s) => sets.has(s));
-    setStatus(isCorrect ? "correct" : "incorrect");
-  }, []);
+  const letterSlots = useMemo(() => ANSWER.split(""), []);
 
-  const handlePointer = useCallback(
-    (clientX: number, clientY: number, svg: SVGSVGElement) => {
-      if (status === "correct") return;
-      const rect = svg.getBoundingClientRect();
-      const viewBoxScaleX = 300 / rect.width;
-      const viewBoxScaleY = 260 / rect.height;
-      const x = (clientX - rect.left) * viewBoxScaleX;
-      const y = (clientY - rect.top) * viewBoxScaleY;
+  function revealNextClue() {
+    if (revealedCount < CIRCLES.length) {
+      setRevealedCount((c) => c + 1);
+    }
+  }
 
-      const sets = new Set<string>();
-      for (const c of CIRCLES) {
-        const dx = x - c.cx;
-        const dy = y - c.cy;
-        if (dx * dx + dy * dy <= c.r * c.r) sets.add(c.key);
-      }
-      evaluate(sets);
-    },
-    [status, evaluate]
-  );
+  function handleChange(raw: string) {
+    if (status === "correct") return;
+    const cleanText = raw
+      .toUpperCase()
+      .replace(/[^A-Z]/g, "")
+      .slice(0, ANSWER.length);
+    setGuess(cleanText);
+
+    if (cleanText.length < ANSWER.length) {
+      setStatus("idle");
+      return;
+    }
+
+    if (normalize(cleanText) === normalize(ANSWER)) {
+      setStatus("correct");
+    } else {
+      setStatus("wrong");
+      setShaking(true);
+      window.setTimeout(() => setShaking(false), 400);
+    }
+  }
 
   return (
     <div className="flex h-full flex-col">
@@ -70,77 +73,83 @@ export default function VennyTeaser() {
         </span>
       </div>
       <h3 className="mb-4 text-center text-lg font-semibold text-mw-text-dark md:text-xl">
-        Where would Saturn go?
+        Read the clues. Find where they converge.
       </h3>
 
       <div className="flex-1 flex flex-col items-center justify-center gap-4">
-        <svg
-          viewBox="0 0 300 260"
-          role="img"
-          aria-label="Venn diagram. Tap the region where Saturn belongs."
-          className="w-full max-w-[300px] cursor-pointer touch-none select-none"
-          onClick={(e) => handlePointer(e.clientX, e.clientY, e.currentTarget)}
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={(e) => {
-            e.preventDefault();
-            handlePointer(e.clientX, e.clientY, e.currentTarget);
-          }}
-        >
-          {CIRCLES.map((c) => (
-            <circle
-              key={c.key}
-              cx={c.cx}
-              cy={c.cy}
-              r={c.r}
-              fill={c.color}
-              fillOpacity={0.32}
-              stroke={c.color}
-              strokeOpacity={0.7}
-              strokeWidth={1.5}
-            />
-          ))}
-          <text x="30" y="30" fontSize="11" fontWeight={700} fill="#304193">
-            Things with rings
-          </text>
-          <text x="205" y="30" fontSize="11" fontWeight={700} fill="#9446ED" textAnchor="end">
-            Found in space
-          </text>
-          <text x="150" y="252" fontSize="11" fontWeight={700} fill="#c96a1c" textAnchor="middle">
-            &quot;Moon&quot; in the name
-          </text>
-          {status === "correct" ? (
-            <text
-              x="150"
-              y="110"
-              fontSize="13"
-              fontWeight={800}
-              fill="#0f172a"
-              textAnchor="middle"
-              style={{ transition: "opacity 300ms ease" }}
-            >
-              Saturn
-            </text>
-          ) : null}
-        </svg>
-
-        <div
-          draggable={status !== "correct"}
-          onDragStart={(e) => e.dataTransfer.setData("text/plain", "saturn")}
-          className={`mw-focus-ring rounded-full border border-mw-border bg-white px-4 py-1.5 text-sm font-bold text-mw-text-dark shadow-mw transition-opacity ${
-            status === "correct" ? "cursor-default opacity-0" : "cursor-grab opacity-100"
-          }`}
-        >
-          Saturn
+        <div className="relative h-[220px] w-[220px]">
+          {CIRCLES.map((c, i) => {
+            const revealed = i < revealedCount;
+            const pos = CIRCLE_LAYOUT[i];
+            return (
+              <div
+                key={c.id}
+                className={`absolute flex items-center justify-center rounded-full text-center transition-opacity ${
+                  revealed ? "animate-circle-in opacity-[0.94]" : "opacity-0"
+                }`}
+                style={{
+                  left: pos.left,
+                  top: pos.top,
+                  width: CIRCLE_SIZE,
+                  height: CIRCLE_SIZE,
+                  backgroundColor: c.color,
+                  zIndex: i,
+                }}
+              >
+                {revealed && (
+                  <span className="max-w-[70px] px-1 text-[11px] font-extrabold leading-tight text-white [text-shadow:0_0.5px_1px_rgba(0,0,0,0.2)]">
+                    {c.clue}
+                  </span>
+                )}
+              </div>
+            );
+          })}
         </div>
 
-        {status === "idle" ? (
-          <p className="text-center text-xs text-mw-text-light">
-            Drag Saturn onto the diagram, or tap the region you think is right.
-          </p>
-        ) : status === "correct" ? (
+        <button
+          type="button"
+          onClick={revealNextClue}
+          disabled={revealedCount >= CIRCLES.length || status === "correct"}
+          className="mw-focus-ring rounded-full border border-mw-border bg-white px-4 py-1.5 text-xs font-bold text-mw-text-dark transition-colors hover:border-mw-text-light disabled:opacity-30"
+        >
+          Reveal next clue
+        </button>
+
+        <div
+          onClick={() => inputRef.current?.focus()}
+          className={`relative flex cursor-text gap-1.5 ${shaking ? "animate-shake" : ""}`}
+        >
+          {letterSlots.map((_, i) => {
+            const revealedChar = status === "correct" ? ANSWER[i] : guess[i];
+            return (
+              <span
+                key={i}
+                className={`flex h-8 w-[22px] items-end justify-center border-b-2 pb-0.5 text-base font-bold uppercase text-mw-text-dark ${
+                  revealedChar ? "border-[#3b82f6]" : "border-mw-border"
+                }`}
+              >
+                {revealedChar ?? ""}
+              </span>
+            );
+          })}
+          <input
+            ref={inputRef}
+            type="text"
+            value={guess}
+            onChange={(e) => handleChange(e.target.value)}
+            maxLength={ANSWER.length}
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck={false}
+            aria-label="Type your guess"
+            className="absolute inset-0 h-full w-full cursor-text opacity-0"
+          />
+        </div>
+
+        {status === "correct" ? (
           <div className="text-center">
             <p className="text-base font-semibold text-mw-text-dark">
-              Exactly between them.
+              Exactly where they meet — {ANSWER}.
             </p>
             <a
               href="https://playvenny.app"
@@ -152,34 +161,15 @@ export default function VennyTeaser() {
               <span aria-hidden="true">→</span>
             </a>
           </div>
+        ) : status === "wrong" ? (
+          <p className="text-center text-sm font-semibold text-mw-text-muted">
+            Not quite yet, try again.
+          </p>
         ) : (
-          <div className="text-center">
-            <p className="text-sm font-semibold text-mw-text-muted">
-              {lastGuessLabel} — not quite. Give it another go.
-            </p>
-            <button
-              type="button"
-              onClick={() => setStatus("idle")}
-              className="mw-focus-ring mt-2 text-sm font-bold text-venny-2 underline underline-offset-4"
-            >
-              Try again
-            </button>
-          </div>
+          <p className="text-center text-xs text-mw-text-light">
+            Tap the letters and type your answer.
+          </p>
         )}
-
-        <div className="flex flex-wrap justify-center gap-1.5 pt-1" aria-label="Choose a region using keyboard">
-          {REGIONS.map((r) => (
-            <button
-              key={r.key}
-              type="button"
-              onClick={() => evaluate(new Set(r.sets))}
-              disabled={status === "correct"}
-              className="mw-focus-ring rounded-full border border-mw-borderSoft px-2.5 py-1 text-[11px] font-semibold text-mw-text-light transition-colors hover:border-mw-border hover:text-mw-text-muted disabled:opacity-30"
-            >
-              {r.label}
-            </button>
-          ))}
-        </div>
       </div>
     </div>
   );

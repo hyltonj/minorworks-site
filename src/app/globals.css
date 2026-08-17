@@ -3,6 +3,9 @@
 @tailwind utilities;
 
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
+/* Three Stars' real typefaces (from its live product), used only inside the
+   Three Stars teaser so it actually feels like the game. */
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@500;600;700&display=swap");
 
 :root {
   color-scheme: light;

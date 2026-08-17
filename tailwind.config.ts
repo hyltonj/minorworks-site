@@ -130,6 +130,17 @@ const config: Config = {
           "85%": { opacity: "1" },
           "100%": { transform: "translateX(120%)", opacity: "0" },
         },
+        shake: {
+          "0%, 100%": { transform: "translateX(0)" },
+          "20%": { transform: "translateX(-6px)" },
+          "40%": { transform: "translateX(6px)" },
+          "60%": { transform: "translateX(-4px)" },
+          "80%": { transform: "translateX(4px)" },
+        },
+        circleIn: {
+          "0%": { transform: "scale(0.8)", opacity: "0" },
+          "100%": { transform: "scale(1)", opacity: "0.94" },
+        },
       },
       animation: {
         drift: "drift 18s ease-in-out infinite",
@@ -145,6 +156,8 @@ const config: Config = {
         flip: "flip 1.4s ease-in-out infinite",
         orbit: "orbit 3s linear infinite",
         sweep: "sweep 1.6s ease-in-out infinite",
+        shake: "shake 0.4s ease-in-out",
+        "circle-in": "circleIn 0.45s ease-out both",
       },
     },
   },
