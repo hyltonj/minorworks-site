@@ -1,7 +1,7 @@
 import Image from "next/image";
 
-// Live games are grouped first, followed by newer tools and experiments in
-// beta. Each card uses the product's existing identity or a real screenshot.
+// Live games, tools, and experiments share one grid. Each card uses the
+// product's existing identity or a real screenshot.
 
 function UnsaidArtboard() {
   const colors = ["#3156E3", "#A78BFA", "#E39ACD", "#F05B93", "#FF8A5B"];
@@ -279,7 +279,6 @@ type Project = {
   cta: string;
   Artboard: () => React.JSX.Element;
   logo?: string;
-  status?: string;
 };
 
 const PROJECTS: Project[] = [
@@ -339,7 +338,6 @@ const PROJECTS: Project[] = [
     href: "https://unitedstats.minorworks.co",
     cta: "Explore the data",
     Artboard: UnitedStatsArtboard,
-    status: "In Beta",
   },
   {
     key: "throughline",
@@ -349,7 +347,6 @@ const PROJECTS: Project[] = [
     href: "https://throughline.minorworks.co",
     cta: "Play Throughline",
     Artboard: ThroughlineArtboard,
-    status: "In Beta",
   },
   {
     key: "threestars",
@@ -359,7 +356,6 @@ const PROJECTS: Project[] = [
     href: "https://threestars.minorworks.co",
     cta: "Play today's five",
     Artboard: ThreeStarsArtboard,
-    status: "In Beta",
   },
   {
     key: "margin",
@@ -369,7 +365,6 @@ const PROJECTS: Project[] = [
     href: "https://margin.minorworks.co",
     cta: "See Margin",
     Artboard: MarginArtboard,
-    status: "In Beta",
   },
   {
     key: "qrtipsheet",
@@ -379,7 +374,6 @@ const PROJECTS: Project[] = [
     href: "https://qrtipsheet.minorworks.co",
     cta: "Open QR Tipsheet",
     Artboard: QRTipsheetArtboard,
-    status: "In Beta",
   },
 ];
 
@@ -447,18 +441,10 @@ function ProjectGrid({ projects }: { projects: Project[] }) {
 }
 
 export default function LiveProjects() {
-  const live = PROJECTS.filter((project) => !project.status);
-  const beta = PROJECTS.filter((project) => project.status === "In Beta");
-
   return (
     <section className="px-6 max-w-5xl mx-auto pb-14 md:pb-20">
       <SectionDivider label="Live now" />
-      <ProjectGrid projects={live} />
-
-      <div className="mt-10 md:mt-12">
-        <SectionDivider label="In Beta" />
-        <ProjectGrid projects={beta} />
-      </div>
+      <ProjectGrid projects={PROJECTS} />
     </section>
   );
 }
