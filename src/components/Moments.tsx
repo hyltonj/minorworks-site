@@ -79,7 +79,7 @@ export default function Moments() {
           </div>
         </Tile>
 
-        <Tile bg="#ffffff" label="Rank and File — reorder">
+        <Tile bg="#ffffff" label="Rank & File — reorder">
           <div className="flex w-16 flex-col gap-1.5">
             {[0, 1, 2].map((i) => (
               <div

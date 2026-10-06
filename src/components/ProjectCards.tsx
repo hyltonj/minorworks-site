@@ -1,43 +1,8 @@
 import Image from "next/image";
 
-// Ballpark, Venny, Dappled, United Stats, Throughline, and Three Stars all
-// have their own cards in LiveProjects — this section is everything else: a
-// real but secondary project (Rank and File), a real live tool (QR
-// Tipsheet), the Winthrop Cipher banner, and what's still taking shape
-// (Dealemma, Sylly).
-//
-// Sylly has no real visual identity yet — the teaser art below is
-// intentionally restrained and invented (word fragments), not a claim
-// about what the real product will look like.
-
-function RankAndFileArt() {
-  const rows = ["Thriller", "Hotel California", "21", "Back in Black"];
-  return (
-    <div className="flex h-full min-h-[140px] w-full items-center justify-center bg-mw-primary p-4">
-      <div className="w-full max-w-[170px] rounded-xl bg-mw-background p-3 shadow-mw-lift">
-        <p className="mb-2 rounded-md bg-[#F3F4F6] py-1 text-center text-[8px] font-extrabold uppercase tracking-wider text-[#152B4D]">
-          Rank and File
-        </p>
-        <p className="text-center text-[10px] font-extrabold text-mw-accent">
-          Albums sold
-        </p>
-        <p className="mb-2 text-center text-[7px] italic text-mw-text-light">
-          Most → Least
-        </p>
-        <div className="flex flex-col gap-1">
-          {rows.map((r) => (
-            <div
-              key={r}
-              className="truncate rounded-md border border-mw-border bg-white px-1.5 py-1 text-center text-[7px] font-semibold text-mw-text-dark"
-            >
-              {r}
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
+// Live games and tools have their own cards in LiveProjects. This section
+// is for projects still taking shape: Dealemma, Sylly, the Winthrop Cipher,
+// and Highlightr.
 
 function DealemmaArt() {
   return (
@@ -64,6 +29,34 @@ function SyllyArt() {
   );
 }
 
+function OnceUponAPhotoArtboard() {
+  return (
+    <div className="relative flex h-full w-full items-center justify-center">
+      <Image
+        src="/onceuponaphoto/chicago1941.jpg"
+        alt="A crowd outside a Chicago church, April 1941 — one of the found photographs featured on Once Upon a Photo"
+        fill
+        sizes="(min-width: 640px) 33vw, 100vw"
+        className="object-cover"
+      />
+      <div className="absolute inset-0 bg-[#a45338] opacity-60 mix-blend-color" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-black/35" />
+      <div className="relative flex flex-col items-center gap-4 px-6 text-center">
+        <span className="flex h-9 w-9 items-center justify-center rounded-md border-2 border-white font-serif text-lg italic text-white">
+          O
+        </span>
+        <h3 className="font-serif text-2xl italic leading-snug text-white">
+          Once Upon
+          <br />a Photo
+        </h3>
+        <p className="text-xs italic leading-snug text-white/80">
+          There&apos;s always more to the picture.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function HighlightrArt() {
   return (
     <div className="flex h-40 flex-col items-center justify-center gap-3 bg-mw-background">
@@ -78,30 +71,6 @@ function HighlightrArt() {
   );
 }
 
-function UnsaidArt() {
-  const dots = [0, 1, 2, 3, 4];
-  return (
-    <div className="flex h-40 flex-col items-center justify-center gap-4 bg-mw-background">
-      <div className="flex items-center text-2xl font-extrabold tracking-tight">
-        <span className="text-sylly">Un</span>
-        <span className="text-mw-primary">Said</span>
-      </div>
-      <div className="flex items-center gap-1.5">
-        {dots.map((i) => (
-          <span
-            key={i}
-            className="h-1.5 w-1.5 rounded-full bg-mw-primary"
-            style={{
-              opacity: 0.15 + i * 0.2,
-              filter: `blur(${(4 - i) * 0.6}px)`,
-            }}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export default function ProjectCards() {
   return (
     <section className="px-6 max-w-5xl mx-auto pb-14 md:pb-20">
@@ -110,36 +79,6 @@ export default function ProjectCards() {
         <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-mw-background px-4 text-xs font-bold uppercase tracking-widest text-mw-text-muted">
           More from the studio
         </span>
-      </div>
-
-      <div className="mb-8 flex flex-col overflow-hidden rounded-mw border border-mw-border bg-white shadow-mw sm:flex-row sm:items-stretch">
-        <div className="w-full sm:w-[220px]">
-          <RankAndFileArt />
-        </div>
-        <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
-          <h3 className="text-lg font-bold text-mw-text-dark">
-            Rank and File
-          </h3>
-          <p className="max-w-md text-sm italic leading-relaxed text-mw-text-muted">
-            Everything has its place, though rarely where you think it does.
-          </p>
-          <p className="max-w-md text-sm leading-relaxed text-mw-text-muted">
-            Rank five familiar things from most to least, longest to
-            shortest, earliest to latest—and then learn how the real world
-            compares with the one in your head.
-          </p>
-        </div>
-        <a
-          href="https://playballpark.app/rank"
-          target="_blank"
-          rel="noreferrer"
-          className="mw-focus-ring group flex w-full shrink-0 items-center justify-center bg-mw-primary p-6 transition-colors hover:bg-mw-primary/90 sm:w-[160px]"
-        >
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-6 py-2.5 text-sm font-bold text-mw-primary transition-transform group-hover:translate-x-0.5">
-            Play
-            <span aria-hidden="true">→</span>
-          </span>
-        </a>
       </div>
 
       <div className="relative mb-8 mt-2">
@@ -219,21 +158,26 @@ export default function ProjectCards() {
           </div>
         </div>
 
-        <div className="flex h-full flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw">
-          <UnsaidArt />
+        <a
+          href="https://onceuponaphoto.minorworks.co"
+          target="_blank"
+          rel="noreferrer"
+          className="mw-focus-ring group flex h-full flex-col overflow-hidden rounded-mw-sm border border-mw-border bg-white shadow-mw transition-shadow hover:shadow-mw-lift"
+        >
+          <div className="h-40">
+            <OnceUponAPhotoArtboard />
+          </div>
           <div className="flex flex-1 flex-col p-5">
             <h3 className="mb-1 text-sm font-bold text-mw-text-dark">
-              Unsaid
+              Once Upon a Photo
             </h3>
             <p className="text-[13px] leading-relaxed text-mw-text-muted">
-              Unsaid is a game of recognition, where a hidden person, place,
-              work, or event comes into focus one carefully chosen detail
-              at a time. Guess as soon as you think you know what all the
-              clues are pointing toward—the less that needs to be said, the
-              better.
+              Once Upon a Photo reconnects old photographs and home movies
+              to the people, places, and stories that time has obscured.
+              A shared effort—shared on Instagram, gathered here as it grows.
             </p>
           </div>
-        </div>
+        </a>
 
         <a
           href="https://highlightr.netlify.app"

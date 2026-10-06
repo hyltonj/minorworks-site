@@ -1,11 +1,47 @@
 import Image from "next/image";
 
-// Six cards in two rows. Row one (Dappled, Ballpark, Venny) is the
-// established flagship trio. Row two (United Stats, Throughline, Three
-// Stars) is real and playable but newer — marked "In Beta" rather than
-// given full parity, until they've had more runway. Each preview is a
-// purpose-built composition or a real screenshot — never cropped through a
-// logo, circle, tile, or control.
+// Live games are grouped first, followed by newer tools and experiments in
+// beta. Each card uses the product's existing identity or a real screenshot.
+
+function UnsaidArtboard() {
+  const colors = ["#3156E3", "#A78BFA", "#E39ACD", "#F05B93", "#FF8A5B"];
+  return (
+    <div className="flex h-full w-full flex-col items-center justify-center gap-8 bg-[#F6F2EA] px-6 py-8">
+      <Image
+        src="/logos/unsaid-wordmark.svg"
+        alt="Unsaid"
+        width={1500}
+        height={379}
+        className="h-auto w-full max-w-[230px]"
+      />
+      <div aria-hidden="true" className="flex gap-2">
+        {colors.map((color) => (
+          <span key={color} className="h-6 w-6 rounded-full" style={{ backgroundColor: color }} />
+        ))}
+      </div>
+      <p className="text-center text-base leading-relaxed text-[#1F2937]">
+        One word at a time.
+      </p>
+    </div>
+  );
+}
+
+function RankAndFileArtboard() {
+  return (
+    <div className="flex h-full w-full flex-col items-center justify-center gap-8 bg-[#F6F2EA] px-6 py-8">
+      <Image
+        src="/logos/rank-and-file-wordmark.svg"
+        alt="Rank & File"
+        width={256}
+        height={64}
+        className="h-auto w-full max-w-[250px]"
+      />
+      <p className="max-w-[210px] text-center text-base leading-relaxed text-mw-primary">
+        Five countries.<br />One surprising statistic.
+      </p>
+    </div>
+  );
+}
 
 function VennyArtboard() {
   return (
@@ -199,34 +235,6 @@ function MarginArtboard() {
   );
 }
 
-function OnceUponAPhotoArtboard() {
-  return (
-    <div className="relative flex h-full w-full items-center justify-center">
-      <Image
-        src="/onceuponaphoto/chicago1941.jpg"
-        alt="A crowd outside a Chicago church, April 1941 — one of the found photographs featured on Once Upon a Photo"
-        fill
-        sizes="(min-width: 640px) 33vw, 100vw"
-        className="object-cover"
-      />
-      <div className="absolute inset-0 bg-[#a45338] opacity-60 mix-blend-color" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-black/35" />
-      <div className="relative flex flex-col items-center gap-4 px-6 text-center">
-        <span className="flex h-9 w-9 items-center justify-center rounded-md border-2 border-white font-serif text-lg italic text-white">
-          O
-        </span>
-        <h3 className="font-serif text-2xl italic leading-snug text-white">
-          Once Upon
-          <br />a Photo
-        </h3>
-        <p className="text-xs italic leading-snug text-white/80">
-          There&apos;s always more to the picture.
-        </p>
-      </div>
-    </div>
-  );
-}
-
 function QRTipsheetArtboard() {
   return (
     <div className="flex h-full w-full items-center justify-center bg-[#1b3a5c] p-6">
@@ -306,6 +314,24 @@ const PROJECTS: Project[] = [
     logo: "/logos/venny-logo.png",
   },
   {
+    key: "unsaid",
+    name: "Unsaid",
+    tagline:
+      "A daily guessing game where a hidden person, place, work, or event comes into focus one word at a time. Guess early to score more.",
+    href: "https://unsaid.minorworks.co",
+    cta: "Play Unsaid",
+    Artboard: UnsaidArtboard,
+  },
+  {
+    key: "rankandfile",
+    name: "Rank & File",
+    tagline:
+      "Five countries. One surprising statistic. Rank them, then discover how the world really compares. Five new rounds every day.",
+    href: "https://rankandfile.minorworks.co",
+    cta: "Play Rank & File",
+    Artboard: RankAndFileArtboard,
+  },
+  {
     key: "unitedstats",
     name: "United Stats of America",
     tagline:
@@ -343,16 +369,6 @@ const PROJECTS: Project[] = [
     href: "https://margin.minorworks.co",
     cta: "See Margin",
     Artboard: MarginArtboard,
-    status: "In Beta",
-  },
-  {
-    key: "onceuponaphoto",
-    name: "Once Upon a Photo",
-    tagline:
-      "Once Upon a Photo reconnects old photographs and home movies to the people, places, and stories that time has obscured. A shared effort—shared on Instagram, gathered here as it grows.",
-    href: "https://onceuponaphoto.minorworks.co",
-    cta: "See what people added",
-    Artboard: OnceUponAPhotoArtboard,
     status: "In Beta",
   },
   {
@@ -431,13 +447,13 @@ function ProjectGrid({ projects }: { projects: Project[] }) {
 }
 
 export default function LiveProjects() {
-  const flagship = PROJECTS.slice(0, 3);
-  const beta = PROJECTS.slice(3);
+  const live = PROJECTS.filter((project) => !project.status);
+  const beta = PROJECTS.filter((project) => project.status === "In Beta");
 
   return (
     <section className="px-6 max-w-5xl mx-auto pb-14 md:pb-20">
       <SectionDivider label="Live now" />
-      <ProjectGrid projects={flagship} />
+      <ProjectGrid projects={live} />
 
       <div className="mt-10 md:mt-12">
         <SectionDivider label="In Beta" />
