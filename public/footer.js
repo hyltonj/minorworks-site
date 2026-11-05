@@ -1,4 +1,4 @@
-/*! Minor Works shared footer · v1.1.0
+/*! Minor Works shared footer · v1.1.1
  *  One script, one manifest, every property.
  *  Usage:  <script src="https://minorworks.co/footer.js" data-site="dappled" defer></script>
  *  Docs:   see INSTALL.md
@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '1.1.0';
+  var VERSION = '1.1.1';
   if (window.__mwFooter) return;
 
   /* ---------- script context & options ---------- */
@@ -428,7 +428,7 @@
     if (!hidden('contact') && studio.contact) {
       items.push(link('Contact', 'mailto:' + studio.contact, 'contact'));
     }
-    if (!hidden('feedback') && studio.contact) {
+    if (!hidden('feedback') && ds.feedback === 'on' && studio.contact) {
       var b = buildId();
       var body = '\n\n---\nPage: ' + location.href + (b ? '\nBuild: ' + b : '') + '\nBrowser: ' + navigator.userAgent;
       var subject = 'Feedback: ' + (current.name || current.id);
