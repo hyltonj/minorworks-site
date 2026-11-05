@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '1.1.1';
+  var VERSION = '1.2.0';
   if (window.__mwFooter) return;
 
   /* ---------- script context & options ---------- */
@@ -24,7 +24,8 @@
   var MANIFEST_URL = ds.manifest || scriptBase + 'manifest.json';
   var CACHE_KEY = 'mw:footer:manifest:v1';
   var FRESH_MS = 10 * 60 * 1000;
-  var hide = (ds.hide || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+  function parseHide(v) { return (v || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean); }
+  var hide = parseHide(ds.hide);
   function hidden(name) { return hide.indexOf(name) >= 0; }
 
   var FALLBACK = {
@@ -580,7 +581,20 @@
     root = host.attachShadow ? (host.shadowRoot || host.attachShadow({ mode: 'open' })) : null;
     if (!root) return;
     bind();
-    window.__mwFooter = { version: VERSION, refresh: function () { try { localStorage.removeItem(CACHE_KEY); } catch (e) {} load(); } };
+    function setHide(v) {
+      var next = parseHide(v);
+      if (next.join(',') === hide.join(',')) return;
+      hide = next;
+      if (M) render();
+    }
+    window.__mwFooter = { version: VERSION, setHide: setHide, refresh: function () { try { localStorage.removeItem(CACHE_KEY); } catch (e) {} load(); } };
+    // single-page sites can also just change the script tag's data-hide attribute
+    try {
+      if (script && window.MutationObserver) {
+        new MutationObserver(function () { setHide(script.getAttribute('data-hide')); })
+          .observe(script, { attributes: true, attributeFilter: ['data-hide'] });
+      }
+    } catch (e) {}
     load();
   }
 
