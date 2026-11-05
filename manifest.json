@@ -1,0 +1,224 @@
+{
+  "version": 2,
+  "updated": "2026-11-05",
+  "studio": {
+    "name": "Minor Works Studio",
+    "short": "Minor Works",
+    "tagline": "Daily games, quiet tools, curious experiments.",
+    "location": "Boston",
+    "url": "https://minorworks.co",
+    "contact": "hello@minorworks.co"
+  },
+  "newsletter": {
+    "label": "Follow along",
+    "url": null
+  },
+  "legal": {
+    "privacy": null,
+    "terms": null
+  },
+  "footer": {
+    "count": 6
+  },
+  "groups": {
+    "almanac": {
+      "name": "Pocket Almanac",
+      "tagline": "Games that make you go huh.",
+      "url": "https://almanac.minorworks.co"
+    }
+  },
+  "footerLinks": [
+    {
+      "label": "All projects",
+      "url": "https://minorworks.co"
+    }
+  ],
+  "analytics": {
+    "ga4": "G-2Q8YM0S3EV",
+    "view": true,
+    "events": null
+  },
+  "sites": [
+    {
+      "id": "pocketalmanac",
+      "name": "Pocket Almanac",
+      "url": "https://almanac.minorworks.co",
+      "hub": true,
+      "group": "almanac",
+      "blurb": "Games that make you go huh.",
+      "tags": [
+        "numbers",
+        "puzzle",
+        "daily"
+      ],
+      "exclude": [
+        "qrtipsheet"
+      ]
+    },
+    {
+      "id": "dappled",
+      "name": "Dappled",
+      "url": "https://dappled.minorworks.co",
+      "blurb": "Dozens of little toys made from color, movement and sound.",
+      "tags": [
+        "play",
+        "toys"
+      ],
+      "exclude": [
+        "unitedstats",
+        "qrtipsheet"
+      ]
+    },
+    {
+      "id": "ballpark",
+      "name": "Ballpark",
+      "url": "https://playballpark.app",
+      "group": "almanac",
+      "blurb": "A daily game of scale and guesstimation.",
+      "tags": [
+        "numbers",
+        "puzzle",
+        "daily"
+      ]
+    },
+    {
+      "id": "rankandfile",
+      "name": "Rank and File",
+      "url": "https://rankandfile.minorworks.co",
+      "group": "almanac",
+      "blurb": "Five countries. Sometimes surprising numbers.",
+      "tags": [
+        "numbers",
+        "puzzle",
+        "ranking"
+      ]
+    },
+    {
+      "id": "unitedstats",
+      "name": "United Stats of America",
+      "url": "https://unitedstats.minorworks.co",
+      "group": "almanac",
+      "blurb": "Real data, state by state. From the serious to the strange.",
+      "tags": [
+        "numbers",
+        "stats"
+      ],
+      "exclude": [
+        "dappled"
+      ]
+    },
+    {
+      "id": "outlier",
+      "name": "Outlier",
+      "url": "https://outlier.minorworks.co",
+      "group": "almanac",
+      "blurb": "One of these things is not like the others.",
+      "tags": [
+        "numbers",
+        "puzzle",
+        "daily"
+      ]
+    },
+    {
+      "id": "percapita",
+      "name": "Per Capita",
+      "url": "https://percapita.minorworks.co",
+      "group": "almanac",
+      "blurb": "About the most per person, not the most per country.",
+      "tags": [
+        "numbers",
+        "puzzle",
+        "daily"
+      ]
+    },
+    {
+      "id": "venny",
+      "name": "Venny",
+      "url": "https://playvenny.app",
+      "blurb": "A calm daily word puzzle. Find the one answer at the center.",
+      "tags": [
+        "words",
+        "puzzle"
+      ]
+    },
+    {
+      "id": "threestars",
+      "name": "Three Stars",
+      "url": "https://threestars.minorworks.co",
+      "blurb": "A trivia game for movie lovers.",
+      "tags": [
+        "movies",
+        "puzzle"
+      ]
+    },
+    {
+      "id": "throughline",
+      "name": "Throughline",
+      "url": "https://throughline.minorworks.co",
+      "blurb": "A shifting route puzzle. Turn the tiles and help your ball find its way home.",
+      "tags": [
+        "words",
+        "puzzle"
+      ]
+    },
+    {
+      "id": "qrtipsheet",
+      "name": "QR Tip Sheet",
+      "url": "https://qrtipsheet.minorworks.co",
+      "blurb": "A small and quiet tool.",
+      "tags": [
+        "tool"
+      ]
+    },
+    {
+      "id": "margin",
+      "name": "Margin",
+      "url": "https://margin.minorworks.co",
+      "blurb": "A scratch calculator and ledger for Chrome. Keep every number tied to its source.",
+      "tags": [
+        "tool",
+        "numbers"
+      ]
+    },
+    {
+      "id": "winthropcipher",
+      "name": "Winthrop Cipher",
+      "url": "https://winthropcipher.minorworks.co",
+      "promote": false,
+      "blurb": "A Massachusetts treasure hunt.",
+      "tags": [
+        "arg",
+        "history"
+      ]
+    },
+    {
+      "id": "unsaid",
+      "name": "Unsaid",
+      "url": "https://unsaid.minorworks.co",
+      "blurb": "Guess the subject from short clues.",
+      "tags": [
+        "words",
+        "puzzle"
+      ]
+    },
+    {
+      "id": "smallcanon",
+      "name": "Small Canon",
+      "url": "https://smallcanon.minorworks.co",
+      "blurb": "Pick nine books that shaped you and share the poster.",
+      "tags": [
+        "books",
+        "lists"
+      ]
+    },
+    {
+      "id": "omnium",
+      "name": "Ex Libris Omnium",
+      "url": "https://omnium.minorworks.co",
+      "blurb": "A book sharing journal you tuck inside a book and pass along.",
+      "tags": [
+        "books"
+      ]
+    }
+  ]
+}
