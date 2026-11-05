@@ -1,4 +1,4 @@
-/*! Minor Works shared footer · v1.0.0
+/*! Minor Works shared footer · v1.1.0
  *  One script, one manifest, every property.
  *  Usage:  <script src="https://minorworks.co/footer.js" data-site="dappled" defer></script>
  *  Docs:   see INSTALL.md
@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '1.0.0';
+  var VERSION = '1.1.0';
   if (window.__mwFooter) return;
 
   /* ---------- script context & options ---------- */
@@ -91,10 +91,20 @@
     var mode = ds.icons || 'auto';
     if (mode === 'none' || compact) return null;
     var src = mode === 'monogram' || !s.icon ? null : safeUrl(resolveUrl(s.icon));
-    if (!src) return monogram(s);
+    if (!src) return mode === 'monogram' ? monogram(s) : null;
     var img = h('img', { class: 'ic', src: src, alt: '', width: '32', height: '32', loading: 'lazy', decoding: 'async' });
-    img.addEventListener('error', function () { if (img.parentNode) img.parentNode.replaceChild(monogram(s), img); });
+    img.addEventListener('error', function () { if (img.parentNode) img.parentNode.removeChild(img); });
     return img;
+  }
+
+  function titleEl(s) {
+    var name = String(s.name || s.id || '');
+    if ((ds.icons || 'auto') !== 'auto' || !name) return h('strong', { text: name });
+    var first = name.charAt(0);
+    return h('strong', null, [
+      h('span', { class: 'lt', style: '--h:' + HUES[hash(String(s.id)) % HUES.length] }, [first]),
+      name.slice(1)
+    ]);
   }
 
   function today() { return new Date().toISOString().slice(0, 10); }
@@ -309,13 +319,18 @@
     '.more h2{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;font-weight:600}',
     '.more h2 a{color:var(--fg);text-decoration:underline;text-underline-offset:3px}',
     '.moregroup{display:grid;gap:20px}',
-    '.cards{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));margin:0;padding:0;list-style:none}',
+    '.cards{display:grid;gap:12px;grid-template-columns:repeat(var(--c,3),minmax(0,1fr));margin:0;padding:0;list-style:none}',
+    '@media(max-width:1000px){.cards{grid-template-columns:repeat(var(--c2,2),minmax(0,1fr))}}',
     '@media(max-width:520px){.cards{grid-template-columns:1fr}}',
     '.card{display:flex}',
-    '.card a{display:flex;gap:12px;align-items:flex-start;flex:1;min-height:44px;padding:10px 12px;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;transition:border-color .15s}',
+    '.card a{display:flex;gap:12px;align-items:flex-start;flex:1;min-height:44px;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;transition:border-color .15s}',
     '.card a:hover{border-color:var(--fg)}',
-    '.card strong{display:block;font-weight:600}',
-    '.card .bl{display:block;color:var(--muted);font-size:12.5px;line-height:1.35;margin-top:2px}',
+    '.card strong{display:block;font-weight:600;font-size:15px;line-height:1.3}',
+    '.lt{font-weight:800;color:hsl(var(--h) 55% 38%)}',
+    '@media(prefers-color-scheme:dark){.mw[data-theme=auto] .lt{color:hsl(var(--h) 60% 72%)}}',
+    '.mw[data-theme=dark] .lt{color:hsl(var(--h) 60% 72%)}',
+    '.mw[data-theme=inherit] .lt{color:inherit}',
+    '.card .bl{display:block;color:var(--muted);font-size:13px;line-height:1.4;margin-top:4px}',
     '.tx{min-width:0}',
     '.ic{flex:none;width:32px;height:32px;border-radius:8px;object-fit:cover}',
     '.mono{display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;background:hsl(var(--h) 35% 86%);color:hsl(var(--h) 45% 26%)}',
@@ -375,12 +390,13 @@
       var members = grpInfo && !current.hub ? related.filter(function (s) { return s.group === current.group; }) : [];
       var others = related.filter(function (s) { return members.indexOf(s) < 0; });
       var cardList = function (list) {
-        var ul = h('ul', { class: 'cards' });
+        var n = list.length;
+        var ul = h('ul', { class: 'cards', style: '--c:' + (n <= 3 ? n : (n === 4 ? 2 : 3)) + ';--c2:' + Math.min(n, 2) });
         list.forEach(function (s) {
           var a = h('a', { href: withUtm(s.url, 'footer', s.id), 'data-k': 'crosslink', 'data-t': s.id }, [
             iconEl(s, compact),
             h('div', { class: 'tx' }, [
-              h('strong', { text: s.name }),
+              titleEl(s),
               s.blurb ? h('span', { class: 'bl', text: s.blurb }) : null
             ])
           ]);
