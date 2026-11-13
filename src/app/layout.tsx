@@ -32,7 +32,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-mw-background text-mw-text-dark antialiased">
         <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-XL5RG8VX86"
+          src="https://www.googletagmanager.com/gtag/js?id=G-2Q8YM0S3EV"
           strategy="afterInteractive"
         />
         <Script id="google-analytics" strategy="afterInteractive">
@@ -40,7 +40,7 @@ export default function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-XL5RG8VX86');
+            gtag('config', 'G-2Q8YM0S3EV');
           `}
         </Script>
         {children}
