@@ -1,4 +1,4 @@
-/*! Minor Works shared footer · v1.1.1
+/*! Minor Works shared footer · v1.2.0
  *  One script, one manifest, every property.
  *  Usage:  <script src="https://minorworks.co/footer.js" data-site="dappled" defer></script>
  *  Docs:   see INSTALL.md
