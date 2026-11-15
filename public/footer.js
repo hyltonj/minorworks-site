@@ -1,4 +1,4 @@
-/*! Minor Works shared footer · v1.2.1
+/*! Minor Works shared footer · v1.3.0
  *  One script, one manifest, every property.
  *  Usage:  <script src="https://minorworks.co/footer.js" data-site="dappled" defer></script>
  *  Docs:   see INSTALL.md
@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '1.2.1';
+  var VERSION = '1.3.0';
   if (window.__mwFooter) return;
 
   /* ---------- script context & options ---------- */
@@ -309,6 +309,7 @@
     'background:var(--bg);color:var(--fg);font:14px/1.5 var(--mw-font,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif);',
     'border-top:1px solid var(--line);padding:32px 20px calc(24px + env(safe-area-inset-bottom,0px));-webkit-text-size-adjust:100%;box-sizing:border-box}',
     '.mw *{box-sizing:border-box}',
+    '.mw.flush{background:transparent;padding-left:0;padding-right:0}',
     '@media(prefers-color-scheme:dark){.mw[data-theme=auto]{--bg:var(--mw-bg,#161614);--fg:var(--mw-fg,#ecebe6);--muted:var(--mw-muted,#9a998f);--line:var(--mw-line,rgba(255,255,255,.14));--card:var(--mw-card,rgba(255,255,255,.05))}}',
     '.mw[data-theme=dark]{--bg:var(--mw-bg,#161614);--fg:var(--mw-fg,#ecebe6);--muted:var(--mw-muted,#9a998f);--line:var(--mw-line,rgba(255,255,255,.14));--card:var(--mw-card,rgba(255,255,255,.05))}',
     '.mw[data-theme=inherit]{--bg:transparent;--fg:currentColor;--muted:color-mix(in srgb,currentColor 62%,transparent);--line:color-mix(in srgb,currentColor 18%,transparent);--card:color-mix(in srgb,currentColor 5%,transparent);color:inherit}',
@@ -376,7 +377,8 @@
     var theme = ds.theme || 'auto';
     var compact = ds.compact !== undefined && ds.compact !== 'false';
 
-    var wrap = h('div', { class: 'mw' + (compact ? ' compact' : ''), 'data-theme': theme });
+    var flush = ds.flush !== undefined && ds.flush !== 'false';
+    var wrap = h('div', { class: 'mw' + (compact ? ' compact' : '') + (flush ? ' flush' : ''), 'data-theme': theme });
     var inner = h('div', { class: 'in' });
     var top = h('div', { class: 'top' });
 
@@ -391,7 +393,7 @@
     if (related.length) {
       var groups = M.groups || {};
       var grpInfo = current.group && groups[current.group];
-      var members = grpInfo && !current.hub ? related.filter(function (s) { return s.group === current.group; }) : [];
+      var members = []; // one flat list: group names no longer split the cards into sections
       var others = related.filter(function (s) { return members.indexOf(s) < 0; });
       var cardList = function (list) {
         var n = list.length;
