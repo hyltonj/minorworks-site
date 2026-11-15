@@ -1,4 +1,4 @@
-/*! Minor Works shared footer · v1.2.0
+/*! Minor Works shared footer · v1.2.1
  *  One script, one manifest, every property.
  *  Usage:  <script src="https://minorworks.co/footer.js" data-site="dappled" defer></script>
  *  Docs:   see INSTALL.md
@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '1.2.0';
+  var VERSION = '1.2.1';
   if (window.__mwFooter) return;
 
   /* ---------- script context & options ---------- */
@@ -304,7 +304,7 @@
 
   /* ---------- styles ---------- */
   var CSS = [
-    ':host{display:block}',
+    ':host{display:block;container:mwf/inline-size}',
     '.mw{--bg:var(--mw-bg,#faf9f6);--fg:var(--mw-fg,#1d1d1b);--muted:var(--mw-muted,#6b6a63);--line:var(--mw-line,rgba(0,0,0,.12));--card:var(--mw-card,rgba(0,0,0,.035));',
     'background:var(--bg);color:var(--fg);font:14px/1.5 var(--mw-font,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif);',
     'border-top:1px solid var(--line);padding:32px 20px calc(24px + env(safe-area-inset-bottom,0px));-webkit-text-size-adjust:100%;box-sizing:border-box}',
@@ -314,15 +314,18 @@
     '.mw[data-theme=inherit]{--bg:transparent;--fg:currentColor;--muted:color-mix(in srgb,currentColor 62%,transparent);--line:color-mix(in srgb,currentColor 18%,transparent);--card:color-mix(in srgb,currentColor 5%,transparent);color:inherit}',
     '.in{max-width:var(--mw-max,1100px);margin:0 auto;display:grid;gap:24px}',
     '.top{display:grid;gap:24px;grid-template-columns:1fr}',
-    '@media(min-width:760px){.top{grid-template-columns:minmax(200px,1fr) 2.6fr}}',
+    '@container mwf (min-width:760px){.top{grid-template-columns:minmax(200px,1fr) 2.6fr}}',
+    '@supports not (container-type:inline-size){@media(min-width:760px){.top{grid-template-columns:minmax(200px,1fr) 2.6fr}}}',
     '.brand b{font-size:15px;letter-spacing:.01em}',
     '.brand p{margin:6px 0 0;color:var(--muted);max-width:30ch}',
     '.more h2{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;font-weight:600}',
     '.more h2 a{color:var(--fg);text-decoration:underline;text-underline-offset:3px}',
     '.moregroup{display:grid;gap:20px}',
     '.cards{display:grid;gap:12px;grid-template-columns:repeat(var(--c,3),minmax(0,1fr));margin:0;padding:0;list-style:none}',
-    '@media(max-width:1000px){.cards{grid-template-columns:repeat(var(--c2,2),minmax(0,1fr))}}',
-    '@media(max-width:520px){.cards{grid-template-columns:1fr}}',
+    '@container mwf (max-width:1000px){.cards{grid-template-columns:repeat(var(--c2,2),minmax(0,1fr))}}',
+    '@supports not (container-type:inline-size){@media(max-width:1000px){.cards{grid-template-columns:repeat(var(--c2,2),minmax(0,1fr))}}}',
+    '@container mwf (max-width:520px){.cards{grid-template-columns:1fr}}',
+    '@supports not (container-type:inline-size){@media(max-width:520px){.cards{grid-template-columns:1fr}}}',
     '.card{display:flex}',
     '.card a{display:flex;gap:12px;align-items:flex-start;flex:1;min-height:44px;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;transition:border-color .15s}',
     '.card a:hover{border-color:var(--fg)}',
