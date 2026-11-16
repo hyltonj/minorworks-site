@@ -221,7 +221,8 @@
       "tags": [
         "books",
         "lists"
-      ]
+      ],
+      "icon": "https://minorworks.co/brand/smallcanon/mark.svg"
     },
     {
       "id": "omnium",
@@ -230,7 +231,8 @@
       "blurb": "A book sharing journal you tuck inside a book and pass along.",
       "tags": [
         "books"
-      ]
+      ],
+      "icon": "https://minorworks.co/brand/omnium/mark.svg"
     }
   ]
 }
