@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-11-05",
+  "updated": "2026-11-16",
   "studio": {
     "name": "Minor Works Studio",
     "short": "Minor Works",
@@ -67,7 +67,8 @@
       "exclude": [
         "unitedstats",
         "qrtipsheet"
-      ]
+      ],
+      "icon": "https://minorworks.co/brand/dappled/mark.svg"
     },
     {
       "id": "ballpark",
@@ -79,7 +80,8 @@
         "numbers",
         "puzzle",
         "daily"
-      ]
+      ],
+      "icon": "https://minorworks.co/brand/ballpark/mark.svg"
     },
     {
       "id": "rankandfile",
@@ -91,7 +93,8 @@
         "numbers",
         "puzzle",
         "ranking"
-      ]
+      ],
+      "icon": "https://minorworks.co/brand/rankandfile/mark.svg"
     },
     {
       "id": "unitedstats",
@@ -105,7 +108,8 @@
       ],
       "exclude": [
         "dappled"
-      ]
+      ],
+      "icon": "https://minorworks.co/brand/unitedstats/mark.svg"
     },
     {
       "id": "outlier",
@@ -117,7 +121,8 @@
         "numbers",
         "puzzle",
         "daily"
-      ]
+      ],
+      "icon": "https://minorworks.co/brand/outlier/mark.svg"
     },
     {
       "id": "percapita",
@@ -129,7 +134,8 @@
         "numbers",
         "puzzle",
         "daily"
-      ]
+      ],
+      "icon": "https://minorworks.co/brand/percapita/mark.svg"
     },
     {
       "id": "venny",
@@ -139,7 +145,8 @@
       "tags": [
         "words",
         "puzzle"
-      ]
+      ],
+      "icon": "https://minorworks.co/brand/venny/mark.svg"
     },
     {
       "id": "threestars",
@@ -149,7 +156,8 @@
       "tags": [
         "movies",
         "puzzle"
-      ]
+      ],
+      "icon": "https://minorworks.co/brand/threestars/mark.svg"
     },
     {
       "id": "throughline",
@@ -159,16 +167,18 @@
       "tags": [
         "words",
         "puzzle"
-      ]
+      ],
+      "icon": "https://minorworks.co/brand/throughline/mark.svg"
     },
     {
       "id": "qrtipsheet",
-      "name": "QR Tip Sheet",
+      "name": "QR Tipsheet",
       "url": "https://qrtipsheet.minorworks.co",
       "blurb": "Humble but useful printable for the fridge: WiFi, kids' schedules, fave playlists, etc.",
       "tags": [
         "tool"
-      ]
+      ],
+      "icon": "https://minorworks.co/brand/qrtipsheet/mark.svg"
     },
     {
       "id": "margin",
@@ -178,7 +188,8 @@
       "tags": [
         "tool",
         "numbers"
-      ]
+      ],
+      "icon": "https://minorworks.co/brand/margin/mark.svg"
     },
     {
       "id": "winthropcipher",
@@ -199,7 +210,8 @@
       "tags": [
         "words",
         "puzzle"
-      ]
+      ],
+      "icon": "https://minorworks.co/brand/unsaid/mark.svg"
     },
     {
       "id": "smallcanon",
