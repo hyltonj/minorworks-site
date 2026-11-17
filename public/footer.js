@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '1.3.0';
+  var VERSION = '1.3.1';
   if (window.__mwFooter) return;
 
   /* ---------- script context & options ---------- */
@@ -331,10 +331,7 @@
     '.card a{display:flex;gap:12px;align-items:flex-start;flex:1;min-height:44px;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;transition:border-color .15s}',
     '.card a:hover{border-color:var(--fg)}',
     '.card strong{display:block;font-weight:600;font-size:15px;line-height:1.3}',
-    '.lt{font-weight:800;color:hsl(var(--h) 55% 38%)}',
-    '@media(prefers-color-scheme:dark){.mw[data-theme=auto] .lt{color:hsl(var(--h) 60% 72%)}}',
-    '.mw[data-theme=dark] .lt{color:hsl(var(--h) 60% 72%)}',
-    '.mw[data-theme=inherit] .lt{color:inherit}',
+    '.lt{font-weight:inherit;color:inherit}',
     '.card .bl{display:block;color:var(--muted);font-size:13px;line-height:1.4;margin-top:4px}',
     '.tx{min-width:0}',
     '.ic{flex:none;width:32px;height:32px;border-radius:8px;object-fit:cover}',

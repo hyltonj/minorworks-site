@@ -45,7 +45,7 @@
       "url": "https://almanac.minorworks.co",
       "hub": true,
       "group": "almanac",
-      "blurb": "Games that make you go huh.",
+      "blurb": "Games that make you go huh. Then aha!",
       "tags": [
         "numbers",
         "puzzle",
@@ -59,7 +59,7 @@
       "id": "dappled",
       "name": "Dappled",
       "url": "https://dappled.minorworks.co",
-      "blurb": "Dozens of little toys made from color, movement and sound.",
+      "blurb": "Little toys for busy minds. In color, movement and sound.",
       "tags": [
         "play",
         "toys"
@@ -75,7 +75,7 @@
       "name": "Ballpark",
       "url": "https://playballpark.app",
       "group": "almanac",
-      "blurb": "A daily game of scale and guesstimation.",
+      "blurb": "A daily game of guesstimation and scale.",
       "tags": [
         "numbers",
         "puzzle",
@@ -88,7 +88,7 @@
       "name": "Rank and File",
       "url": "https://rankandfile.minorworks.co",
       "group": "almanac",
-      "blurb": "Five countries. Sometimes surprising numbers.",
+      "blurb": "Put countries in their place. With knowledge not judgment.",
       "tags": [
         "numbers",
         "puzzle",
@@ -129,7 +129,7 @@
       "name": "Per Capita",
       "url": "https://percapita.minorworks.co",
       "group": "almanac",
-      "blurb": "About the most per person, not the most per country.",
+      "blurb": "Size matters. Until you do the math.",
       "tags": [
         "numbers",
         "puzzle",
@@ -141,7 +141,7 @@
       "id": "venny",
       "name": "Venny",
       "url": "https://playvenny.app",
-      "blurb": "A calm daily word puzzle. Find the one answer at the center.",
+      "blurb": "Find the one word at the center of it all.",
       "tags": [
         "words",
         "puzzle"
@@ -152,7 +152,7 @@
       "id": "threestars",
       "name": "Three Stars",
       "url": "https://threestars.minorworks.co",
-      "blurb": "A trivia game for movie lovers.",
+      "blurb": "Three actors. One movie. Name it.",
       "tags": [
         "movies",
         "puzzle"
@@ -163,7 +163,7 @@
       "id": "throughline",
       "name": "Throughline",
       "url": "https://throughline.minorworks.co",
-      "blurb": "A shifting route puzzle. Turn the tiles and help your ball find its way home.",
+      "blurb": "A route puzzle. The way home is rarely a straight line.",
       "tags": [
         "words",
         "puzzle"
@@ -174,7 +174,7 @@
       "id": "qrtipsheet",
       "name": "QR Tipsheet",
       "url": "https://qrtipsheet.minorworks.co",
-      "blurb": "Humble but useful printable for the fridge: WiFi, kids' schedules, fave playlists, etc.",
+      "blurb": "Your fridge now has hyperlinks. A printable sheet of QR codes.",
       "tags": [
         "tool"
       ],
@@ -184,7 +184,7 @@
       "id": "margin",
       "name": "Margin",
       "url": "https://margin.minorworks.co",
-      "blurb": "A scratch calculator and ledger for Chrome. Keep every number tied to its source.",
+      "blurb": "More than a calculator. Less than a spreadsheet. A scratch ledger for Chrome.",
       "tags": [
         "tool",
         "numbers"
@@ -196,7 +196,7 @@
       "name": "Winthrop Cipher",
       "url": "https://winthropcipher.minorworks.co",
       "promote": false,
-      "blurb": "A Massachusetts treasure hunt.",
+      "blurb": "A real-world Massachusetts treasure hunt.",
       "tags": [
         "arg",
         "history"
@@ -206,7 +206,7 @@
       "id": "unsaid",
       "name": "Unsaid",
       "url": "https://unsaid.minorworks.co",
-      "blurb": "Guess the subject from short clues.",
+      "blurb": "Guess the hidden subject. The fewer clues the better.",
       "tags": [
         "words",
         "puzzle"
@@ -228,7 +228,7 @@
       "id": "omnium",
       "name": "Ex Libris Omnium",
       "url": "https://omnium.minorworks.co",
-      "blurb": "A book sharing journal you tuck inside a book and pass along.",
+      "blurb": "A little journal for a book's big journey.",
       "tags": [
         "books"
       ],
