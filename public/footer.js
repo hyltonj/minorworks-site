@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '1.3.1';
+  var VERSION = '1.4.0';
   if (window.__mwFooter) return;
 
   /* ---------- script context & options ---------- */
@@ -93,7 +93,7 @@
     if (mode === 'none' || compact) return null;
     var src = mode === 'monogram' || !s.icon ? null : safeUrl(resolveUrl(s.icon));
     if (!src) return mode === 'monogram' ? monogram(s) : null;
-    var img = h('img', { class: 'ic', src: src, alt: '', width: '32', height: '32', loading: 'lazy', decoding: 'async' });
+    var img = h('img', { class: 'ic', src: src, alt: '', width: '44', height: '44', loading: 'lazy', decoding: 'async' });
     img.addEventListener('error', function () { if (img.parentNode) img.parentNode.removeChild(img); });
     return img;
   }
@@ -317,25 +317,25 @@
     '.top{display:grid;gap:24px;grid-template-columns:1fr}',
     '@container mwf (min-width:760px){.top{grid-template-columns:minmax(200px,1fr) 2.6fr}}',
     '@supports not (container-type:inline-size){@media(min-width:760px){.top{grid-template-columns:minmax(200px,1fr) 2.6fr}}}',
-    '.brand b{font-size:15px;letter-spacing:.01em}',
+    '.brand b{font-size:17px;letter-spacing:.01em}',
     '.brand p{margin:6px 0 0;color:var(--muted);max-width:30ch}',
-    '.more h2{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;font-weight:600}',
+    '.more h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;font-weight:600}',
     '.more h2 a{color:var(--fg);text-decoration:underline;text-underline-offset:3px}',
     '.moregroup{display:grid;gap:20px}',
-    '.cards{display:grid;gap:12px;grid-template-columns:repeat(var(--c,3),minmax(0,1fr));margin:0;padding:0;list-style:none}',
+    '.cards{display:grid;gap:14px;grid-template-columns:repeat(var(--c,3),minmax(0,1fr));margin:0;padding:0;list-style:none}',
     '@container mwf (max-width:1000px){.cards{grid-template-columns:repeat(var(--c2,2),minmax(0,1fr))}}',
     '@supports not (container-type:inline-size){@media(max-width:1000px){.cards{grid-template-columns:repeat(var(--c2,2),minmax(0,1fr))}}}',
     '@container mwf (max-width:520px){.cards{grid-template-columns:1fr}}',
     '@supports not (container-type:inline-size){@media(max-width:520px){.cards{grid-template-columns:1fr}}}',
     '.card{display:flex}',
-    '.card a{display:flex;gap:12px;align-items:flex-start;flex:1;min-height:44px;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;transition:border-color .15s}',
+    '.card a{display:flex;gap:16px;align-items:flex-start;flex:1;min-height:44px;padding:20px 22px;background:var(--card);border:1px solid var(--line);border-radius:12px;text-decoration:none;transition:border-color .15s}',
     '.card a:hover{border-color:var(--fg)}',
-    '.card strong{display:block;font-weight:600;font-size:15px;line-height:1.3}',
+    '.card strong{display:block;font-weight:600;font-size:17px;line-height:1.3}',
     '.lt{font-weight:inherit;color:inherit}',
-    '.card .bl{display:block;color:var(--muted);font-size:13px;line-height:1.4;margin-top:4px}',
+    '.card .bl{display:block;color:var(--muted);font-size:14.5px;line-height:1.45;margin-top:5px}',
     '.tx{min-width:0}',
-    '.ic{flex:none;width:32px;height:32px;border-radius:8px;object-fit:cover}',
-    '.mono{display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;background:hsl(var(--h) 35% 86%);color:hsl(var(--h) 45% 26%)}',
+    '.ic{flex:none;width:44px;height:44px;border-radius:10px;object-fit:cover}',
+    '.mono{display:flex;align-items:center;justify-content:center;font-weight:700;font-size:19px;background:hsl(var(--h) 35% 86%);color:hsl(var(--h) 45% 26%)}',
     '@media(prefers-color-scheme:dark){.mw[data-theme=auto] .mono{background:hsl(var(--h) 22% 24%);color:hsl(var(--h) 50% 82%)}}',
     '.mw[data-theme=dark] .mono{background:hsl(var(--h) 22% 24%);color:hsl(var(--h) 50% 82%)}',
     '.mw[data-theme=inherit] .mono{background:color-mix(in srgb,currentColor 10%,transparent);color:inherit}',
