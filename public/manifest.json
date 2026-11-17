@@ -53,7 +53,8 @@
       ],
       "exclude": [
         "qrtipsheet"
-      ]
+      ],
+      "icon": "https://minorworks.co/brand/pocketalmanac/mark.svg"
     },
     {
       "id": "dappled",
