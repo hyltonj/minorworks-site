@@ -18,7 +18,7 @@ export default function PrivacyPage() {
       <h1 className="text-3xl md:text-4xl font-semibold text-mw-text-dark mb-2">
         Privacy
       </h1>
-      <p className="text-sm mb-10">Last updated November 5, 2026</p>
+      <p className="text-sm mb-10">Last updated November 18, 2026</p>
 
       <div className="space-y-8 text-base">
         <p>
@@ -33,23 +33,36 @@ export default function PrivacyPage() {
             Visits and analytics
           </h2>
           <p>
-            We use Google Analytics to count visits. It records things like
-            the page you viewed and roughly where you are (country or
-            region) along with your device type and how you arrived. We
-            use it to see what people enjoy so we can make more of it. It is
-            not used for advertising. Our shared footer skips it when your
+            We use Google Analytics and PostHog (hosted in the United
+            States) to count visits and game plays such as a puzzle started
+            or finished. They record the page or screen you viewed, your
+            device type, how you arrived and a rough location such as
+            country or city. The location is worked out from your IP
+            address and we then discard the IP address, so we do not store
+            it. We use all of this to see what people enjoy so we can make
+            more of it. We do not use it for advertising and we do not sell
+            it. We keep analytics data for up to one year.
+          </p>
+          <p className="mt-3">
+            To recognize a returning visitor we store a random ID in your
+            browser&apos;s local storage. It holds no name or email. When
+            you follow a link from one Minor Works site to another the link
+            carries that ID and a short tag that says which site sent you.
+            That lets us see which cross links get used and count one
+            visitor once across our sites.
+          </p>
+          <p className="mt-3">
+            If you are in the EU or the UK we ask first, and we count your
+            visit only if you accept. Everywhere else we count visits unless
+            you opt out. Our shared footer also skips analytics when your
             browser sends Do Not Track or Global Privacy Control.
           </p>
           <p className="mt-3">
-            Some sites also keep simple counts of their own such as page
-            views and game plays. These use a random number that disappears
-            when you close the tab. They do not use cookies and do not
-            identify you.
-          </p>
-          <p className="mt-3">
-            When you follow a link from one Minor Works site to another the
-            link carries a short tag that says which site sent you. That
-            tells us which cross links get used.
+            You can change your mind at any time with the Privacy choices
+            link in the footer. Choosing No thanks deletes the random ID
+            from your browser. Some sites also keep simple counts of their
+            own such as page views and game plays. Those use a random number
+            that disappears when you close the tab and do not use cookies.
           </p>
         </section>
 

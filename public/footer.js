@@ -1,4 +1,4 @@
-/*! Minor Works shared footer · v1.3.0
+/*! Minor Works shared footer · v1.6.0
  *  One script, one manifest, every property.
  *  Usage:  <script src="https://minorworks.co/footer.js" data-site="dappled" defer></script>
  *  Docs:   see INSTALL.md
@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '1.5.0';
+  var VERSION = '1.6.0';
   if (window.__mwFooter) return;
 
   /* ---------- script context & options ---------- */
@@ -147,12 +147,15 @@
   function withUtm(href, medium, content) {
     var hosts = managedHosts();
     if (!hosts[hostOf(href)]) return href;
-    return addParams(href, {
+    var params = {
       utm_source: current.id,
       utm_medium: medium,
       utm_campaign: 'crosspromo',
       utm_content: content
-    });
+    };
+    // Cross-site links carry the anonymous ID so a hop between sites stays one visitor.
+    if (hostOf(href) !== hostOf(location.href) && !optedOut() && M.analytics && M.analytics.posthog) params.mwid = anonId();
+    return addParams(href, params);
   }
 
   function buildId() {
@@ -164,12 +167,35 @@
   }
 
   /* ---------- privacy & analytics ---------- */
+  // Visitors in the EU and UK are asked first. Everyone else is counted unless they opt out.
+  // The region is a guess from the browser time zone; it errs on the side of asking.
+  var CONSENT_KEY = 'mw:consent';
+  function needsConsent() {
+    try {
+      var tz = (Intl.DateTimeFormat().resolvedOptions().timeZone || '');
+      return /^Europe\//.test(tz) || /^Atlantic\/(Azores|Madeira|Canary|Reykjavik|Faroe)$/.test(tz) || tz === 'Africa/Ceuta';
+    } catch (e) { return false; }
+  }
+  function consentState() {
+    try { var v = localStorage.getItem(CONSENT_KEY); return v === 'granted' || v === 'denied' ? v : null; } catch (e) { return null; }
+  }
+  function optedOut_signals() {
+    try {
+      if (navigator.globalPrivacyControl === true) return true;
+      if (navigator.doNotTrack === '1' || window.doNotTrack === '1') return true;
+      if (localStorage.getItem('mw-optout') === '1') return true;
+    } catch (e) {}
+    return false;
+  }
   function optedOut() {
     try {
       if (navigator.globalPrivacyControl === true) return true;
       if (navigator.doNotTrack === '1' || window.doNotTrack === '1') return true;
       if (localStorage.getItem('mw-optout') === '1') return true;
     } catch (e) {}
+    var c = consentState();
+    if (c === 'denied') return true;
+    if (needsConsent() && c !== 'granted') return true;
     return false;
   }
 
@@ -196,11 +222,84 @@
     }
   }
 
+  // Random anonymous ID kept in local storage (no name, no email, no cookie).
+  // The same key is read by the games so a visitor is one person across Minor Works.
+  function anonId() {
+    try {
+      var v = localStorage.getItem('mw:aid');
+      if (v) return v;
+      var a = new Uint8Array(12), out = '';
+      (window.crypto || window.msCrypto).getRandomValues(a);
+      for (var i = 0; i < a.length; i++) out += (a[i] % 36).toString(36);
+      v = 'mw_' + out;
+      localStorage.setItem('mw:aid', v);
+      return v;
+    } catch (e) { return ''; }
+  }
+
+  // Events go to the shared Minor Works PostHog project over its plain HTTP API.
+  // The project discards IP addresses. Nothing is sent when optedOut() is true.
+  function phSend(event, props) {
+    var cfg = M.analytics && M.analytics.posthog;
+    if (!cfg || !cfg.key || optedOut() || typeof fetch !== 'function') return;
+    var id = anonId();
+    if (!id) return;
+    var body = {
+      api_key: cfg.key,
+      event: event,
+      distinct_id: id,
+      properties: props || {},
+      timestamp: new Date().toISOString()
+    };
+    try {
+      fetch((cfg.host || 'https://us.i.posthog.com').replace(/\/$/, '') + '/e/', {
+        method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(body), keepalive: true, credentials: 'omit'
+      }).catch(function () {});
+    } catch (e) {}
+  }
+
+  function phProps(extra) {
+    var p = {
+      $lib: 'mw-footer',
+      $lib_version: VERSION,
+      $current_url: location.href.split('#')[0],
+      $host: location.hostname,
+      $pathname: location.pathname,
+      $referrer: document.referrer || '$direct',
+      $referring_domain: refHost() || '$direct',
+      $device_type: deviceClass(),
+      site: current ? current.id : (ds.site || ''),
+      footer_version: VERSION
+    };
+    if (extra) for (var k in extra) p[k] = extra[k];
+    return p;
+  }
+
+  // One count per page load, so sites with no analytics of their own still show up.
+  var pageSent = false;
+  function sendPageview() {
+    if (pageSent || optedOut() || ds.pageview === 'off') return;
+    pageSent = true;
+    phSend('mw_pageview', phProps());
+    // Arrived from another Minor Works site: link the two anonymous IDs so a journey reads as one person.
+    try {
+      var q = new URLSearchParams(location.search), from = q.get('mwid');
+      if (from && /^mw_[a-z0-9]{8,32}$/.test(from)) {
+        var mine = anonId();
+        if (mine && from !== mine) phSend('$create_alias', { distinct_id: mine, alias: from, site: current.id });
+        q.delete('mwid');
+        var qs = q.toString();
+        history.replaceState(history.state, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
+      }
+    } catch (e) {}
+  }
+
   function track(name, props) {
     if (optedOut()) return;
     props = props || {};
     props.site = current.id;
     props.footer_version = VERSION;
+    phSend(name, phProps(props));
     try { window.dispatchEvent(new CustomEvent('mwfooter:event', { detail: { name: name, props: props } })); } catch (e) {}
     try { if (typeof window.gtag === 'function') window.gtag('event', name, props); } catch (e) {}
     try { if (typeof window.plausible === 'function') window.plausible(name, { props: props }); } catch (e) {}
@@ -353,8 +452,59 @@
     '.compact .bl{display:none}',
     '.compact .card a{min-height:0;padding:9px 12px}',
     '.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}',
+    '.cb{position:fixed;left:12px;right:12px;bottom:12px;z-index:2147483000;max-width:560px;margin:0 auto;padding:16px 18px;border-radius:12px;border:1px solid rgba(0,0,0,.14);background:#fff;color:#1d1d1b;box-shadow:0 8px 30px rgba(0,0,0,.18);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;box-sizing:border-box}',
+    '@media(prefers-color-scheme:dark){.cb{background:#1f1f1d;color:#ecebe6;border-color:rgba(255,255,255,.18)}}',
+    '.cb p{margin:0 0 12px}',
+    '.cb strong{font-weight:600}',
+    '.cb a{color:inherit}',
+    '.cb .row{display:flex;flex-wrap:wrap;gap:10px}',
+    '.cb button{flex:1 1 120px;min-height:44px;padding:10px 16px;border-radius:10px;border:1px solid currentColor;background:transparent;color:inherit;font:inherit;font-weight:600;text-decoration:none;cursor:pointer}',
+    '.cb button:hover{background:rgba(127,127,127,.14)}',
     '@media print{:host{display:none}}'
   ].join('');
+
+  /* ---------- consent banner ---------- */
+  function privacyUrl() { return (M.legal && safeUrl(M.legal.privacy)) ? M.legal.privacy : 'https://minorworks.co/privacy'; }
+
+  function closeBanner() {
+    var b = root && root.querySelector('.cb');
+    if (b && b.parentNode) b.parentNode.removeChild(b);
+  }
+
+  function showBanner() {
+    if (!root || root.querySelector('.cb')) return;
+    var box = h('div', { class: 'cb', role: 'dialog', 'aria-label': 'Privacy choices' }, [
+      h('p', null, [
+        h('strong', { text: 'Counting visits. ' }),
+        'Minor Works counts visits to see what people enjoy. If you accept we store a random ID in your browser so we can recognize you across our sites. We discard your IP address and never use any of this for ads or sell it. ',
+        h('a', { href: privacyUrl(), target: '_blank', rel: 'noopener', text: 'Privacy' })
+      ]),
+      h('div', { class: 'row' }, [
+        h('button', { type: 'button', 'data-consent': 'granted', text: 'Accept' }),
+        h('button', { type: 'button', 'data-consent': 'denied', text: 'No thanks' })
+      ])
+    ]);
+    root.appendChild(box);
+  }
+
+  function setConsent(v) {
+    try { localStorage.setItem(CONSENT_KEY, v); } catch (e) {}
+    if (v === 'denied') {
+      // forget the anonymous ID and any GA identifiers we control
+      try { localStorage.removeItem('mw:aid'); } catch (e) {}
+      try { window['ga-disable-' + (M.analytics && M.analytics.ga4)] = true; } catch (e) {}
+    } else {
+      try { window['ga-disable-' + (M.analytics && M.analytics.ga4)] = false; } catch (e) {}
+    }
+    closeBanner();
+    try { window.dispatchEvent(new CustomEvent('mwfooter:consent', { detail: { granted: v === 'granted' } })); } catch (e) {}
+    if (v === 'granted') {
+      render();       // rebuild links so they carry the anonymous ID
+      sendPageview();
+      viewSent = false;
+      observeView();
+    }
+  }
 
   /* ---------- render ---------- */
   function link(label, href, kind, target, extra) {
@@ -447,6 +597,9 @@
       if (safeUrl(M.legal.privacy)) items.push(link('Privacy', M.legal.privacy, 'legal', 'privacy'));
       if (safeUrl(M.legal.terms)) items.push(link('Terms', M.legal.terms, 'legal', 'terms'));
     }
+    if (!hidden('choices') && M.analytics && (M.analytics.posthog || M.analytics.ga4)) {
+      items.push(h('button', { type: 'button', 'data-choices': '1' }, ['Privacy choices']));
+    }
     (M.footerLinks || []).forEach(function (l) {
       if (l && l.label && safeUrl(l.url)) items.push(link(l.label, withUtm(l.url, 'footer', 'studio'), 'studio', l.label));
     });
@@ -471,7 +624,9 @@
     root.__related = related.map(function (s) { return s.id; });
 
     host.setAttribute('data-mw-footer', VERSION);
+    if (needsConsent() && consentState() === null && !optedOut_signals()) showBanner();
     ensureGa4();
+    sendPageview();
     observeView();
   }
 
@@ -515,6 +670,10 @@
       var t = e.target;
       var btn = t.closest && t.closest('button[data-share]');
       if (btn) { onShare(btn); return; }
+      var cb = t.closest && t.closest('button[data-consent]');
+      if (cb) { setConsent(cb.getAttribute('data-consent')); return; }
+      var ch = t.closest && t.closest('button[data-choices]');
+      if (ch) { showBanner(); return; }
       var a = t.closest && t.closest('a[data-k]');
       if (a) track('footer_click', { kind: a.getAttribute('data-k'), target: a.getAttribute('data-t'), href: a.getAttribute('href').split('?')[0] });
     });
