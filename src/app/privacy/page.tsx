@@ -35,9 +35,11 @@ export default function PrivacyPage() {
           <p>
             We use Google Analytics and PostHog (hosted in the United
             States) to count visits and game plays such as a puzzle started
-            or finished. They record the page or screen you viewed, your
-            device type, how you arrived and a rough location such as
-            country or city. The location is worked out from your IP
+            or finished. They record the page or screen you viewed, how
+            long you stay active on it, how far you scroll, links you
+            follow to leave our sites, your device type, how you arrived
+            and a rough location such as country or city. A visit ID kept
+            only for that browser tab ties one visit together. The location is worked out from your IP
             address and we then discard the IP address, so we do not store
             it. We use all of this to see what people enjoy so we can make
             more of it. We do not use it for advertising and we do not sell
