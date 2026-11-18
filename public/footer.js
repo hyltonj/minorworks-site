@@ -1,4 +1,4 @@
-/*! Minor Works shared footer · v1.6.0
+/*! Minor Works shared footer · v1.6.1
  *  One script, one manifest, every property.
  *  Usage:  <script src="https://minorworks.co/footer.js" data-site="dappled" defer></script>
  *  Docs:   see INSTALL.md
@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '1.6.0';
+  var VERSION = '1.6.1';
   if (window.__mwFooter) return;
 
   /* ---------- script context & options ---------- */
@@ -242,6 +242,8 @@
   function phSend(event, props) {
     var cfg = M.analytics && M.analytics.posthog;
     if (!cfg || !cfg.key || optedOut() || typeof fetch !== 'function') return;
+    // Preview deploys and local dev builds are not real visitors.
+    if (/(^|\.)(vercel\.app|netlify\.app|localhost)$|^127\.|^0\.0\.0\.0$/.test(location.hostname) && ds.previews !== 'on') return;
     var id = anonId();
     if (!id) return;
     var body = {
@@ -279,6 +281,7 @@
   var pageSent = false;
   function sendPageview() {
     if (pageSent || optedOut() || ds.pageview === 'off') return;
+    if (!(M.analytics && M.analytics.posthog && M.analytics.posthog.key)) return; // manifest not loaded yet: try again on next render
     pageSent = true;
     phSend('mw_pageview', phProps());
     // Arrived from another Minor Works site: link the two anonymous IDs so a journey reads as one person.
