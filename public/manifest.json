@@ -36,7 +36,8 @@
   "analytics": {
     "ga4": "G-2Q8YM0S3EV",
     "view": true,
-    "events": null
+    "events": null,
+    "posthog": { "key": "phc_Cbnm7UEFNc5sYFY3vRUPRv3uPnh6qtu6bYY3EWSuwHgB", "host": "https://us.i.posthog.com" }
   },
   "sites": [
     {
