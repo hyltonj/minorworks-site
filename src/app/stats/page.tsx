@@ -198,7 +198,12 @@ export default function StatsPage() {
         setError("That passphrase did not work.");
         return;
       }
-      if (r.status === 503) { setError("Stats are not set up yet. The passphrase or PostHog key is missing on the server."); return; }
+      if (r.status === 503) {
+        let m = "";
+        try { m = ((await r.json()) as { missing?: string[] }).missing?.join(" and ") || ""; } catch {}
+        setError(m ? `Stats are not set up yet. The server cannot see: ${m}.` : "Stats are not set up yet. The passphrase or PostHog key is missing on the server.");
+        return;
+      }
       if (!r.ok) { setError("Could not reach PostHog just now. Try again in a minute."); return; }
       setData((await r.json()) as Data);
       setAuthed(p);

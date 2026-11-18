@@ -131,8 +131,10 @@ export async function POST(req: Request) {
   } catch {
     /* empty body */
   }
-  if (!process.env.STATS_PASSPHRASE || !process.env.POSTHOG_PERSONAL_API_KEY) {
-    return NextResponse.json({ error: "not_configured" }, { status: 503, headers });
+  const missing = ["STATS_PASSPHRASE", "POSTHOG_PERSONAL_API_KEY"].filter((k) => !process.env[k]);
+  if (missing.length) {
+    // Names only, never values: tells the owner which setting the server cannot see.
+    return NextResponse.json({ error: "not_configured", missing }, { status: 503, headers });
   }
   if (!passphraseOk(String(body.passphrase || ""))) {
     await new Promise((r) => setTimeout(r, 600)); // slow down guessing
