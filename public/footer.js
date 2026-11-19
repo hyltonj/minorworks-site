@@ -1,4 +1,4 @@
-/*! Minor Works shared footer · v1.7.0
+/*! Minor Works shared footer · v1.8.0
  *  One script, one manifest, every property.
  *  Usage:  <script src="https://minorworks.co/footer.js" data-site="dappled" defer></script>
  *  Docs:   see INSTALL.md
@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '1.7.0';
+  var VERSION = '1.8.0';
   if (window.__mwFooter) return;
 
   /* ---------- script context & options ---------- */
@@ -171,6 +171,7 @@
   // The region is a guess from the browser time zone; it errs on the side of asking.
   var CONSENT_KEY = 'mw:consent';
   function needsConsent() {
+    if (ownerId()) return false;
     try {
       var tz = (Intl.DateTimeFormat().resolvedOptions().timeZone || '');
       return /^Europe\//.test(tz) || /^Atlantic\/(Azores|Madeira|Canary|Reykjavik|Faroe)$/.test(tz) || tz === 'Africa/Ceuta';
@@ -181,18 +182,23 @@
   }
   function optedOut_signals() {
     try {
+      if (localStorage.getItem('mw-optout') === '1') return true;
+      if (ownerId()) return false;
       if (navigator.globalPrivacyControl === true) return true;
       if (navigator.doNotTrack === '1' || window.doNotTrack === '1') return true;
-      if (localStorage.getItem('mw-optout') === '1') return true;
     } catch (e) {}
     return false;
   }
   function optedOut() {
+    var owner = ownerId();
     try {
-      if (navigator.globalPrivacyControl === true) return true;
-      if (navigator.doNotTrack === '1' || window.doNotTrack === '1') return true;
       if (localStorage.getItem('mw-optout') === '1') return true;
+      if (!owner) {
+        if (navigator.globalPrivacyControl === true) return true;
+        if (navigator.doNotTrack === '1' || window.doNotTrack === '1') return true;
+      }
     } catch (e) {}
+    if (owner) return false; // the owner is the operator: counted (and flagged internal), never asked
     var c = consentState();
     if (c === 'denied') return true;
     if (needsConsent() && c !== 'granted') return true;
@@ -225,6 +231,8 @@
   // Random anonymous ID kept in local storage (no name, no email, no cookie).
   // The same key is read by the games so a visitor is one person across Minor Works.
   function anonId() {
+    var o = ownerId();
+    if (o) return o;
     try {
       var v = localStorage.getItem('mw:aid');
       if (v) return v;
@@ -237,6 +245,70 @@
     } catch (e) { return ''; }
   }
 
+  /* ---------- owner mode ----------
+     Marks THIS browser as the Minor Works owner testing the sites, so the visits can be left out of reports.
+     It is a local flag, not proof of identity: someone copying it could only hide their own visits.
+     Turn on:  open minorworks.co/owner and enter the passphrase (it hands out a 10-minute link for other domains).
+     Turn off: the same page, or add ?mwowner=off to any Minor Works address.
+     Every event from an owner browser carries is_internal: true and uses one stable owner ID. */
+  var OWNER_RE = /^mw_owner_[0-9a-f]{16}$/;
+  var OWNER_API = 'https://minorworks.co/api/owner';
+  var pendingOwner = null;
+  function ownerId() {
+    try {
+      var v = localStorage.getItem('mw:owner');
+      if (v && OWNER_RE.test(v)) return v;
+      var m = document.cookie.match(/(?:^|; )mw_owner=([^;]+)/); // set on .minorworks.co so every subdomain agrees
+      if (m && OWNER_RE.test(m[1])) { localStorage.setItem('mw:owner', m[1]); return m[1]; }
+    } catch (e) {}
+    return '';
+  }
+  function setOwner(id) {
+    try { localStorage.setItem('mw:owner', id); } catch (e) {}
+    try {
+      if (/(^|\.)minorworks\.co$/.test(location.hostname)) {
+        document.cookie = 'mw_owner=' + id + '; domain=.minorworks.co; path=/; max-age=31536000; SameSite=Lax; Secure';
+      }
+    } catch (e) {}
+  }
+  function clearOwner() {
+    try { localStorage.removeItem('mw:owner'); localStorage.removeItem('mw:owner:hello'); } catch (e) {}
+    try {
+      if (/(^|\.)minorworks\.co$/.test(location.hostname)) {
+        document.cookie = 'mw_owner=; domain=.minorworks.co; path=/; max-age=0; SameSite=Lax; Secure';
+      }
+    } catch (e) {}
+  }
+  function handleOwnerParam() {
+    try {
+      var q = new URLSearchParams(location.search), t = q.get('mwowner');
+      if (!t) return;
+      q.delete('mwowner');
+      var qs = q.toString();
+      history.replaceState(history.state, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
+      if (t === 'off') { clearOwner(); return; }
+      if (!/^[A-Za-z0-9_.\-]{20,300}$/.test(t) || typeof fetch !== 'function') return;
+      pendingOwner = fetch(OWNER_API + '?t=' + encodeURIComponent(t), { credentials: 'omit' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (j) { if (j && OWNER_RE.test(j.ownerId)) setOwner(j.ownerId); })
+        .catch(function () {});
+    } catch (e) {}
+  }
+  // Once per browser and site: link this browser's old anonymous ID to the single owner person.
+  // Only the ID of a browser the owner switched on is merged; nothing else is touched.
+  function ownerHello() {
+    var id = ownerId();
+    if (!id) return;
+    try {
+      if (localStorage.getItem('mw:owner:hello') === id) return;
+      var old = localStorage.getItem('mw:aid');
+      var props = { $set: { is_internal: true, role: 'owner' } };
+      if (old && old !== id) props.$anon_distinct_id = old;
+      phSend('$identify', props);
+      localStorage.setItem('mw:owner:hello', id);
+    } catch (e) {}
+  }
+
   // Events go to the shared Minor Works PostHog project over its plain HTTP API.
   // The project discards IP addresses. Nothing is sent when optedOut() is true.
   function phSend(event, props) {
@@ -246,11 +318,13 @@
     if (/(^|\.)(vercel\.app|netlify\.app|localhost)$|^127\.|^0\.0\.0\.0$/.test(location.hostname) && ds.previews !== 'on') return;
     var id = anonId();
     if (!id) return;
+    props = props || {};
+    if (ownerId()) { props.is_internal = true; props.role = 'owner'; }
     var body = {
       api_key: cfg.key,
       event: event,
       distinct_id: id,
-      properties: props || {},
+      properties: props,
       timestamp: new Date().toISOString()
     };
     try {
@@ -306,9 +380,11 @@
   // One count per page load, so sites with no analytics of their own still show up.
   var pageSent = false;
   function sendPageview() {
+    if (pendingOwner) { var po = pendingOwner; pendingOwner = null; po.then(sendPageview); return; }
     if (pageSent || optedOut() || ds.pageview === 'off') return;
     if (!(M.analytics && M.analytics.posthog && M.analytics.posthog.key)) return; // manifest not loaded yet: try again on next render
     pageSent = true;
+    ownerHello();
     var vs = psid(), extra = {};
     if (vs) {
       vs.n = (vs.n || 0) + 1;
@@ -826,6 +902,7 @@
     if (!host) { host = document.createElement('div'); host.id = 'mw-footer'; document.body.appendChild(host); }
     root = host.attachShadow ? (host.shadowRoot || host.attachShadow({ mode: 'open' })) : null;
     if (!root) return;
+    handleOwnerParam();
     bind();
     function setHide(v) {
       var next = parseHide(v);

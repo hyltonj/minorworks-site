@@ -183,15 +183,16 @@ export default function StatsPage() {
   const [pass, setPass] = useState("");
   const [authed, setAuthed] = useState<string | null>(null);
   const [days, setDays] = useState(7);
+  const [mine, setMine] = useState(false);
   const [data, setData] = useState<Data | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const load = useCallback(async (p: string, d: number) => {
+  const load = useCallback(async (p: string, d: number, inc = false) => {
     setLoading(true);
     setError("");
     try {
-      const r = await fetch("/api/stats", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ passphrase: p, days: d }) });
+      const r = await fetch("/api/stats", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ passphrase: p, days: d, includeInternal: inc }) });
       if (r.status === 401) {
         try { sessionStorage.removeItem(KEY); } catch {}
         setAuthed(null);
@@ -222,8 +223,9 @@ export default function StatsPage() {
     } catch {}
   }, [load]);
 
-  const onSubmit = (e: FormEvent) => { e.preventDefault(); if (pass) load(pass, days); };
-  const pick = (d: number) => { setDays(d); if (authed) load(authed, d); };
+  const onSubmit = (e: FormEvent) => { e.preventDefault(); if (pass) load(pass, days, mine); };
+  const pick = (d: number) => { setDays(d); if (authed) load(authed, d, mine); };
+  const toggleMine = () => { const m = !mine; setMine(m); if (authed) load(authed, days, m); };
 
   if (!authed || !data) {
     return (
@@ -271,12 +273,15 @@ export default function StatsPage() {
               </button>
             ))}
           </div>
+          <button onClick={toggleMine} aria-pressed={mine} className="rounded-xl px-3 py-2 text-sm font-medium" style={{ background: mine ? "#fff" : C.navy2, color: mine ? C.navy : "#c9d6f2" }}>
+            {mine ? "Including my visits" : "Include my visits"}
+          </button>
         </div>
       </header>
 
       <main className="mx-auto max-w-6xl space-y-4 px-4 py-6 sm:px-6" style={{ opacity: loading ? 0.6 : 1, transition: "opacity .2s" }}>
         <p className="text-xs" style={{ color: C.mute }}>
-          Last {data.days} days vs the {data.days} before. Updated {stamp} Boston time. Preview sites excluded. Safari visitors may be undercounted.
+          Last {data.days} days vs the {data.days} before. Updated {stamp} Boston time. Preview sites excluded. {mine ? "Your own owner-mode visits are included." : "Your own owner-mode visits are left out."} Safari visitors may be undercounted.
         </p>
 
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
