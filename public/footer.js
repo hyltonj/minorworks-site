@@ -1,4 +1,4 @@
-/*! Minor Works shared footer · v1.6.1
+/*! Minor Works shared footer · v1.7.0
  *  One script, one manifest, every property.
  *  Usage:  <script src="https://minorworks.co/footer.js" data-site="dappled" defer></script>
  *  Docs:   see INSTALL.md
@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '1.6.1';
+  var VERSION = '1.7.0';
   if (window.__mwFooter) return;
 
   /* ---------- script context & options ---------- */
@@ -273,8 +273,34 @@
       site: current ? current.id : (ds.site || ''),
       footer_version: VERSION
     };
+    var vs = psid();
+    if (vs) p.$session_id = vs.id;
+    try {
+      var q = new URLSearchParams(location.search);
+      ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach(function (n) {
+        var v = q.get(n);
+        if (v) p[n] = v.slice(0, 60);
+      });
+    } catch (e) {}
     if (extra) for (var k in extra) p[k] = extra[k];
     return p;
+  }
+
+  // Visit ID: UUID-shaped, kept in session storage for this tab (no cookie), renewed after 30 quiet minutes.
+  function psid() {
+    try {
+      var k = 'mw:ps', now = Date.now(), v = JSON.parse(sessionStorage.getItem(k) || 'null');
+      if (!v || !v.id || now - v.t > 1800000) {
+        var a = new Uint8Array(16), h = '';
+        (window.crypto || window.msCrypto).getRandomValues(a);
+        a[6] = (a[6] & 15) | 64; a[8] = (a[8] & 63) | 128;
+        for (var i = 0; i < 16; i++) h += (a[i] + 256).toString(16).slice(1);
+        v = { id: h.slice(0, 8) + '-' + h.slice(8, 12) + '-' + h.slice(12, 16) + '-' + h.slice(16, 20) + '-' + h.slice(20), t: now, n: 0 };
+      }
+      v.t = now;
+      sessionStorage.setItem(k, JSON.stringify(v));
+      return v;
+    } catch (e) { return null; }
   }
 
   // One count per page load, so sites with no analytics of their own still show up.
@@ -283,7 +309,15 @@
     if (pageSent || optedOut() || ds.pageview === 'off') return;
     if (!(M.analytics && M.analytics.posthog && M.analytics.posthog.key)) return; // manifest not loaded yet: try again on next render
     pageSent = true;
-    phSend('mw_pageview', phProps());
+    var vs = psid(), extra = {};
+    if (vs) {
+      vs.n = (vs.n || 0) + 1;
+      try { sessionStorage.setItem('mw:ps', JSON.stringify(vs)); } catch (e) {}
+      extra.entry = vs.n === 1;
+      extra.session_page_number = vs.n;
+    }
+    phSend('mw_pageview', phProps(extra));
+    startEngagement();
     // Arrived from another Minor Works site: link the two anonymous IDs so a journey reads as one person.
     try {
       var q = new URLSearchParams(location.search), from = q.get('mwid');
@@ -295,6 +329,54 @@
         history.replaceState(history.state, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
       }
     } catch (e) {}
+  }
+
+  /* ---------- engagement: active time, scroll depth, outbound clicks ---------- */
+  var eng = { on: false, ms: 0, sent: 0, scroll: 0, marks: {}, last: Date.now() };
+  function startEngagement() {
+    if (eng.on || ds.pageview === 'off') return;
+    eng.on = true;
+    var bump = function () { eng.last = Date.now(); };
+    ['scroll', 'mousemove', 'keydown', 'touchstart', 'click'].forEach(function (n) {
+      window.addEventListener(n, bump, { passive: true, capture: true });
+    });
+    // Active time: counted only while the tab is visible and the person did something in the last 30 seconds.
+    setInterval(function () {
+      if (document.visibilityState === 'visible' && Date.now() - eng.last < 30000) eng.ms += 5000;
+    }, 5000);
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') flushEngaged(); });
+    window.addEventListener('pagehide', flushEngaged);
+    window.addEventListener('scroll', onScrollDepth, { passive: true });
+    document.addEventListener('click', onOutbound, true);
+    onScrollDepth();
+  }
+  function flushEngaged() {
+    var secs = Math.floor((eng.ms - eng.sent) / 1000);
+    if (secs < 1) return;
+    eng.sent += secs * 1000;
+    phSend('mw_engaged', phProps({ engaged_seconds: Math.min(secs, 1800), max_scroll: eng.scroll }));
+  }
+  function onScrollDepth() {
+    var de = document.documentElement, vh = window.innerHeight || de.clientHeight || 0;
+    var h = Math.max(de.scrollHeight || 0, document.body ? document.body.scrollHeight : 0);
+    if (!vh || h <= vh + 20) return; // the page fits on screen: no scrolling to measure
+    var pct = Math.min(100, Math.round(((window.pageYOffset || de.scrollTop || 0) + vh) / h * 100));
+    if (pct > eng.scroll) eng.scroll = pct;
+    [25, 50, 75, 100].forEach(function (m) {
+      if (pct >= (m === 100 ? 98 : m) && !eng.marks[m]) { eng.marks[m] = 1; phSend('mw_scroll', phProps({ depth: m })); }
+    });
+  }
+  function onOutbound(e) {
+    try {
+      var path = e.composedPath ? e.composedPath() : [];
+      if (host && path.indexOf(host) > -1) return; // footer clicks are tracked as footer_click
+      var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+      if (!a) return;
+      var u = new URL(a.href, location.href);
+      if (!/^https?:$/.test(u.protocol) || u.hostname === location.hostname) return;
+      var h = hostOf(u.href);
+      phSend('mw_outbound', phProps({ outbound_host: h, outbound_url: u.origin + u.pathname, to_minorworks: !!managedHosts()[h] }));
+    } catch (x) {}
   }
 
   function track(name, props) {
