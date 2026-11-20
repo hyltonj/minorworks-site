@@ -22,6 +22,7 @@ type Data = {
   funnel: { visited: number; sawFooter: number; clickedFooter: number; crossedSites: number };
   pages: { page: string; views: number }[];
   countries: { code: string; people: number }[];
+  sharing: { site: string; players: number; sharers: number; taps: number; arrived: number; siteSharers: number }[];
 };
 
 const C = {
@@ -351,6 +352,40 @@ export default function StatsPage() {
             )}
           </Card>
         </div>
+
+        <Card title="Sharing" note="people who tapped share">
+          {data.sharing.length ? (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-xs uppercase tracking-wide" style={{ color: C.mute }}>
+                    <th className="pb-2 font-medium">Site</th>
+                    <th className="pb-2 text-right font-medium">Players</th>
+                    <th className="pb-2 text-right font-medium">Sharers</th>
+                    <th className="pb-2 text-right font-medium">Share rate</th>
+                    <th className="pb-2 text-right font-medium">Taps</th>
+                    <th className="pb-2 text-right font-medium">Came via a share</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.sharing.map((r) => (
+                    <tr key={r.site} className="border-t" style={{ borderColor: C.line }}>
+                      <td className="py-2 font-medium" style={{ color: C.ink }}>{r.site}</td>
+                      <td className="py-2 text-right tabular-nums">{r.players}</td>
+                      <td className="py-2 text-right tabular-nums">{r.sharers}</td>
+                      <td className="py-2 text-right tabular-nums">{r.players ? `${Math.round((r.sharers / r.players) * 100)}%` : "–"}</td>
+                      <td className="py-2 text-right tabular-nums">{r.taps}</td>
+                      <td className="py-2 text-right tabular-nums">{r.arrived}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className="mt-3 text-xs" style={{ color: C.mute }}>
+                Taps are presses of a share button, not confirmed sends. Share rate is sharers divided by people who started a puzzle. Games not listed send no share events yet.
+              </p>
+            </div>
+          ) : <Empty text="No share taps yet" />}
+        </Card>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Card title="Where visitors come from" note="people">
