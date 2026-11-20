@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '1.8.0';
+  var VERSION = '1.8.1';
   if (window.__mwFooter) return;
 
   /* ---------- script context & options ---------- */
@@ -356,8 +356,56 @@
         if (v) p[n] = v.slice(0, 60);
       });
     } catch (e) {}
+    // First-touch campaign for this visit: kept in session storage so a click on page 3 still knows
+    // the visitor arrived from, say, Product Hunt. Sent as entry_utm_* so utm_* keeps meaning "this page's address".
+    try {
+      var et = entryUtm();
+      for (var ek in et) p['entry_' + ek] = et[ek];
+    } catch (e) {}
     if (extra) for (var k in extra) p[k] = extra[k];
     return p;
+  }
+
+  var UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+  function entryUtm() {
+    var cur = {}, any = false;
+    try {
+      var q = new URLSearchParams(location.search);
+      UTM_KEYS.forEach(function (n) { var v = q.get(n); if (v) { cur[n] = v.slice(0, 60); any = true; } });
+    } catch (e) {}
+    try {
+      if (any && !(cur.utm_medium === 'crosspromo' || cur.utm_campaign === 'crosspromo' || cur.utm_medium === 'footer' || cur.utm_medium === 'share')) {
+        sessionStorage.setItem('mw:utm', JSON.stringify(cur)); // a new outside campaign replaces the old one
+        return cur;
+      }
+      var kept = JSON.parse(sessionStorage.getItem('mw:utm') || 'null');
+      if (kept && typeof kept === 'object') return kept;
+    } catch (e) {}
+    return any ? cur : {};
+  }
+
+  // Named conversion links, per site. A click on a matching link sends its own event (once per click)
+  // alongside the normal mw_outbound. Never touches the link, so it opens exactly as before.
+  var CONVERSIONS = [
+    { site: 'margin', match: 'pancmfmghplcafdmbhnojncbjekkgjjm', hosts: /(^|\.)(chromewebstore\.google\.com|chrome\.google\.com)$/, event: 'margin_chrome_store_click' }
+  ];
+  function linkLocation(a) {
+    try {
+      var loc = a.getAttribute('data-mw-loc') || a.getAttribute('data-location');
+      if (loc) return String(loc).slice(0, 40);
+      var n = a.parentElement && a.parentElement.closest('header,nav,footer,section,main,aside,[id]');
+      if (!n) return 'page';
+      var id = n.id ? '#' + n.id : '';
+      return (n.tagName.toLowerCase() + id).slice(0, 40);
+    } catch (e) { return 'unknown'; }
+  }
+  function conversionFor(u) {
+    var sid = current ? current.id : (ds.site || '');
+    for (var i = 0; i < CONVERSIONS.length; i++) {
+      var c = CONVERSIONS[i];
+      if (c.site === sid && c.hosts.test(u.hostname) && (u.pathname + u.search).indexOf(c.match) > -1) return c;
+    }
+    return null;
   }
 
   // Visit ID: UUID-shaped, kept in session storage for this tab (no cookie), renewed after 30 quiet minutes.
@@ -452,6 +500,17 @@
       if (!/^https?:$/.test(u.protocol) || u.hostname === location.hostname) return;
       var h = hostOf(u.href);
       phSend('mw_outbound', phProps({ outbound_host: h, outbound_url: u.origin + u.pathname, to_minorworks: !!managedHosts()[h] }));
+      var conv = conversionFor(u);
+      if (conv) {
+        var lp = new URLSearchParams(location.search), cp = {
+          source_page: location.origin + location.pathname,
+          link_location: linkLocation(a),
+          link_text: (a.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 40),
+          destination: u.origin + u.pathname
+        };
+        UTM_KEYS.slice(0, 3).forEach(function (n) { if (lp.get(n)) cp[n] = lp.get(n).slice(0, 60); });
+        phSend(conv.event, phProps(cp));
+      }
     } catch (x) {}
   }
 
