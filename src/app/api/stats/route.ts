@@ -29,6 +29,10 @@ const REAL =
 const NOT_INTERNAL = " and coalesce(toString(properties.is_internal), '') != 'true'";
 
 const PLAYS = "('bp_set_started', 'puzzle_started')";
+// Things people share from a game. Taps, not confirmed sends: browsers rarely say if a share finished.
+// did_you_know_share is left out on purpose: Ballpark sends it when a card preview opens, not on a share.
+const SHARES = "('bp_share_pressed', 'share_sent', 'daily_puzzle_shared')";
+const FROM_SHARE = "('daily_puzzle_started_from_share', 'started_from_share')";
 const FINISHES = "('bp_set_completed', 'puzzle_solved')";
 
 async function hq(query: string): Promise<unknown[][]> {
@@ -57,7 +61,7 @@ async function build(days: number, includeInternal: boolean) {
   const span = `timestamp >= now() - interval ${days * 2} day`;
   const day = "toDate(toTimeZone(timestamp, 'America/New_York'))";
 
-  const [head, daily, sites, refs, devices, funnel, pages, countries, engaged, returning] =
+  const [head, daily, sites, refs, devices, funnel, pages, countries, engaged, returning, sharing] =
     await Promise.all([
       hq(`select
             uniqIf(person_id, ${cur}), uniqIf(person_id, ${prev}),
@@ -92,6 +96,12 @@ async function build(days: number, includeInternal: boolean) {
             select person_id, min(timestamp) first_seen, max(timestamp) last_seen
             from events where ${REAL_} group by person_id
             having last_seen >= now() - interval ${days} day)`),
+      hq(`select properties.site s, uniqIf(person_id, event in ${PLAYS}) players,
+                 uniqIf(person_id, event in ${SHARES}) sharers, countIf(event in ${SHARES}) taps,
+                 uniqIf(person_id, event in ${FROM_SHARE}) arrived,
+                 uniqIf(person_id, event = 'footer_share') site_sharers
+          from events where ${cur} and ${REAL_} group by s
+          having sharers > 0 or arrived > 0 or site_sharers > 0 order by sharers desc limit 20`),
     ]);
 
   const h = head[0] || [];
@@ -123,6 +133,9 @@ async function build(days: number, includeInternal: boolean) {
       crossedSites: n((funnel[0] || [])[3]),
     },
     pages: pages.map((r) => ({ page: String(r[0]), views: n(r[1]) })),
+    sharing: sharing.map((r) => ({
+      site: String(r[0]), players: n(r[1]), sharers: n(r[2]), taps: n(r[3]), arrived: n(r[4]), siteSharers: n(r[5]),
+    })),
     countries: countries.map((r) => ({ code: String(r[0]), people: n(r[1]) })),
   };
 }
