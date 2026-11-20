@@ -30,7 +30,8 @@ const NOT_INTERNAL = " and coalesce(toString(properties.is_internal), '') != 'tr
 
 const PLAYS = "('bp_set_started', 'puzzle_started')";
 // Things people share from a game. Taps, not confirmed sends: browsers rarely say if a share finished.
-const SHARES = "('bp_share_pressed', 'did_you_know_share', 'share_sent', 'daily_puzzle_shared')";
+// did_you_know_share is left out on purpose: Ballpark sends it when a card preview opens, not on a share.
+const SHARES = "('bp_share_pressed', 'share_sent', 'daily_puzzle_shared')";
 const FROM_SHARE = "('daily_puzzle_started_from_share', 'started_from_share')";
 const FINISHES = "('bp_set_completed', 'puzzle_solved')";
 
