@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '1.8.1';
+  var VERSION = '1.8.2';
   if (window.__mwFooter) return;
 
   /* ---------- script context & options ---------- */
@@ -799,7 +799,9 @@
     /* link bar */
     var items = [];
     if (!hidden('contact') && studio.contact) {
-      items.push(link('Contact', 'mailto:' + studio.contact, 'contact'));
+      // One studio contact page for every project; the project name rides along so we know who prompted the message.
+      var cSite = (current && current.id ? String(current.id) : '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 40);
+      items.push(link('Contact', 'https://minorworks.co/contact/' + (cSite ? '?site=' + encodeURIComponent(cSite) : ''), 'contact'));
     }
     if (!hidden('feedback') && ds.feedback === 'on' && studio.contact) {
       var b = buildId();
@@ -885,6 +887,16 @@
     }
   }
 
+  // The contact page reports a successful send by name only. Nothing else may use this door, and no typed text passes through.
+  window.addEventListener('mwfooter:send', function (e) {
+    try {
+      var d = e && e.detail;
+      if (!d || d.name !== 'contact_submit') return;
+      var f = String((d.props && d.props.from_site) || 'direct').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 40) || 'direct';
+      track('contact_submit', { from_site: f });
+    } catch (x) {}
+  });
+
   function bind() {
     root.addEventListener('click', function (e) {
       var t = e.target;
@@ -895,6 +907,7 @@
       var ch = t.closest && t.closest('button[data-choices]');
       if (ch) { showBanner(); return; }
       var a = t.closest && t.closest('a[data-k]');
+      if (a && a.getAttribute('data-k') === 'contact') track('contact_click', {}); // site = this project
       if (a) track('footer_click', { kind: a.getAttribute('data-k'), target: a.getAttribute('data-t'), href: a.getAttribute('href').split('?')[0] });
     });
   }
