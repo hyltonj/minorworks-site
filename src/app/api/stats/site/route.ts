@@ -51,7 +51,7 @@ async function build(siteId: string, days: number, includeInternal: boolean, dev
       from events where ${span} and ${real}`),
     daily: () => hq("site.daily", `select ${DAY} d, uniq(person_id), countIf(event = 'mw_pageview'),
         countIf(event in ${started}), countIf(event in ${finished}), countIf(event in ${tap}),
-        ${def.sdk ? "uniqIf(properties.$session_id, properties.$lib = 'web')" : "uniqIf(properties.$session_id, event = '$pageview' and timestamp >= ${W.nativeFrom})"}
+        ${def.sdk ? "uniqIf(properties.$session_id, properties.$lib = 'web')" : `uniqIf(properties.$session_id, event = '$pageview' and timestamp >= ${W.nativeFrom})`}
       from events where ${cur} and ${real} group by d order by d`),
     hours: () => hq("site.hours", `select toDayOfWeek(toTimeZone(timestamp, 'America/New_York')) dow,
         toHour(toTimeZone(timestamp, 'America/New_York')) h, count()
