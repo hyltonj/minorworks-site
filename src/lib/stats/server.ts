@@ -1,5 +1,6 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 import { NATIVE_BOUNDARY } from "./model";
 
 // Server-only helpers for the stats API routes. The passphrase, the PostHog personal API key and the Small Canon
@@ -17,11 +18,39 @@ export function passphraseOk(given: string): boolean {
   return timingSafeEqual(sha(given), sha(real));
 }
 
-/** Returns a response when the caller must stop (not configured or wrong passphrase), otherwise null. */
+// Wrong-passphrase limiter. In-memory, so it is per server instance and resets on a cold start: it slows guessing, it is
+// not a hard guarantee. Per client address (5 wrong tries in 10 minutes) plus a global cap across all addresses.
+const FAIL_WINDOW_MS = 10 * 60 * 1000;
+const PER_CLIENT_MAX = 5;
+const GLOBAL_MAX = 30;
+const fails = new Map<string, number[]>();
+const globalFails: number[] = [];
+const recent = (a: number[], now: number) => { while (a.length && now - a[0] > FAIL_WINDOW_MS) a.shift(); return a; };
+function clientId(): string {
+  try {
+    const h = headers();
+    return h.get("x-nf-client-connection-ip") || (h.get("x-forwarded-for") || "").split(",")[0].trim() || "unknown";
+  } catch { return "unknown"; }
+}
+function limited(id: string, now: number): boolean {
+  return recent(fails.get(id) || [], now).length >= PER_CLIENT_MAX || recent(globalFails, now).length >= GLOBAL_MAX;
+}
+function recordFail(id: string, now: number) {
+  const a = recent(fails.get(id) || [], now); a.push(now); fails.set(id, a);
+  globalFails.push(now);
+  if (fails.size > 500) for (const [k, v] of fails) if (!recent(v, now).length) fails.delete(k);
+}
+
+/** Returns a response when the caller must stop (not configured, locked out or wrong passphrase), otherwise null. */
 export async function gate(passphrase: unknown): Promise<NextResponse | null> {
   const missing = ["STATS_PASSPHRASE", "POSTHOG_PERSONAL_API_KEY"].filter((k) => !process.env[k]);
   if (missing.length) return NextResponse.json({ error: "not_configured", missing }, { status: 503, headers: JSON_HEADERS });
+  const id = clientId();
+  const now = Date.now();
+  // Locked out: do not even check the passphrase, so a locked-out client cannot keep guessing.
+  if (limited(id, now)) return NextResponse.json({ error: "too_many_attempts" }, { status: 429, headers: { ...JSON_HEADERS, "Retry-After": "600" } });
   if (!passphraseOk(String(passphrase || ""))) {
+    recordFail(id, now);
     await new Promise((r) => setTimeout(r, 600)); // slow down guessing
     return NextResponse.json({ error: "denied" }, { status: 401, headers: JSON_HEADERS });
   }

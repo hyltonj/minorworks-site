@@ -479,6 +479,9 @@ export function useStats<T>(url: string, params: Record<string, unknown>) {
   // Start pending while restoring a passphrase from sessionStorage. Otherwise a
   // valid returning visitor briefly sees the login form on every route change.
   const [loading, setLoading] = useState(true);
+  // A signed-in visitor whose request failed (server or upstream trouble) is not logged out: show a retry, not the login form.
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   const key = JSON.stringify(params);
   const seq = useRef(0);
 
@@ -496,6 +499,7 @@ export function useStats<T>(url: string, params: Record<string, unknown>) {
     (async () => {
       setLoading(true);
       setError("");
+      setFailed(false);
       try {
         const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...JSON.parse(key), passphrase: pass }) });
         if (stale) return;
@@ -513,22 +517,28 @@ export function useStats<T>(url: string, params: Record<string, unknown>) {
           return;
         }
         if (r.status === 404) { setError("That page does not exist."); setData(null); return; }
-        if (!r.ok) { setError("Could not reach PostHog just now. Try again in a minute."); return; }
+        if (r.status === 429) {
+          try { sessionStorage.removeItem(KEY); } catch {}
+          setData(null); setPass(null);
+          setError("Too many wrong passphrases. Wait a few minutes and try again.");
+          return;
+        }
+        if (!r.ok) { setError("Could not load the stats just now (PostHog or the server did not answer)."); setFailed(true); return; }
         setData((await r.json()) as T);
         try { sessionStorage.setItem(KEY, pass); } catch {}
       } catch {
-        if (!stale) setError("Network trouble. Try again.");
+        if (!stale) { setError("Network trouble. Check your connection."); setFailed(true); }
       } finally {
         if (seq.current === mine) setLoading(false);
       }
     })();
     return () => { stale = true; };
-  }, [pass, url, key]);
+  }, [pass, url, key, attempt]);
 
-  return { pass, ready, data, error, loading, login: (p: string) => setPass(p) };
+  return { pass, ready, data, error, loading, login: (p: string) => setPass(p), retry: failed ? () => setAttempt((n) => n + 1) : undefined };
 }
 
-export function Login({ onLogin, error, loading }: { onLogin: (p: string) => void; error: string; loading: boolean }) {
+export function Login({ onLogin, error, loading, retry }: { onLogin: (p: string) => void; error: string; loading: boolean; retry?: () => void }) {
   const [v, setV] = useState("");
   // A saved passphrase is being checked against the API. Do not flash an empty
   // login form while navigating between already-authorized /stats pages.
@@ -536,6 +546,18 @@ export function Login({ onLogin, error, loading }: { onLogin: (p: string) => voi
     return (
       <main className="flex min-h-screen items-center justify-center px-4" style={{ background: C.navy }} aria-busy="true">
         <p className="text-sm font-medium" role="status" style={{ color: "#d1def4" }}>Opening Studio Stats…</p>
+      </main>
+    );
+  }
+  if (retry && !loading) {
+    return (
+      <main className="flex min-h-screen items-center justify-center px-4" style={{ background: C.navy }}>
+        <div className="w-full max-w-sm rounded-2xl p-7" style={{ background: C.card, boxShadow: "0 20px 50px rgba(0,0,0,.35)" }}>
+          <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: C.mute }}>Minor Works</p>
+          <h1 className="mt-1 text-2xl" style={{ fontFamily: SERIF, color: C.navy, fontWeight: 700 }}>Stats did not load</h1>
+          <p role="alert" className="mt-3 text-sm" style={{ color: C.ink }}>{error} You are still signed in.</p>
+          <button type="button" onClick={retry} className="mt-5 w-full rounded-lg py-2.5 text-sm font-semibold text-white" style={{ background: C.blue }}>Try again</button>
+        </div>
       </main>
     );
   }
