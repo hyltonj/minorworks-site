@@ -37,3 +37,6 @@ Started 21 Nov 2026. Incremental on the existing `/stats`; palette, typography a
 1. **Small Canon**: read Supabase via the existing function (done, needs 2 env vars) vs add PostHog events. Recommend the adapter now, PostHog events later for poster creation and sharing.
 2. **GA4/Search Console**: needs a read-only Google service account (GA4 property id, key as env var, added to each GSC property). Only route to history before 18 Nov. Recommend yes.
 3. Change the `/stats` passphrase (still outstanding).
+
+## Review round (21 Nov, after ChatGPT review)
+Metric definitions, reconciliation, Google findings, Small Canon review and next steps: see `docs/stats-2.0-handoff.md`. Code changes in this round: tile labels say events vs people ("Starts (events)", "Finishes (events)", "Finish rate (events)"); page-view and start/finish definitions corrected in `model.ts`; Small Canon section renders KPIs and an event table instead of raw JSON.

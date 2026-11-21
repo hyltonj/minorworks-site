@@ -106,11 +106,11 @@ export const isSiteId = (id: string) => /^[a-z0-9.]{2,40}$/.test(id) && !!siteBy
 /** Plain-language metric definitions, shown in the dashboard so numbers are never ambiguous. */
 export const DEFINITIONS: Record<string, string> = {
   people: "Distinct anonymous browser ids (mw_xxxx) seen in the period. One person on two devices counts twice; Safari clears ids after 7 days of no visit.",
-  pageViews: "Page loads and in-app route changes (PostHog $pageview). Before 21 Nov 2026 this is our own mw_pageview event.",
+  pageViews: "Events counted, not people: our own mw_pageview event, sent by the footer on every page load and route change (all dates). PostHog's native $pageview is used only for sessions, bounce and entry pages, and only from 21 Nov 2026.",
   sessions: "Visits as PostHog counts them: a UUID v7 session id from the footer or the game SDK, ending after 30 quiet minutes. Valid only from 21 Nov 2026.",
   bounce: "Sessions with one page view and under 10 seconds of activity (PostHog definition), native sessions only.",
-  started: "A play or creation began (see each site's event map).",
-  finished: "A play or creation completed. Finish rate = finished divided by started.",
+  started: "Events counted: each time a play or creation began (see each site's event map). A person can start many times; the people count under it is distinct people.",
+  finished: "Events counted: each completion. Finish rate (events) = finishes divided by starts. The usage funnel shows the people-based version (people who finished divided by people who started), which is higher.",
   shareTap: "People who pressed a share button. Browsers rarely report whether a share finished, so this is intent.",
   returning: "People first seen before the period who were active in it. Limited by the 18 Nov 2026 start of PostHog history.",
 };

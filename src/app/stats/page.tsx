@@ -128,7 +128,7 @@ export default function StatsPage() {
             { name: "Arrived from another of our sites", value: f.crossedSites },
           ]} />
           <div className="mt-4 grid grid-cols-2 gap-3 border-t pt-3 text-sm" style={{ borderColor: C.line }}>
-            <div><p style={{ color: C.mute }}>Finish rate</p><p className="text-xl font-semibold tabular-nums">{finishRate === null ? "–" : `${finishRate}%`}</p></div>
+            <div><p style={{ color: C.mute }}>Finish rate (events)</p><p className="text-xl font-semibold tabular-nums">{finishRate === null ? "–" : `${finishRate}%`}</p></div>
             <div><p style={{ color: C.mute }}>Returning</p><p className="text-xl font-semibold tabular-nums">{t.returning.of ? `${Math.round((t.returning.now / t.returning.of) * 100)}%` : "–"}</p></div>
           </div>
         </Card>

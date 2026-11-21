@@ -30,6 +30,32 @@ type Data = {
   external: null | { configured: false } | { configured: true; ok: false; error: string } | { configured: true; ok: true; data: Record<string, unknown> };
 };
 
+type SC = { kpis?: { visitors: number; visits: number; events: number; engaged: number; first_seen: string | null; last_seen: string | null };
+  events?: { event: string; n: number; visitors: number }[]; sources?: { source: string; visitors: number }[]; days?: number };
+
+/** Small Canon's own database: distinct visitor ids (visit_id), not PostHog people. Not comparable to the PostHog numbers above. */
+function SmallCanon({ data }: { data: unknown }) {
+  const x = (data || {}) as SC;
+  const k = x.kpis;
+  if (!k) return <Empty text="The Small Canon function returned nothing for this range" />;
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <Stat label="Visitors" value={nf(k.visitors)} sub="distinct visit ids" />
+        <Stat label="Visits" value={nf(k.visits)} sub="visit events" />
+        <Stat label="Took an action" value={nf(k.engaged)} sub={`${pct(k.engaged, k.visitors)} of visitors`} />
+        <Stat label="Last event" value={k.last_seen ? k.last_seen.slice(5, 10) : "–"} sub={k.first_seen ? `first ${k.first_seen.slice(0, 10)}` : undefined} />
+      </div>
+      <DataTable rows={x.events || []} initialSort="n" empty="No events in this range" cols={[
+        { key: "e", label: "Event", value: (r) => r.event, render: (r) => <code className="text-xs">{r.event}</code> },
+        { key: "n", label: "Count", align: "right", value: (r) => r.n },
+        { key: "v", label: "Visitors", align: "right", value: (r) => r.visitors },
+      ]} />
+      <p className="text-xs" style={{ color: C.mute }}>Counted in the Small Canon database since 3 Nov 2026 (its predecessor, Shelf Life, goes back to 18 Oct). Test rows are excluded unless “include my visits” is on.</p>
+    </div>
+  );
+}
+
 const DEVICES = [["", "All devices"], ["desktop", "Desktop"], ["mobile", "Mobile"], ["tablet", "Tablet"]] as const;
 
 /** One value per calendar day in range. Days with no PostHog history are null ("not collected"), never 0. */
@@ -115,8 +141,8 @@ export default function SitePage() {
         <Stat label="Sessions" value={noSessions ? "–" : nf(nat.sessions)} sub={noSessions ? "not collected in this range" : `${nat.pagesPerSession ?? "–"} pages each`} />
         <Stat label="Average session" value={noSessions ? "–" : dur(nat.avgSessionSeconds)} sub={noSessions || nat.bounceRate === null ? undefined : `${nat.bounceRate}% bounce`} />
         {s.hasProductEvents && s.kind === "game" && <>
-          <Stat label="Started" value={nf(t.started.now)} pair={t.started} sub={`${nf(t.startedPeople.now)} people`} />
-          <Stat label="Finished" value={nf(t.finished.now)} pair={t.finished} sub={`${pct(t.finished.now, t.started.now)} finish rate`} />
+          <Stat label="Starts (events)" value={nf(t.started.now)} pair={t.started} sub={`${nf(t.startedPeople.now)} distinct people`} />
+          <Stat label="Finishes (events)" value={nf(t.finished.now)} pair={t.finished} sub={`${pct(t.finished.now, t.started.now)} of starts`} />
           <Stat label="Sharers" value={nf(t.sharerPeople.now)} pair={t.sharerPeople} sub={hasSharing ? `${pct(t.sharerPeople.now, t.startedPeople.now)} of players` : "no share events"} />
           <Stat label="Returning" value={ret.returning.of ? pct(ret.returning.now, ret.returning.of) : "–"} sub="first seen before range" />
         </>}
@@ -267,7 +293,7 @@ export default function SitePage() {
           ) : !d.external.ok ? (
             <Notice tone="warn">Could not read the Small Canon stats function: {d.external.error}</Notice>
           ) : (
-            <pre className="overflow-x-auto rounded-lg p-3 text-xs" style={{ background: C.bg, color: C.ink }}>{JSON.stringify(d.external.data, null, 2).slice(0, 6000)}</pre>
+            <SmallCanon data={d.external.data} />
           )}
         </Section>
       )}
