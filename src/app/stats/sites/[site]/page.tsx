@@ -29,6 +29,7 @@ type Data = {
   sessionLen: { bucket: number; sessions: number }[];
   cohortGrid: { first: string; k: number; people: number }[];
   sessionMix: { sdk: number; footerOnly: number };
+  sdkCoverage: { sessions: number; withPageview: number; since: string };
   footerVersions: { version: string; sessions: number; last: string }[];
   activity: { label: string; events: number; people: number; sessions: number }[];
   lifecycle: Life[];
@@ -144,6 +145,7 @@ export default function SitePage() {
   const d = data, t = d.totals, b = d.boundary, nat = d.native, e = d.engagement, s = d.site, cov = d.coverage, ret = d.retention;
   const def = siteById(s.id);
   const noSessions = b.covers === "none" && !s.sdk;
+  const pvLow = s.sdk && d.sdkCoverage.sessions > 0 && d.sdkCoverage.withPageview < d.sdkCoverage.sessions * 0.5;
   const silent = !t.people.now && !t.views.now && !d.inventory.length && !d.external;
   const game = s.hasProductEvents && s.kind === "game";
   const deviceSelect = (
@@ -291,8 +293,8 @@ export default function SitePage() {
           <div className="mt-3"><Sub>Top referrers</Sub></div>
           <HBars rows={d.acquisition.referrers.slice(0, 6).map((r) => ({ name: r.name, value: r.people }))} label={(n) => (n === "$direct" ? "Direct" : n)} />
         </Panel>
-        <Panel title={!noSessions && s.sdk && nat.withPageview < d.sessionMix.sdk * 0.5 ? "Top pages" : "Entry and top pages"} note={noSessions ? "entry pages from 21 Nov" : s.sdk && nat.withPageview < d.sessionMix.sdk * 0.5 ? "views" : "sessions · views"}>
-          {noSessions ? <Empty text="Entry pages come from sessions, which start 21 Nov 2026" /> : s.sdk && nat.withPageview < d.sessionMix.sdk * 0.5 ? <Insufficient text={`Only ${nat.withPageview} of ${d.sessionMix.sdk} sessions sent a pageview: entry pages and bounce are not reliable`} /> : (
+        <Panel title={!noSessions && pvLow ? "Top pages" : "Entry and top pages"} note={noSessions ? "entry pages from 21 Nov" : pvLow ? "views" : "sessions · views"}>
+          {noSessions ? <Empty text="Entry pages come from sessions, which start 21 Nov 2026" /> : pvLow ? <Insufficient text={`Only ${d.sdkCoverage.withPageview} of ${d.sdkCoverage.sessions} sessions since ${stampOf(d.sdkCoverage.since)} sent a pageview: entry pages and bounce are not reliable`} /> : (
             <DataTable dense limit={5} initialSort="sessions" rows={d.entry} cols={[
               { key: "p", label: "Entry", render: (r) => <span className="break-all">{r.path}</span> },
               { key: "s", label: "Sess.", align: "right", value: (r) => r.sessions },
@@ -340,7 +342,7 @@ export default function SitePage() {
             ...(s.sdk ? [
               { l: "Sessions counted", v: nf(d.sessionMix.sdk), n: "Game SDK sessions: one per visit, the basis for the journey, channel and length charts." },
               { l: "Footer-only session ids", v: nf(d.sessionMix.footerOnly), n: d.sessionMix.footerOnly ? "Older footers on this site use their own session id, so the same visit appears twice. Excluded from session metrics." : "None." },
-              { l: "SDK sessions with a $pageview", v: `${nf(nat.withPageview)} of ${nf(d.sessionMix.sdk)}`, n: nat.withPageview < d.sessionMix.sdk * 0.8 ? "The game SDK rarely sends a pageview on load, so bounce and entry pages are not valid here." : "Pageviews are arriving from the SDK." },
+              { l: "SDK sessions with a $pageview", v: `${nf(d.sdkCoverage.withPageview)} of ${nf(d.sdkCoverage.sessions)} since ${stampOf(d.sdkCoverage.since)}`, n: pvLow ? "Fewer than half of sessions since the pageview deploy sent one, so bounce and entry pages are not valid here." : "Counted only from the pageview deploy. Earlier sessions have none, so the journey above covers more sessions than this row." },
             ] : [
               { l: "Footer pageviews (mw_pageview)", v: nf(cov.mwViews), n: "Counted on every footer-equipped load." },
               { l: "Sessions with a $pageview", v: `${nf(cov.sessionsWithPageview)} of ${nf(cov.sessions)}`, n: "Sessions without one are excluded from sessions, bounce and entry pages." },

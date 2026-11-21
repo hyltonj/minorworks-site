@@ -94,6 +94,10 @@ async function build(siteId: string, days: number, includeInternal: boolean, dev
     sessionMix: () => hq("site.sessionMix", `select kind, count() from (select properties.$session_id sid,
             multiIf(countIf(properties.$lib = 'web') > 0, 'sdk', 'footer') kind
           from events where ${cur} and ${real} and properties.$session_id is not null group by sid) group by kind`),
+    // Sessions that began after the pageview deploy (covFrom): the fair denominator for "how many SDK sessions send a pageview".
+    sdkCoverage: () => def.sdk ? hq("site.sdkCoverage", `select count(), countIf(pv > 0) from (
+        select properties.$session_id sid, countIf(event = '$pageview') pv, min(timestamp) first
+        from events where timestamp >= ${covFrom} and ${real} and properties.$lib = 'web' and properties.$session_id is not null group by sid)`) : Promise.resolve([]),
     footerVersions: () => hq("site.footerVersions", `select toString(properties.$lib_version), uniq(properties.$session_id), toString(max(timestamp))
           from events where ${cur} and ${real} and properties.$lib = 'mw-footer' group by 1 order by 2 desc limit 6`),
     journey: () => journey.length ? hq("site.journey", journeySql) : Promise.resolve([]),
@@ -231,6 +235,7 @@ async function build(siteId: string, days: number, includeInternal: boolean, dev
     })(),
     sessionLen: R.sessionLen.map((r) => ({ bucket: n(r[0]), sessions: n(r[1]) })),
     cohortGrid: R.cohortGrid.map((r) => ({ first: s(r[0]), k: n(r[1]), people: n(r[2]) })),
+    sdkCoverage: { sessions: n(((R.sdkCoverage || [])[0] || [])[0]), withPageview: n(((R.sdkCoverage || [])[0] || [])[1]), since: new Date(covMs).toISOString() },
     sessionMix: { sdk: n((R.sessionMix.find((r) => s(r[0]) === "sdk") || [])[1]), footerOnly: n((R.sessionMix.find((r) => s(r[0]) === "footer") || [])[1]) },
     footerVersions: R.footerVersions.map((r) => ({ version: s(r[0]), sessions: n(r[1]), last: s(r[2]) })),
     coverage: {
