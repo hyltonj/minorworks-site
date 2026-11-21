@@ -447,7 +447,7 @@
   /* ---------- PostHog's own pageview events, for its Web Analytics screens ---------- */
   // $pageview and $pageleave are sent next to our mw_* events (which stay exactly as they were).
   // Switched on per site from the manifest (analytics.native: true, or a list of site ids) or data-native="on".
-  var np = { path: '', url: '', t: 0, scroll: 0, left: true };
+  var np = { path: '', url: '', t: 0, scroll: 0, h: 0, left: true };
   // How far down the page the bottom of the screen is (0 to 100); a page that fits on screen counts as 100, like PostHog's own SDK.
   function depthNow() {
     try {
@@ -465,7 +465,7 @@
   }
   function startNativeView() {
     if (!nativeOn() || sdkSendsPageviews()) return;
-    np = { path: location.pathname, url: location.href.split('#')[0], t: Date.now(), scroll: depthNow(), left: false };
+    np = { path: location.pathname, url: location.href.split('#')[0], t: Date.now(), scroll: depthNow(), h: 0, left: false };
     phSend('$pageview', phProps({ $raw_user_agent: String(navigator.userAgent || '').slice(0, 300) }));
     hookHistory();
   }
@@ -566,7 +566,13 @@
     phSend('mw_engaged', phProps({ engaged_seconds: Math.min(secs, 1800), max_scroll: eng.scroll }));
   }
   function onScrollDepth() {
-    var nd = depthNow(); if (nd > np.scroll) np.scroll = nd;
+    // A route change can shrink the page and push the scroll position down to the bottom of the new page. If the page
+    // got shorter since the last scroll sample, that is a layout change and not the visitor scrolling: don't count it.
+    var hh = Math.max(document.documentElement.scrollHeight || 0, document.body ? document.body.scrollHeight : 0);
+    if (!np.left && location.pathname === np.path && !(np.h && hh < np.h * 0.95)) {
+      var nd = depthNow(); if (nd > np.scroll) np.scroll = nd;
+    }
+    np.h = hh;
     var de = document.documentElement, vh = window.innerHeight || de.clientHeight || 0;
     var h = Math.max(de.scrollHeight || 0, document.body ? document.body.scrollHeight : 0);
     if (!vh || h <= vh + 20) return; // the page fits on screen: no scrolling to measure
