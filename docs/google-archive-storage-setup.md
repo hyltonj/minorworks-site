@@ -28,7 +28,8 @@ No extra Node package is needed: this implementation uses Neon's SQL-over-HTTPS 
 2. When status succeeds, approve the initial backfill and set `STATS_ARCHIVE_ENABLED=true` in Netlify Production Functions and redeploy.
 3. Authenticated POST with `{"action":"import","passphrase":"<passphrase>","confirm":true}` requests 365 days of all configured Google properties and upserts existing daily rows. The response contains coverage, source statuses and rows written. Google API errors block the import; a property with no rows is flagged, not filled with fabricated zeroes.
 4. Cross-check GA4 daily session/view totals and GSC date sums against live Google data; confirm 2nd run is idempotent (same row count).
-5. Only after these validations, implement and approve a protected scheduled refresh with status monitoring. Schedule code is **not deployed** by this PR.
+5. A Netlify scheduled function is staged at `netlify/functions/daily-google-archive.mjs` for 09:15 UTC every day. It is **disabled by default** and does not run imports until the owner sets `STATS_ARCHIVE_SCHEDULE_ENABLED=true` in Production/Functions. It sends the server-side passphrase only to the existing protected archive endpoint and refreshes just the most recent 14 days. It runs only on published deployments; no scheduled imports were executed while preparing this PR.
+6. After the first backfill has been reconciled, explicitly enable `STATS_ARCHIVE_SCHEDULE_ENABLED=true`, redeploy, inspect Netlify scheduled-function logs, and confirm the next import-run record. Do not enable the schedule until the app has passed its production connection check.
 
 ## Review notes
 
