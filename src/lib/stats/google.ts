@@ -93,7 +93,7 @@ async function ga4(id: string, bearer: string, days: number): Promise<GoogleSite
   const [report,total] = await Promise.all([
     googlePost<GaResp>(endpoint,bearer,{
       dateRanges:[period],dimensions:[{name:"date"}],metrics,
-      limit:"100",orderBys:[{dimension:{dimensionName:"date"}}],
+      limit:"500",orderBys:[{dimension:{dimensionName:"date"}}],
     }),
     googlePost<GaResp>(endpoint,bearer,{dateRanges:[period],metrics}),
   ]);
@@ -108,7 +108,7 @@ async function searchConsole(property: string, bearer: string, days: number): Pr
   const {startDate,endDate} = dates(days);
   const url = `https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(property)}/searchAnalytics/query`;
   const [d,q,p] = await Promise.all([
-    googlePost<ScResp>(url,bearer,{startDate,endDate,dimensions:["date"],rowLimit:100,dataState:"final"}),
+    googlePost<ScResp>(url,bearer,{startDate,endDate,dimensions:["date"],rowLimit:500,dataState:"final"}),
     googlePost<ScResp>(url,bearer,{startDate,endDate,dimensions:["query"],rowLimit:30,dataState:"final"}),
     googlePost<ScResp>(url,bearer,{startDate,endDate,dimensions:["page"],rowLimit:25,dataState:"final"}),
   ]);
