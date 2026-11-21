@@ -96,8 +96,8 @@ async function build(siteId: string, days: number, includeInternal: boolean, dev
           from events where ${cur} and ${real} and properties.$session_id is not null group by sid) group by kind`),
     // Sessions that began after the pageview deploy (covFrom): the fair denominator for "how many SDK sessions send a pageview".
     sdkCoverage: () => def.sdk ? hq("site.sdkCoverage", `select count(), countIf(pv > 0) from (
-        select properties.$session_id sid, countIf(event = '$pageview') pv, min(timestamp) first
-        from events where timestamp >= ${covFrom} and ${real} and properties.$lib = 'web' and properties.$session_id is not null group by sid)`) : Promise.resolve([]),
+        select properties.$session_id sid, countIf(event = '$pageview') pv
+        from events where timestamp >= ${covFrom} and ${real} and properties.$lib = 'web' and properties.$session_id is not null group by sid)`).catch(() => [] as unknown[][]) : Promise.resolve([]),
     footerVersions: () => hq("site.footerVersions", `select toString(properties.$lib_version), uniq(properties.$session_id), toString(max(timestamp))
           from events where ${cur} and ${real} and properties.$lib = 'mw-footer' group by 1 order by 2 desc limit 6`),
     journey: () => journey.length ? hq("site.journey", journeySql) : Promise.resolve([]),
