@@ -228,8 +228,8 @@ async function build(days: number, includeInternal: boolean) {
     health: { sites: health, unregistered },
     integrations: [
       { id: "posthog", name: "PostHog", status: "connected", detail: `Project 747271. History starts ${POSTHOG_HISTORY_START}.` },
-      { id: "ga4", name: "Google Analytics 4", status: "tag_only", detail: "Tag G-2Q8YM0S3EV is installed and collecting. The dashboard does not query it yet: needs a read-only Google service account on the server." },
-      { id: "gsc", name: "Google Search Console", status: "not_connected", detail: "Nothing in the code reads it. Needs the same read-only service account added to each verified property." },
+      { id: "ga4", name: "Google Analytics 4", status: process.env.GOOGLE_SERVICE_ACCOUNT_JSON ? "connected" : "tag_only", detail: process.env.GOOGLE_SERVICE_ACCOUNT_JSON ? "Google reporting adapter configured; check Search Performance for per-property access and errors." : "GA4 properties identified; awaiting server-side read-only credentials." },
+      { id: "gsc", name: "Google Search Console", status: process.env.GOOGLE_SERVICE_ACCOUNT_JSON ? "connected" : "not_configured", detail: process.env.GOOGLE_SERVICE_ACCOUNT_JSON ? "Google reporting adapter configured; check Search Performance for per-property access and errors." : "Domain properties authorized; awaiting server-side read-only credentials." },
       sc.configured
         ? { id: "smallcanon", name: "Small Canon database (Supabase)", status: sc.ok ? "connected" : "error", detail: sc.ok ? "Read-only stats function, called from the server." : sc.error || "Could not read it." }
         : { id: "smallcanon", name: "Small Canon database (Supabase)", status: "not_configured", detail: "Poster, shelf and share events live here. Set SMALLCANON_STATS_URL and SMALLCANON_STATS_PASSWORD on the server to read them." },
