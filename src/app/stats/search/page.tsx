@@ -11,9 +11,24 @@ const nf=(x?:number) => x===undefined ? "—" : Intl.NumberFormat("en-US",{maxim
 const pct=(x?:number) => x===undefined ? "—" : (x*100).toFixed(1)+"%";
 const stat=(s:Source)=>s.status==="connected"?"Connected":s.status==="error"?"Error":"Not configured";
 function MiniBars({rows,field}:{rows:Day[];field:"clicks"|"impressions"|"sessions"|"views"}) {
-  const max=Math.max(1,...rows.map(r=>r[field]));
-  return <div className="flex h-20 items-end gap-[3px]" aria-label={field+" daily history"}>
-    {rows.map((r,i)=><div key={r.date+"-"+i} className="group relative min-w-0 flex-1 rounded-t-[2px]" style={{height:`${Math.max(2,Math.round(r[field]/max*100))}%`,background:field==="clicks"||field==="impressions"?C.red:C.blue}} title={`${r.date}: ${nf(r[field])}`} />)}
+  // Preserve daily granularity for short periods, but bucket 90/365-day
+  // histories to fit the chart. A flex gap per day made annual bars invisible.
+  const sorted=[...rows].sort((a,b)=>a.date.localeCompare(b.date));
+  const count=sorted.length>90?52:sorted.length>45?30:sorted.length;
+  const first=sorted[0]?.date;
+  const last=sorted[sorted.length-1]?.date;
+  const buckets=Array.from({length:count},(_,i)=>{
+    const from=Math.floor(i*sorted.length/count);
+    const to=Math.floor((i+1)*sorted.length/count);
+    const group=sorted.slice(from,to);
+    return {from:group[0]?.date||"",to:group[group.length-1]?.date||"",value:group.reduce((sum,r)=>sum+r[field],0)};
+  });
+  const max=Math.max(1,...buckets.map(r=>r.value));
+  return <div>
+    <div className="flex h-20 items-end gap-px" aria-label={field+" historical trend"}>
+      {buckets.map((r,i)=><div key={i} className="group relative min-w-0 flex-1 rounded-t-[2px]" style={{height:`${Math.max(2,Math.round(r.value/max*100))}%`,background:field==="clicks"||field==="impressions"?C.red:C.blue}} title={`${r.from===r.to?r.from:r.from+" to "+r.to}: ${nf(r.value)} ${field}`} />)}
+    </div>
+    {first&&last&&<div className="mt-1 flex justify-between text-[10px]" style={{color:C.mute}}><span>{first}</span><span>{last}</span></div>}
   </div>;
 }
 function SourceCard({title,source,details,children}:{title:string;source:Source;details:string;children?:React.ReactNode}) {
