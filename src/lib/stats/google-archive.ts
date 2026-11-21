@@ -72,10 +72,10 @@ RETURNING report_date
 `;
 
 /** Manual, idempotent import. Cron is NOT enabled by this function. */
-export async function importGoogleYear() {
+export async function importGoogleHistory(days:14|365=365) {
   if (process.env.STATS_ARCHIVE_ENABLED !== "true") throw Error("archive_disabled");
   neonConnection(); // fail before any Google requests if connection not configured
-  const report = await googleReports(365);
+  const report = await googleReports(days);
   if (!report.configured) throw Error("google_reporting_not_configured");
   const coverage:Coverage[] = [];
   const rows:Row[] = [];
@@ -107,7 +107,7 @@ export async function importGoogleYear() {
   if (!rows.length) return {ok:false,reason:"no_aggregate_rows",coverage,rowsWritten:0};
   const [record] = await query<{run_id:string}>(
     "INSERT INTO studio_stats.google_import_runs(status, window_days, coverage) VALUES ('started',$1,$2::jsonb) RETURNING run_id",
-    [365,JSON.stringify(coverage)]
+    [days,JSON.stringify(coverage)]
   );
   if (!record?.run_id) throw Error("archive_run_not_created");
   let written=0;
@@ -130,5 +130,5 @@ export async function importGoogleYear() {
     } catch { /* surface the original failure; don't log credentials */ }
     throw Error("archive_write_failed");
   }
-  return {ok:true,rowsWritten:written,coverage,importedAt:now,windowDays:365};
+  return {ok:true,rowsWritten:written,coverage,importedAt:now,windowDays:days};
 }
