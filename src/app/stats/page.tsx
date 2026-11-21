@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { siteName } from "@/lib/stats/model";
 import { SiteLink } from "@/components/stats/SiteLink";
+import { GooglePortfolio } from "@/components/stats/GooglePortfolio";
 import { Portfolio, PortfolioChart, SmallMultiples } from "@/components/stats/PortfolioChart";
 import {
   C, DataTable, Delta, Donut, Empty, FunnelBars, HBars, Insufficient, Kpi, Login, Notice, Pair, Panel, Section, Seg, Shell, Spark,   dur, flag, nf, pct, stampOf, useStats,
@@ -84,6 +85,8 @@ export default function StatsPage() {
       </div>
 
       <PortfolioChart data={data.portfolio} />
+
+      <GooglePortfolio days={days} />
 
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
         <div className="lg:col-span-8"><SmallMultiples data={data.portfolio} /></div>
