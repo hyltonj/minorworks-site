@@ -105,6 +105,17 @@ export function windowFor(days: number, includeInternal: boolean, extra = ""): W
   };
 }
 
+/** $device_type arrives as "Mobile" or "Desktop" from the SDK and "phone", "desktop" or "tablet" from the footer. One vocabulary. */
+export const DEV = "multiIf(lower(toString(properties.$device_type)) in ('mobile', 'phone'), 'mobile', lower(toString(properties.$device_type)) = 'desktop', 'desktop', lower(toString(properties.$device_type)) = 'tablet', 'tablet', 'unknown')";
+
+/** SQL for "event is one of these, optionally with a property value". "*" means any event. */
+export function eventCond(events: string[], where?: { prop: string; value: string }, excludeOwn = false): string {
+  const safe = (v: string) => v.replace(/[^A-Za-z0-9_.%\-]/g, "");
+  const base = events.includes("*") ? "1 = 1" : `event in ${inList(events)}`;
+  const w = where ? ` and toString(properties.${safe(where.prop)}) ${where.value.includes("%") ? "like" : "="} '${safe(where.value)}'` : "";
+  return `(${base}${w}${excludeOwn ? " and coalesce(toString(properties.own_link), '') != 'true'" : ""})`;
+}
+
 export const DAY = "toDate(toTimeZone(timestamp, 'America/New_York'))";
 
 // ---- Small Canon (Supabase) ---------------------------------------------------------------------------------------
@@ -112,19 +123,30 @@ export const DAY = "toDate(toTimeZone(timestamp, 'America/New_York'))";
 // `stats` function from the server. Needs SMALLCANON_STATS_URL and SMALLCANON_STATS_PASSWORD (both server-side).
 export type ExternalResult = { configured: false } | { configured: true; ok: boolean; data?: unknown; error?: string };
 
+async function callSmallCanon(mode: "overview" | "site", site: string, days: number, includeInternal: boolean): Promise<unknown> {
+  const res = await fetch(process.env.SMALLCANON_STATS_URL!, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ password: process.env.SMALLCANON_STATS_PASSWORD, mode, site, days, include_test: includeInternal }),
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`Small Canon stats ${res.status}`);
+  return res.json();
+}
+
+/** Small Canon (and its earlier incarnation, Shelf Life, from 18 Oct 2026) from the read-only Supabase function.
+ *  `data` is this range for Small Canon; `history` is all time for both site names so the chart can show the full record. */
 export async function smallCanon(mode: "overview" | "site", days: number, includeInternal: boolean): Promise<ExternalResult> {
-  const url = process.env.SMALLCANON_STATS_URL;
-  const password = process.env.SMALLCANON_STATS_PASSWORD;
-  if (!url || !password) return { configured: false };
+  if (!process.env.SMALLCANON_STATS_URL || !process.env.SMALLCANON_STATS_PASSWORD) return { configured: false };
   try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password, mode, site: "smallcanon", days: [1, 7, 30, 90].includes(days) ? days : 30, include_test: includeInternal }),
-      cache: "no-store",
-    });
-    if (!res.ok) return { configured: true, ok: false, error: `Small Canon stats ${res.status}` };
-    return { configured: true, ok: true, data: await res.json() };
+    const d = [1, 7, 30, 90].includes(days) ? days : 30;
+    if (mode === "overview") return { configured: true, ok: true, data: await callSmallCanon("overview", "smallcanon", d, includeInternal) };
+    const [now, hist, legacy] = await Promise.all([
+      callSmallCanon("site", "smallcanon", d, includeInternal),
+      callSmallCanon("site", "smallcanon", 0, includeInternal),
+      callSmallCanon("site", "shelflife", 0, includeInternal).catch(() => null),
+    ]);
+    return { configured: true, ok: true, data: { ...(now as object), history: { smallcanon: hist, shelflife: legacy } } };
   } catch (e) {
     return { configured: true, ok: false, error: String((e as Error).message) };
   }

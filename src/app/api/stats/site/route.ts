@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { DAY, JSON_HEADERS, classify, gate, hq, inList, n, pool, s, smallCanon, windowFor } from "@/lib/stats/server";
+import { DAY, DEV, JSON_HEADERS, boundaryMs, classify, eventCond, gate, hq, inList, n, pool, s, smallCanon, windowFor } from "@/lib/stats/server";
 import { NATIVE_BOUNDARY, POSTHOG_HISTORY_START, siteById } from "@/lib/stats/model";
 
 // One site's analytics for the Sites workspace (/stats/sites/<id>). Same passphrase gate and filters as /api/stats.
@@ -15,15 +15,28 @@ type Body = { passphrase?: string; site?: string; days?: number; includeInternal
 async function build(siteId: string, days: number, includeInternal: boolean, device: string) {
   const def = siteById(siteId)!;
   const p = def.product || {};
-  const extra = ` and properties.site = '${def.id}'` + (device ? ` and properties.$device_type = '${device}'` : "");
+  const extra = ` and properties.site = '${def.id}'` + (device ? ` and ${DEV} = '${device}'` : "");
   const W = windowFor(days, includeInternal, extra);
   const { cur, prev, span, real } = W;
   const started = L(p.started), finished = L(p.finished), tap = L(p.shareTap), done = L(p.shareDone), from = L(p.fromShare);
   const allShareEvents = L([...(p.shareTap || []), ...(p.shareDone || [])]);
-  const steps = p.funnel || [];
+  const journey = p.journey || [];
+  const lifecycle = def.external ? [] : (p.shareLifecycle || []).filter((st) => st.events && st.events.length);
+  const activity = [
+    ...(p.started ? [{ label: "Starts", events: p.started }] : []),
+    ...(p.finished ? [{ label: "Finishes", events: p.finished }] : []),
+    ...(p.counters || []).map((c) => ({ label: c.label, events: [c.event] })),
+  ];
+  const covMs = Math.max(Date.now() - days * 86400000, boundaryMs, def.nativeFixedAt ? Date.parse(def.nativeFixedAt.replace(" ", "T") + "Z") : 0);
+  const covFrom = `toDateTime('${new Date(covMs).toISOString().slice(0, 19).replace("T", " ")}', 'UTC')`;
   const counters = p.counters || [];
   const conv = p.conversion || [];
   const sessionHaving = "having pv > 0";
+  const journeySql = journey.length ? `select ${journey.map((_, i) => `sum(f${i})`).join(", ")} from (select ${
+      journey.map((_, i) => (i === 0 ? "if(t0 > 0, 1, 0) f0" : `if(f${i - 1} = 1 and t${i} >= t${i - 1} and t${i} > 0, 1, 0) f${i}`)).join(", ")
+    } from (select properties.$session_id sid, ${
+      journey.map((st, i) => `toUnixTimestamp64Milli(minIf(timestamp, ${eventCond(st.events, st.where)})) t${i}`).join(", ")
+    } from events where ${cur} and ${real} and properties.$session_id is not null group by sid))` : "";
 
   const T: Record<string, () => Promise<unknown[][]>> = {
     head: () => hq("site.head", `select
@@ -66,9 +79,36 @@ async function build(siteId: string, days: number, includeInternal: boolean, dev
         coalesce(properties.utm_campaign, '') c, uniq(person_id), count()
       from events where event = 'mw_pageview' and ${cur} and ${real} and properties.utm_source is not null
       group by a, b, c order by 4 desc limit 15`),
-    funnel: () => steps.length
-      ? hq("site.funnel", `select ${steps.map((st) => `uniqIf(person_id, event in ${L(st.events)})`).join(", ")}
+    journey: () => journey.length ? hq("site.journey", journeySql) : Promise.resolve([]),
+    activity: () => activity.length
+      ? hq("site.activity", `select ${activity.map((a) => `countIf(${eventCond(a.events)}), uniqIf(person_id, ${eventCond(a.events)}), uniqIf(properties.$session_id, ${eventCond(a.events)})`).join(", ")}
           from events where ${cur} and ${real}`)
+      : Promise.resolve([]),
+    lifecycle: () => lifecycle.length
+      ? hq("site.lifecycle", `select ${lifecycle.map((st) => `countIf(${eventCond(st.events!, st.where, st.excludeOwn)}), uniqIf(person_id, ${eventCond(st.events!, st.where, st.excludeOwn)})`).join(", ")}
+          from events where ${cur} and ${real}`)
+      : Promise.resolve([]),
+    reshare: () => (p.arrivalEvents && p.shareTap)
+      ? hq("site.reshare", `select count(), countIf(ts > ta) from (select person_id,
+            toUnixTimestamp64Milli(minIf(timestamp, event in ${L(p.arrivalEvents)} and coalesce(toString(properties.own_link), '') != 'true')) ta,
+            toUnixTimestamp64Milli(maxIf(timestamp, event in ${tap})) ts
+          from events where ${cur} and ${real} group by person_id having ta > 0)`)
+      : Promise.resolve([]),
+    coverage: () => hq("site.coverage", `select countIf(event = 'mw_pageview' and timestamp >= ${covFrom}), countIf(event = '$pageview' and timestamp >= ${covFrom}),
+          uniqIf(properties.$session_id, properties.$lib = 'web' and timestamp >= ${covFrom}),
+          uniqIf(properties.$session_id, properties.$lib = 'web' and event = '$pageview' and timestamp >= ${covFrom}),
+          uniqIf(properties.$session_id, timestamp >= ${covFrom}), uniqIf(properties.$session_id, event = '$pageview' and timestamp >= ${covFrom})
+        from events where timestamp >= ${covFrom} and ${real}`),
+    byDevice: () => p.started
+      ? hq("site.byDevice", `select d, count(), countIf(st > 0), countIf(fin > 0) from (select properties.$session_id sid, any(${DEV}) d,
+            countIf(event in ${started}) st, countIf(event in ${finished}) fin
+          from events where ${cur} and ${real} and properties.$session_id is not null group by sid) group by d order by 2 desc`)
+      : Promise.resolve([]),
+    bySource: () => p.started
+      ? hq("site.bySource", `select src, count(), countIf(st > 0), countIf(fin > 0) from (select properties.$session_id sid,
+            if(countIf(event in ${from}) > 0, 'Shared link', argMin(coalesce(properties.$referring_domain, '$direct'), timestamp)) src,
+            countIf(event in ${started}) st, countIf(event in ${finished}) fin
+          from events where ${cur} and ${real} and properties.$session_id is not null group by sid) group by src order by 2 desc limit 40`)
       : Promise.resolve([]),
     counters: () => counters.length
       ? hq("site.counters", `select ${counters.map((c) => `countIf(event = '${c.event}'), uniqIf(person_id, event = '${c.event}')`).join(", ")}
@@ -89,7 +129,7 @@ async function build(siteId: string, days: number, includeInternal: boolean, dev
     returning: () => hq("site.returning", `select countIf(f < now() - interval ${days} day), count() from (
         select person_id, min(timestamp) f, max(timestamp) l from events where ${real} group by person_id
         having l >= now() - interval ${days} day)`),
-    devices: () => hq("site.devices", `select coalesce(properties.$device_type, 'unknown') t, uniq(person_id)
+    devices: () => hq("site.devices", `select ${DEV} t, uniq(person_id)
         from events where event = 'mw_pageview' and ${cur} and ${real} group by t order by 2 desc`),
     countries: () => hq("site.countries", `select properties.$geoip_country_code c, uniq(person_id)
         from events where ${cur} and ${real} and properties.$geoip_country_code is not null group by c order by 2 desc limit 10`),
@@ -109,7 +149,11 @@ async function build(siteId: string, days: number, includeInternal: boolean, dev
   const sh = R.sharing[0] || [];
   const cohort = R.cohort[0] || [];
   const ret = R.returning[0] || [];
-  const stepRow = R.funnel[0] || [];
+  const jRow = R.journey[0] || [];
+  const aRow = R.activity[0] || [];
+  const lRow = R.lifecycle[0] || [];
+  const rsRow = R.reshare[0] || [];
+  const cv = R.coverage[0] || [];
   const cRow = R.counters[0] || [];
   const vRow = R.conv[0] || [];
 
@@ -119,7 +163,7 @@ async function build(siteId: string, days: number, includeInternal: boolean, dev
   const ext = def.external === "supabase-smallcanon" ? await smallCanon("site", days, includeInternal) : null;
 
   return {
-    site: { id: def.id, name: def.name, host: def.host, kind: def.kind, sdk: !!def.sdk, footer: def.footer, note: def.note || "", hasProductEvents: !!(p.started || p.funnel || p.counters || p.conversion) },
+    site: { id: def.id, name: def.name, host: def.host, kind: def.kind, sdk: !!def.sdk, footer: def.footer, note: def.note || "", hasProductEvents: !!(p.started || p.journey || p.counters || p.conversion) },
     days, device, includeInternal, generatedAt: new Date().toISOString(),
     boundary: { native: NATIVE_BOUNDARY, historyStart: POSTHOG_HISTORY_START, covers: W.nativeCovers, nativeDays: Math.round(W.nativeDays * 10) / 10 },
     totals: {
@@ -143,9 +187,38 @@ async function build(siteId: string, days: number, includeInternal: boolean, dev
       classes: [...classes.entries()].map(([name, people]) => ({ name, people })).sort((a, b) => b.people - a.people),
       utm: R.utm.map((r) => ({ source: s(r[0]), medium: s(r[1]), campaign: s(r[2]), people: n(r[3]), views: n(r[4]) })),
     },
-    usage: {
-      funnel: steps.map((st, i) => ({ label: st.label, people: n(stepRow[i]) })),
-      counters: counters.map((c, i) => ({ label: c.label, count: n(cRow[i * 2]), people: n(cRow[i * 2 + 1]) })),
+    journey: {
+      unit: "sessions",
+      steps: journey.map((st, i) => ({ label: st.label, sessions: n(jRow[i]) })),
+      note: p.journeyNote || "",
+    },
+    activity: activity.map((a, i) => ({ label: a.label, events: n(aRow[i * 3]), people: n(aRow[i * 3 + 1]), sessions: n(aRow[i * 3 + 2]) })),
+    lifecycle: (() => {
+      let k = 0;
+      return (p.shareLifecycle || []).map((st) => {
+        const has = !def.external && st.events && st.events.length;
+        const row = { n: st.n, label: st.label, kind: st.kind, status: st.status, note: st.note, names: st.events || [], where: st.where || null, events: null as number | null, people: null as number | null, of: null as number | null };
+        if (has) { row.events = n(lRow[k * 2]); row.people = n(lRow[k * 2 + 1]); k++; }
+        if (st.n === 10 && p.arrivalEvents) { row.people = n(rsRow[1]); row.of = n(rsRow[0]); row.status = n(rsRow[0]) ? "partial" : st.status; }
+        return row;
+      });
+    })(),
+    coverage: {
+      sdk: !!def.sdk, since: new Date(covMs).toISOString(), mwViews: n(cv[0]), nativeViews: n(cv[1]),
+      sdkSessions: n(cv[2]), sdkSessionsWithPageview: n(cv[3]), sessions: n(cv[4]), sessionsWithPageview: n(cv[5]),
+    },
+    cohorts: {
+      byDevice: R.byDevice.map((r) => ({ name: s(r[0]), sessions: n(r[1]), started: n(r[2]), finished: n(r[3]) })),
+      bySource: (() => {
+        const m = new Map<string, { sessions: number; started: number; finished: number }>();
+        for (const r of R.bySource) {
+          const k = s(r[0]) === "Shared link" ? "Shared link" : classify(s(r[0]));
+          const c = m.get(k) || { sessions: 0, started: 0, finished: 0 };
+          c.sessions += n(r[1]); c.started += n(r[2]); c.finished += n(r[3]);
+          m.set(k, c);
+        }
+        return [...m.entries()].map(([name, v]) => ({ name, ...v })).sort((a, b) => b.sessions - a.sessions);
+      })(),
     },
     sharing: {
       startedPeople: n(sh[0]), tapPeople: n(sh[1]), taps: n(sh[2]), donePeople: n(sh[3]), done: n(sh[4]), arrivedPeople: n(sh[5]), arrived: n(sh[6]),

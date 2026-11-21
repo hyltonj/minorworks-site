@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { DAY, JSON_HEADERS, boundaryMs, classify, gate, hq, inList, n, pool, s, smallCanon, windowFor } from "@/lib/stats/server";
+import { DAY, DEV, JSON_HEADERS, boundaryMs, classify, gate, hq, inList, n, pool, s, smallCanon, windowFor } from "@/lib/stats/server";
 import { NATIVE_BOUNDARY, POSTHOG_HISTORY_START, SITES } from "@/lib/stats/model";
 
 // Read-only studio stats for /stats. The passphrase, the PostHog key and the Small Canon password live in Netlify
@@ -46,7 +46,7 @@ async function build(days: number, includeInternal: boolean) {
     refs: () => hq("refs", `select coalesce(properties.$referring_domain, '$direct') r, uniq(person_id) p
           from events where event = 'mw_pageview' and ${cur} and ${REAL_}
           group by r order by p desc limit 40`),
-    devices: () => hq("devices", `select coalesce(properties.$device_type, 'unknown') t, uniq(person_id) p
+    devices: () => hq("devices", `select ${DEV} t, uniq(person_id) p
           from events where event = 'mw_pageview' and ${cur} and ${REAL_} group by t order by p desc`),
     funnel: () => hq("funnel", `select uniqIf(person_id, event = 'mw_pageview'), uniqIf(person_id, event = 'footer_view'),
                  uniqIf(person_id, event = 'footer_click'), uniqIf(person_id, event = '$create_alias')
@@ -70,6 +70,8 @@ async function build(days: number, includeInternal: boolean) {
           from events where ${cur} and ${REAL_} group by s
           having sharers > 0 or arrived > 0 or site_sharers > 0 order by sharers desc limit 20`),
     // ---- Studio Stats 2.0 additions ----
+    dailyBySite: () => hq("dailyBySite", `select ${DAY} d, properties.site s, uniq(person_id)
+          from events where ${cur} and ${REAL_} group by d, s order by d`),
     trend: () => hq("trend", `select properties.site s, ${DAY} d, uniq(person_id)
           from events where event = 'mw_pageview' and timestamp >= now() - interval 14 day and ${REAL_}
           group by s, d order by s, d`),
@@ -195,6 +197,15 @@ async function build(days: number, includeInternal: boolean) {
       pageviews: n(natV[0]), visitors: n(natV[1]), pageleaves: n(natV[2]),
       avgPageSeconds: natV[3] === null || natV[3] === undefined ? null : Math.round(n(natV[3])),
     },
+    dailyBySite: (() => {
+      const top = R.sites.slice(0, 5).map((r) => s(r[0]));
+      const m = new Map<string, Record<string, number>>();
+      for (const r of R.dailyBySite) {
+        const d = s(r[0]); const k = top.includes(s(r[1])) ? s(r[1]) : "Other";
+        const row = m.get(d) || {}; row[k] = (row[k] || 0) + n(r[2]); m.set(d, row);
+      }
+      return { keys: [...top, "Other"], days: [...m.entries()].map(([day, v]) => ({ day, ...v })) };
+    })(),
     daily: R.daily.map((r) => ({ day: s(r[0]), people: n(r[1]), views: n(r[2]), plays: n(r[3]), finishes: n(r[4]) })),
     sites: R.sites.map((r) => ({ site: s(r[0]), people: n(r[1]), views: n(r[2]), plays: n(r[3]), finishes: n(r[4]) })),
     siteTrends: trends,
