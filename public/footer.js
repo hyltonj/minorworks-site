@@ -348,7 +348,7 @@
       footer_version: VERSION
     };
     var vs = psid();
-    if (vs) p.$session_id = vs.id;
+    if (vs && !sdkSite()) p.$session_id = vs.id; // on SDK sites only the SDK's own session id is used
     var ss = sdkSession();
     if (ss) p.$session_id = ss;
     try {
@@ -457,7 +457,14 @@
       return Math.min(100, Math.round(((window.pageYOffset || de.scrollTop || 0) + vh) / h * 100));
     } catch (e) { return 0; }
   }
+  // Sites that run PostHog's own SDK (loaded a moment after the footer, so the footer can't count on seeing it in time):
+  // listed in the manifest as analytics.sdkSites. The SDK owns pageviews and sessions there; the footer sends neither.
+  function sdkSite() {
+    var l = M.analytics && M.analytics.sdkSites;
+    return ds.sdk === 'on' || (Array.isArray(l) && !!current && l.indexOf(current.id) > -1);
+  }
   function nativeOn() {
+    if (sdkSite()) return false;
     if (ds.native === 'off') return false;
     if (ds.native === 'on') return true;
     var n = M.analytics && M.analytics.native;
