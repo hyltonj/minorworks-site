@@ -37,11 +37,11 @@ export default function StatsPage() {
   const [days, setDays] = useState(7);
   const [mine, setMine] = useState(false);
   const [movers, setMovers] = useState<"up" | "down">("up");
-  const { ready, data, error, loading, login } = useStats<Data>("/api/stats", { days, includeInternal: mine });
+  const { ready, data, error, loading, login, retry } = useStats<Data>("/api/stats", { days, includeInternal: mine });
 
   if (!data) {
     if (!ready) return <main className="min-h-screen" style={{ background: C.navy }} />;
-    return <Login onLogin={login} error={error} loading={loading} />;
+    return <Login onLogin={login} error={error} loading={loading} retry={retry} />;
   }
 
   const t = data.totals;
@@ -71,14 +71,14 @@ export default function StatsPage() {
           {priorReachesBeforeHistory && <>PostHog history starts {b.historyStart}, so the “before” period is incomplete and ↑ ↓ changes overstate growth. </>}
           {b.covers === "none" && <>Session numbers only exist from {b.native}, so none fall in this range. </>}
           {b.covers === "partial" && <>Session numbers only count from {b.native} ({b.nativeDays} days of this range); earlier days have no valid sessions and are not comparable. </>}
-          Preview sites are excluded; {mine ? "your own owner-mode visits are included." : "your own owner-mode visits are left out."} Safari visitors may be undercounted.
+          Preview sites are excluded; {mine ? "your own owner-mode visits are included." : "your own owner-mode visits are left out."} Safari visitors may be undercounted. Sessions here count only visits that sent a page view, so game sites such as Ballpark and Venny are undercounted; their own pages show full session counts.
         </Notice>
       )}
 
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
         <Kpi label="People" value={nf(t.people.now)} pair={t.people} spark={spark("people")} />
         <Kpi label="Page views" value={nf(t.pageViews.now)} pair={t.pageViews} spark={spark("views")} />
-        <Kpi label="Sessions" value={noSessions ? "–" : nf(nat.sessions)} sub={noSessions ? "not collected here" : `${dur(nat.avgSessionSeconds)} avg · ${nat.bounceRate ?? "–"}% bounce · counts only sessions with a page view, so game sites are undercounted`} color={C.navy2} />
+        <Kpi label="Sessions (page-view based)" value={noSessions ? "–" : nf(nat.sessions)} sub={noSessions ? "not collected here" : `${dur(nat.avgSessionSeconds)} avg · ${nat.bounceRate ?? "–"}% bounce`} color={C.navy2} />
         <Kpi label="Starts (events)" value={nf(t.plays.now)} pair={t.plays} spark={spark("plays")} color={C.red} />
         <Kpi label="Finishes (events)" value={nf(t.finishes.now)} pair={t.finishes} sub={finishRate === null ? undefined : `${finishRate}% of starts`} spark={spark("finishes")} color={C.red} />
         <Kpi label="Tracking health" value={<>{sending} <span className="text-[14px]" style={{ color: C.mute }}>of {data.health.sites.length}</span></>} sub="sites sending events" color={C.green} />

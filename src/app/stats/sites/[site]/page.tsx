@@ -131,14 +131,14 @@ export default function SitePage() {
   const [days, setDays] = useState(30);
   const [mine, setMine] = useState(false);
   const [device, setDevice] = useState("");
-  const { ready, data, error, loading, login } = useStats<Data>("/api/stats/site", { site, days, includeInternal: mine, device });
+  const { ready, data, error, loading, login, retry } = useStats<Data>("/api/stats/site", { site, days, includeInternal: mine, device });
 
   if (!data) {
     if (!ready) return <main className="min-h-screen" style={{ background: C.navy }} />;
     if (error === "That page does not exist.") {
       return <main className="flex min-h-screen items-center justify-center" style={{ background: C.bg }}><p>That site is not on the list. <Link href="/stats/sites" className="underline">Back to sites</Link></p></main>;
     }
-    return <Login onLogin={login} error={error} loading={loading} />;
+    return <Login onLogin={login} error={error} loading={loading} retry={retry} />;
   }
 
   const d = data, t = d.totals, b = d.boundary, nat = d.native, e = d.engagement, s = d.site, cov = d.coverage, ret = d.retention;
@@ -351,7 +351,7 @@ export default function SitePage() {
             { key: "v", label: "Value", align: "right", render: (r) => r.v },
             { key: "n", label: "Reading", render: (r) => <span className="text-[11.5px]" style={{ color: C.mute }}>{r.n}</span> },
           ]} />
-          <p className="mt-2 text-[11px]" style={{ color: C.mute }}>Coverage window starts {stampOf(cov.since)} Boston time. GA4 is compared once the Google integration is connected (see the Search page).</p>
+          <p className="mt-2 text-[11px]" style={{ color: C.mute }}>Coverage window starts {stampOf(cov.since)} Boston time. Google Analytics and Search Console figures are on the Search page and are not mixed with these counts.</p>
         </Panel>
       </div>
 

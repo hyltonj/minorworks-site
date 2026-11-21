@@ -40,8 +40,11 @@ export async function POST(request: Request) {
       {site:site.id,source:"gsc",property:site.gscProperty,status:site.gsc.status,rows:site.gsc.daily?.length||0,
         earliest:site.gsc.daily?.[0]?.date||null,latest:site.gsc.daily?.at(-1)?.date||null},
     ]);
+    const missingSources=coverage.filter(c=>c.status!=="connected").map(c=>`${c.site}/${c.source}: ${c.status}`);
     const snapshot={
       schema_version:1,
+      complete:missingSources.length===0,
+      warning:missingSources.length?`INCOMPLETE: these sources returned no usable rows and are missing from this file: ${missingSources.join("; ")}. Do not treat this file as a full archive.`:null,
       generated_at:generatedAt,
       reporting_time_zone:"America/New_York",
       window:"365 days ending yesterday (Boston local time)",
