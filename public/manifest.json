@@ -38,7 +38,7 @@
     "view": true,
     "events": null,
     "posthog": { "key": "phc_Cbnm7UEFNc5sYFY3vRUPRv3uPnh6qtu6bYY3EWSuwHgB", "host": "https://us.i.posthog.com" },
-    "native": ["minorworks.co"]
+    "native": true
   },
   "sites": [
     {
