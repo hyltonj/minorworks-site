@@ -74,7 +74,11 @@ type GaRow = { dimensionValues?: {value?: string}[]; metricValues?: {value?: str
 type GaResp = { rows?: GaRow[] };
 type ScRow = { keys?: string[]; clicks?: number; impressions?: number; ctr?: number; position?: number };
 type ScResp = { rows?: ScRow[] };
-const bostonDate = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York",year:"numeric",month:"2-digit",day:"2-digit" }).format(d);
+const bostonDate = (d: Date) => {
+  const parts=new Intl.DateTimeFormat("en-US",{timeZone:"America/New_York",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(d);
+  const get=(type:string)=>parts.find(p=>p.type===type)?.value || "";
+  return `${get("year")}-${get("month")}-${get("day")}`;
+};
 function dates(days: number) {
   const end = new Date(Date.now() - 86400000); // GA4 typically lags by a day
   const start = new Date(end.getTime() - (days - 1) * 86400000);
