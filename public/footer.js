@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '1.9.0';
+  var VERSION = '1.9.1';
   if (window.__mwFooter) return;
 
   /* ---------- script context & options ---------- */
@@ -348,7 +348,7 @@
       footer_version: VERSION
     };
     var vs = psid();
-    if (vs) p.$session_id = vs.id;
+    if (vs && !sdkSite()) p.$session_id = vs.id; // on SDK sites only the SDK's own session id is used
     var ss = sdkSession();
     if (ss) p.$session_id = ss;
     try {
@@ -447,8 +447,24 @@
   /* ---------- PostHog's own pageview events, for its Web Analytics screens ---------- */
   // $pageview and $pageleave are sent next to our mw_* events (which stay exactly as they were).
   // Switched on per site from the manifest (analytics.native: true, or a list of site ids) or data-native="on".
-  var np = { path: '', t: 0, scroll: 0, left: true };
+  var np = { path: '', url: '', t: 0, scroll: 0, h: 0, left: true };
+  // How far down the page the bottom of the screen is (0 to 100); a page that fits on screen counts as 100, like PostHog's own SDK.
+  function depthNow() {
+    try {
+      var de = document.documentElement, vh = window.innerHeight || de.clientHeight || 0;
+      var h = Math.max(de.scrollHeight || 0, document.body ? document.body.scrollHeight : 0);
+      if (!vh || !h) return 0;
+      return Math.min(100, Math.round(((window.pageYOffset || de.scrollTop || 0) + vh) / h * 100));
+    } catch (e) { return 0; }
+  }
+  // Sites that run PostHog's own SDK (loaded a moment after the footer, so the footer can't count on seeing it in time):
+  // listed in the manifest as analytics.sdkSites. The SDK owns pageviews and sessions there; the footer sends neither.
+  function sdkSite() {
+    var l = M.analytics && M.analytics.sdkSites;
+    return ds.sdk === 'on' || (Array.isArray(l) && !!current && l.indexOf(current.id) > -1);
+  }
   function nativeOn() {
+    if (sdkSite()) return false;
     if (ds.native === 'off') return false;
     if (ds.native === 'on') return true;
     var n = M.analytics && M.analytics.native;
@@ -456,15 +472,19 @@
   }
   function startNativeView() {
     if (!nativeOn() || sdkSendsPageviews()) return;
-    np = { path: location.pathname, t: Date.now(), scroll: 0, left: false };
+    np = { path: location.pathname, url: location.href.split('#')[0], t: Date.now(), scroll: depthNow(), h: 0, left: false };
     phSend('$pageview', phProps({ $raw_user_agent: String(navigator.userAgent || '').slice(0, 300) }));
     hookHistory();
   }
   function endNativeView() {
     if (np.left || !np.path) return;
     np.left = true;
+    var nowDepth = depthNow();
+    if (location.pathname === np.path && nowDepth > np.scroll) np.scroll = nowDepth;
     var secs = Math.max(0, Math.round((Date.now() - np.t) / 1000));
     phSend('$pageleave', phProps({
+      $current_url: np.url,
+      $pathname: np.path,
       $prev_pageview_pathname: np.path,
       $prev_pageview_duration: Math.min(secs, 86400),
       $prev_pageview_max_scroll_percentage: Math.min(1, np.scroll / 100),
@@ -553,12 +573,18 @@
     phSend('mw_engaged', phProps({ engaged_seconds: Math.min(secs, 1800), max_scroll: eng.scroll }));
   }
   function onScrollDepth() {
+    // A route change can shrink the page and push the scroll position down to the bottom of the new page. If the page
+    // got shorter since the last scroll sample, that is a layout change and not the visitor scrolling: don't count it.
+    var hh = Math.max(document.documentElement.scrollHeight || 0, document.body ? document.body.scrollHeight : 0);
+    if (!np.left && location.pathname === np.path && !(np.h && hh < np.h * 0.95)) {
+      var nd = depthNow(); if (nd > np.scroll) np.scroll = nd;
+    }
+    np.h = hh;
     var de = document.documentElement, vh = window.innerHeight || de.clientHeight || 0;
     var h = Math.max(de.scrollHeight || 0, document.body ? document.body.scrollHeight : 0);
     if (!vh || h <= vh + 20) return; // the page fits on screen: no scrolling to measure
     var pct = Math.min(100, Math.round(((window.pageYOffset || de.scrollTop || 0) + vh) / h * 100));
     if (pct > eng.scroll) eng.scroll = pct;
-    if (pct > np.scroll) np.scroll = pct;
     [25, 50, 75, 100].forEach(function (m) {
       if (pct >= (m === 100 ? 98 : m) && !eng.marks[m]) { eng.marks[m] = 1; phSend('mw_scroll', phProps({ depth: m })); }
     });
