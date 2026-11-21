@@ -47,6 +47,7 @@ export default function SearchPage(){
   const [exportError,setExportError]=useState("");
   const [archiveState,setArchiveState]=useState("");
   const [archiveChecking,setArchiveChecking]=useState(false);
+  const [archiveImporting,setArchiveImporting]=useState(false);
   const {pass,ready,data,error,loading,login,retry}=useStats<Report>("/api/stats/google",{days});
   async function exportHistory() {
     if(!pass || exporting) return;
@@ -85,6 +86,30 @@ export default function SearchPage(){
       setArchiveChecking(false);
     }
   }
+  async function importHistory() {
+    if (!pass || archiveImporting) return;
+    const confirmed=window.confirm("Import up to one year of available Google Analytics and Search Console daily totals into your private Neon archive? This is a one-time, idempotent operation and will not enable daily scheduling.");
+    if (!confirmed) return;
+    setArchiveImporting(true);
+    setArchiveState("Importing available Google history…");
+    try {
+      const response=await fetch("/api/stats/google/archive",{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({action:"import",days:365,confirm:true,passphrase:pass}),
+      });
+      const result=await response.json() as {ok?:boolean;rowsWritten?:number;coverage?:{site:string;source:string;status:string;rows:number}[];reason?:string;error?:string};
+      if (!response.ok || !result.ok) {
+        setArchiveState(`Import did not complete (${result.reason||result.error||"server error"}). No automatic daily task has been enabled.`);
+      } else {
+        const gaps=(result.coverage||[]).filter(x=>x.status!=="connected");
+        setArchiveState(`Imported ${result.rowsWritten||0} daily source rows into Neon for the selected year.${gaps.length?" Coverage gaps: "+gaps.map(x=>x.site+" "+x.source+" ("+x.status+")").join(", "):""} You can verify the total with Check archive connection.`);
+      }
+    } catch {
+      setArchiveState("Import request could not complete. Check Neon import status before retrying; upserts are safe to rerun.");
+    } finally {
+      setArchiveImporting(false);
+    }
+  }
   if(!data) return ready ? <Login onLogin={login} error={error} loading={loading} retry={retry}/> : <main className="min-h-screen" style={{background:C.navy}}/>;
   const site=data.sites.find(x=>x.id===selected)||data.sites[0];
   return <Shell title="Search performance" subtitle="Historical discovery and traffic · Google Analytics 4 + Google Search Console" active="search" days={days} onDays={setDays} loading={loading} stamp={stampOf(data.generatedAt)} extra={<button className="rounded-lg px-2.5 py-1.5 text-xs font-medium" style={{background:days===365?C.navy:C.track,color:days===365?"white":C.mute}} onClick={()=>setDays(365)}>1 year</button>}>
@@ -97,6 +122,7 @@ export default function SearchPage(){
     {exportError && <Notice tone="warn">{exportError}</Notice>}
     <div className="mb-3 flex flex-wrap items-center gap-3 text-xs" style={{color:C.mute}}>
       <button onClick={checkArchive} disabled={archiveChecking} className="rounded-lg border px-3 py-1.5 disabled:opacity-50" style={{borderColor:C.line,background:C.card,color:C.ink}}>{archiveChecking?"Checking Neon…":"Check archive connection"}</button>
+      <button onClick={importHistory} disabled={archiveImporting||archiveChecking||!data.configured} className="rounded-lg border px-3 py-1.5 font-semibold disabled:opacity-50" style={{borderColor:C.line,background:C.navy,color:"white"}}>{archiveImporting?"Importing…":"Import one year to Neon"}</button>
       {archiveState && <span role="status">{archiveState}</span>}
     </div>
     <div className="mb-3 flex flex-wrap gap-1.5">
