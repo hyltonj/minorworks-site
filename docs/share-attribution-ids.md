@@ -20,11 +20,11 @@ Small Canon already has artifact lineage: `shelves.parent` records which shelf a
 ## 2. Share-action id rules
 
 1. Format: 10 characters from a 32-character alphabet (50 bits), generated with `crypto.getRandomValues`. Not a hash of anything.
-2. Minted when the share button is pressed, before the sheet opens, and reused if the same press retries.
+2. Minted when the share button is pressed, before the sheet opens, and reused if the same press retries. A sid describes a **share attempt/link**, not confirmed delivery; multiple opens of one sid are expected.
 3. Appended to the share URL as `?sid=<id>` next to the existing `?s=<type>`.
-4. The recipient page reads `sid`, records it on the arrival event, stores it as a session-level property (`arrived_via_sid`) so every later event in that session can be segmented, then removes it from the address bar with `history.replaceState` so it does not leak into GA4 page URLs, referrers or screenshots.
-5. The sender’s browser remembers the sids it minted (localStorage `mw:sids`, last 50) so it can mark `own_link = true` locally. No server lookup.
-6. If the recipient later shares, their new share carries `parent_sid = arrived_via_sid`. That gives a chain of share actions, never a chain of people.
+4. On arrival, parse and validate `sid` **before any analytics SDK or GA4 pageview fires**, remove it from the address bar using `history.replaceState`, then record `shared_link_opened` with the validated sid only in the application's privacy-approved analytics. Add `arrived_via_sid` only to events in the **current session**; clear it at session expiry/new session. Test pre-init ordering, initial URLs, SPA routes, redirects and preview/OG requests. Removing a query parameter after SDK initialization is too late to guarantee it was not recorded.
+5. **Do not persist a sender's historical share IDs in localStorage in v1.** To reduce accidental self-attribution, an in-memory/sessionStorage set for the current tab/session is optional. A sender opening their own link from a different browser or session can count as a recipient; document this known limitation. No server lookup or person matching.
+6. If the recipient later shares **within the attributed session**, their new share carries `parent_sid = arrived_via_sid`. That gives a chain of share actions, never a chain of people. Do not follow a person across sessions or domains to reconstruct this chain.
 
 ## 3. Event map
 
@@ -34,7 +34,7 @@ Small Canon already has artifact lineage: `shelves.parent` records which shelf a
 | `share_initiated` | `sid`, `artifact_type`, `artifact_id`, `share_type`, `parent_sid?` | 2 Button clicked |
 | `share_sheet_opened` | `sid` | 3 Interface opened (native sheet: fired when `navigator.share()` is called; the browser cannot confirm it was shown) |
 | `share_method_selected` | `sid`, `method` | 4 Method selected |
-| `share_completed` | `sid`, `method` (`copy`, `native`, `download`) | 5 and 6 Confirmed action |
+| `share_completed` | `sid`, `method` (`copy`, `native`) | 5 and 6 Confirmed **browser action**, not delivery |\n| `share_export_completed` | `artifact_type`, `artifact_id`, `format` | Independent export/download (not a link send) |
 | `share_dismissed` | `sid` | native sheet rejected with AbortError |
 | `shared_link_opened` | `sid`, `artifact_id`, `own_link` | 7 Attributable visit |
 | `share_recipient_engaged` | `sid` (from the session property), `kind` (`first_guess`, `first_pick`, `first_shelf`) | 8 Recipient engaged |
@@ -44,15 +44,15 @@ For Small Canon the same events go into `shelf_events` (new nullable columns `si
 
 ## 4. What this can and cannot say
 
-Can: share → visits → engagement → completion → re-share, per share type, per product, per device; median recipients per share; share rate by placement.
+Can: share attempt/link → attributed visits → engagement → completion → re-share, per share type, per product, per device; visits per tracked share link; share rate by placement. **Do not label unique visits 'unique recipients'** unless the application can establish that within an explicitly scoped session model.
 
 Cannot, by design: who received the link, through which app, whether a message was read, or whether two visits are the same recipient. A visit is attributed to an *action*, not a person.
 
 ## 5. Privacy review
 
 - The id is random and rotates per press; it identifies no one and no device.
-- It is not set as a cookie and not sent to third parties: removed from the URL on arrival, and GA4 never sees it.
-- Recipients’ events carry the sid only for the session, as a property.
+- It is not set as a cookie or sent to third-party analytics. The app must sanitize its initial URL **before** GA4/PostHog or other scripts can capture it. Verify this ordering in production; never claim that GA4 cannot see it purely because the app later removes it.
+- Recipient events carry the sid only for the attributed session, as a property. No permanent identify/alias, long-lived super property, or cross-session visitor linkage.
 - Retention: keep in line with the existing PostHog retention; nothing new to purge.
 - No recipient or private-communication tracking is added. The change fits the existing privacy page wording (“anonymous, no cross-site tracking”); the privacy text should add one sentence about share links.
 
@@ -65,8 +65,19 @@ Cannot, by design: who received the link, through which app, whether a message w
 
 Each app is its own small PR, reviewed separately from the dashboard.
 
-## 7. Decisions needed
+## 7. Decisions and acceptance criteria
 
-- OK with 10-character random ids and the `replaceState` removal?
-- Should the sender’s remembered sids live in localStorage (proposed) or be skipped, accepting that a sender opening their own link counts as a recipient?
-- Wording for one added sentence on the privacy page.
+**Provisional defaults for review:** 10-character cryptographically random ids and pre-analytics `replaceState` sanitization; no persistent sender-side sid history; privacy sentence above. Approve before modifying app code.
+
+**Acceptance tests for the first application PR**
+
+1. Initial page load of a share link emits no unsanitized sid in GA4 URLs, referrers or generic `$pageview` properties; the dedicated privacy-approved share event may include it.
+2. Exactly one `share_initiated` event is emitted per actual press; retrying the same press reuses its sid. Consecutive presses create new sids.
+3. A successful clipboard write or fulfilled native-share promise records a browser action, not a delivered/read message. Cancelled or unsupported native shares must not count as delivered.
+4. Link opens, refreshes and forwards are classified consistently; count both total opens and distinct sessions, and do not imply distinct people from raw opens.
+5. Share attribution is scoped to the landing session only and does not overwrite other attribution information. Subsequent sessions do not inherit `arrived_via_sid`.
+6. Existing shared links, UTM parameters, `?s=` values, previews, direct loads and SPA navigation still work.
+7. DNT, GPC, opt-out and consent paths do not capture share data when analytics is disallowed.
+8. Provide before/after sample queries, a reversible flag or rollback plan, collision handling, and a privacy review before deployment.
+
+**Rollout gate:** Finish the known SDK/footer native pageview/session validation before relying on session-level share conversion metrics.
