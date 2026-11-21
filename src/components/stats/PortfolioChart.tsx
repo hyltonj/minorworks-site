@@ -61,7 +61,7 @@ export function PortfolioChart({ data }: { data: Portfolio }) {
   const prevSum = cmp === "prev" ? cmpVals.reduce<number>((a, v) => a + (v ?? 0), 0) : null;
   const peak = have.reduce((b, r) => ((r.tot as number) > (b?.tot ?? -1) ? r : b), null as (typeof have)[number] | null);
 
-  const w = 760, h = 230, padL = 34, padB = 20, padT = 10;
+  const w = 1100, h = 250, padL = 36, padB = 20, padT = 10;
   const stackMax = Math.max(1, ...rows.map((r) => (r.tot ?? 0) + (r.rest ?? 0)), ...cmpVals.map((v) => v ?? 0));
   const lineMax = Math.max(1, ...labels.flatMap((d) => chosen.map((s) => val(s, d) ?? 0)), ...rows.map((r) => (unique ? r.uniq ?? 0 : 0)), ...cmpVals.map((v) => v ?? 0));
   const max = mode === "stacked" ? stackMax : lineMax;
