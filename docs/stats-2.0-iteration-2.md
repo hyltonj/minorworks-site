@@ -20,6 +20,8 @@ Scope: visual redesign, corrected journey definitions, sharing lifecycle, valida
 - "Game started" is not a funnel step: in about a third of sessions the first guess is recorded before `bp_set_started`, so its order cannot be trusted. Guess events (`question_index` 1–5) are used instead.
 - Retention: "returning" shows "History shorter than range" when PostHog history (from 18 Nov) is shorter than the selected range; new-people return rate shows "too few" below 30 people. No misleading zeros: pre-history days are `n/a`.
 
+> **Superseded by iteration 3** (`stats-2.0-iteration-3.md`): the journey numbers below counted first occurrences and footer session ids. Corrected figures are in that file.
+
 ## 3. Validation on real PostHog (30 days, internal traffic excluded, ballpark)
 
 All new queries (journey, activity, lifecycle, reshare, coverage, byDevice, bySource, dailyBySite) run on the live project. Results at time of run:
@@ -65,7 +67,7 @@ The Small Canon stats function is read-only; history is merged from Shelf Life (
 
 ## 7. GA4 and Search Console plan (not a blocker)
 
-- GA4 reports far fewer visitors than PostHog because the footer loads GA4 only when a site sets `data-ga="load"`, it respects GPC/DNT/opt-out and EU consent, and the games do not load it.
+- GA4 reports fewer visitors than PostHog. Correction (iteration 3): Ballpark does load `gtag` from its own bundle, so “games do not load it” was wrong. Remaining candidates: consent/GPC/DNT gating, blockers, definitions. See `google-integration-setup.md`.
 - Plan: one Google Cloud service account with read-only access, added as a Viewer on the GA4 property and as a user on each Search Console property (domain properties preferred); server-side only; credentials stored as Netlify env vars set by Hyl. Needs approval before any credential or permission is created. Check property coverage and history start per site first.
 
 ## 8. Remaining blockers and decisions
