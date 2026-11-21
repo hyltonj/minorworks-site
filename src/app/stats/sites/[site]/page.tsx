@@ -143,7 +143,7 @@ export default function SitePage() {
 
   const d = data, t = d.totals, b = d.boundary, nat = d.native, e = d.engagement, s = d.site, cov = d.coverage, ret = d.retention;
   const def = siteById(s.id);
-  const noSessions = b.covers === "none";
+  const noSessions = b.covers === "none" && !s.sdk;
   const silent = !t.people.now && !t.views.now && !d.inventory.length && !d.external;
   const game = s.hasProductEvents && s.kind === "game";
   const deviceSelect = (
@@ -153,7 +153,7 @@ export default function SitePage() {
   );
   const ppl = fill(d.days, d.daily, (r) => r.people, POSTHOG_HISTORY_START);
   const views = fill(d.days, d.daily, (r) => r.views, POSTHOG_HISTORY_START);
-  const sess = fill(d.days, d.daily, (r) => r.sessions, NATIVE_BOUNDARY);
+  const sess = fill(d.days, d.daily, (r) => r.sessions, s.sdk ? POSTHOG_HISTORY_START : NATIVE_BOUNDARY);
   const started = fill(d.days, d.daily, (r) => r.started, POSTHOG_HISTORY_START);
   const finished = fill(d.days, d.daily, (r) => r.finished, POSTHOG_HISTORY_START);
   const taps = fill(d.days, d.daily, (r) => r.shareTaps, POSTHOG_HISTORY_START);
@@ -232,7 +232,7 @@ export default function SitePage() {
               <DataTable dense rows={d.cohorts.byDevice.filter((r) => r.started > 0)} empty="No starts" cols={[
                 { key: "n", label: "Device", render: (r) => r.name },
                 { key: "s", label: "Started", align: "right", value: (r) => r.started },
-                { key: "f", label: "Finished", align: "right", value: (r) => r.finished, render: (r) => `${nf(r.finished)} · ${pct(r.finished, r.started)}` },
+                { key: "f", label: "Finished", align: "right", value: (r) => r.finished, render: (r) => (r.finished > r.started ? `${nf(r.finished)} · n/a` : `${nf(r.finished)} · ${pct(r.finished, r.started)}`) },
               ]} />
             </div>
           </div>
@@ -256,9 +256,9 @@ export default function SitePage() {
               { key: "n", label: "Source", render: (r) => r.name },
               { key: "s", label: "Sessions", align: "right", value: (r) => r.sessions },
               { key: "st", label: "Started", align: "right", value: (r) => r.started, render: (r) => `${nf(r.started)} · ${pct(r.started, r.sessions)}` },
-              { key: "f", label: "Finished", align: "right", value: (r) => r.finished, render: (r) => `${nf(r.finished)} · ${pct(r.finished, r.started)}` },
+              { key: "f", label: "Finished", align: "right", value: (r) => r.finished, render: (r) => `${nf(r.finished)} · ${pct(r.finished, r.sessions)}` },
             ]} />
-            <p className="mt-2 text-[11px]" style={{ color: C.mute }}>“Shared link” is any session that arrived through a share URL. Finished % is of sessions that started.</p>
+            <p className="mt-2 text-[11px]" style={{ color: C.mute }}>“Shared link” is any session that arrived through a share URL. Both percentages are of all sessions from that source; some sessions finish without a start event being recorded, so finish is not measured against starts.</p>
           </Panel>
         </div>
       )}
@@ -292,7 +292,7 @@ export default function SitePage() {
           <HBars rows={d.acquisition.referrers.slice(0, 6).map((r) => ({ name: r.name, value: r.people }))} label={(n) => (n === "$direct" ? "Direct" : n)} />
         </Panel>
         <Panel title="Entry and top pages" note={noSessions ? "entry pages from 21 Nov" : "sessions · views"}>
-          {noSessions ? <Empty text="Entry pages come from sessions, which start 21 Nov 2026" /> : (
+          {noSessions ? <Empty text="Entry pages come from sessions, which start 21 Nov 2026" /> : s.sdk && nat.withPageview < d.sessionMix.sdk * 0.5 ? <Insufficient text={`Only ${nat.withPageview} of ${d.sessionMix.sdk} sessions sent a pageview: entry pages and bounce are not reliable`} /> : (
             <DataTable dense limit={5} initialSort="sessions" rows={d.entry} cols={[
               { key: "p", label: "Entry", render: (r) => <span className="break-all">{r.path}</span> },
               { key: "s", label: "Sess.", align: "right", value: (r) => r.sessions },

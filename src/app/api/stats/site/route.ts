@@ -51,14 +51,14 @@ async function build(siteId: string, days: number, includeInternal: boolean, dev
       from events where ${span} and ${real}`),
     daily: () => hq("site.daily", `select ${DAY} d, uniq(person_id), countIf(event = 'mw_pageview'),
         countIf(event in ${started}), countIf(event in ${finished}), countIf(event in ${tap}),
-        uniqIf(properties.$session_id, event = '$pageview' and timestamp >= ${W.nativeFrom})
+        ${def.sdk ? "uniqIf(properties.$session_id, properties.$lib = 'web')" : "uniqIf(properties.$session_id, event = '$pageview' and timestamp >= ${W.nativeFrom})"}
       from events where ${cur} and ${real} group by d order by d`),
     hours: () => hq("site.hours", `select toDayOfWeek(toTimeZone(timestamp, 'America/New_York')) dow,
         toHour(toTimeZone(timestamp, 'America/New_York')) h, count()
       from events where event = 'mw_pageview' and ${cur} and ${real} group by dow, h`),
     native: () => hq("site.native", `select count(), avg(dur), countIf(pv <= 1 and dur < 10), avg(pv), countIf(pv > 0) from (
         select properties.$session_id sid, dateDiff('second', min(timestamp), max(timestamp)) dur, countIf(event = '$pageview') pv
-        from events where timestamp >= ${W.nativeFrom} and ${real}${sdkOnly} and properties.$session_id is not null
+        from events where ${def.sdk ? cur : `timestamp >= ${W.nativeFrom}`} and ${real}${sdkOnly} and properties.$session_id is not null
         group by sid ${def.sdk ? "" : sessionHaving})`),
     entry: () => hq("site.entry", `select path, count(), countIf(pv <= 1 and dur < 10) from (
         select properties.$session_id sid, argMinIf(properties.$pathname, timestamp, event = '$pageview') path,
