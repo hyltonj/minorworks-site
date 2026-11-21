@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { C, Panel, useStats } from "@/components/stats/ui";
 
-type Source = { status: "connected" | "missing" | "error"; message?: string; clicks?:number; impressions?:number; ctr?:number; users?:number; sessions?:number; views?:number };
+type Source = { status: "connected" | "no_data" | "missing" | "error"; message?: string; clicks?:number; impressions?:number; ctr?:number; users?:number; sessions?:number; views?:number };
 type Site = { id:string; name:string; ga4:Source; gsc:Source };
 type GoogleReport = { configured:boolean; sites:Site[] };
 const fmt=(value?:number)=>value===undefined?"—":new Intl.NumberFormat("en-US").format(value);
-const tone=(source:Source)=>source.status==="error"?"Unavailable":source.status==="missing"?"Not connected":"Connected";
+const tone=(source:Source)=>source.status==="error"?"Unavailable":source.status==="missing"?"Not connected":source.status==="no_data"?"No reporting data":"Connected";
 
 /** Supplemental Google panels: do not substitute GA4 sessions for PostHog sessions. */
 export function GooglePortfolio({days}:{days:number}){
@@ -25,9 +25,9 @@ export function GooglePortfolio({days}:{days:number}){
         <div className="grid grid-cols-3 gap-1">
           <div><p className="text-[10px]" style={{color:C.mute}}>Search clicks</p><p className="text-[19px] font-semibold tabular-nums">{site.gsc.status==="connected"?fmt(site.gsc.clicks):"—"}</p></div>
           <div><p className="text-[10px]" style={{color:C.mute}}>Impressions</p><p className="text-[19px] font-semibold tabular-nums">{site.gsc.status==="connected"?fmt(site.gsc.impressions):"—"}</p></div>
-          <div><p className="text-[10px]" style={{color:C.mute}}>GA4 sessions</p><p className="text-[19px] font-semibold tabular-nums">{site.ga4.status==="connected"?fmt(site.ga4.sessions):"—"}</p></div>
+          <div><p className="text-[10px]" style={{color:C.mute}}>GA4 sessions</p><p className="text-[19px] font-semibold tabular-nums">{(site.ga4.status==="connected"||site.ga4.status==="no_data")?fmt(site.ga4.sessions):"—"}</p></div>
         </div>
-        {site.ga4.status==="connected" && site.ga4.sessions===0 && <p className="mt-1.5 text-[10px]" style={{color:"#99571c"}}>GA4 has no activity in this period; verify instrumentation.</p>}
+        {site.ga4.status==="no_data" && <p className="mt-1.5 text-[10px]" style={{color:"#99571c"}}>GA4 has no activity in this period; verify instrumentation.</p>}
       </div>)}
     </div>}
     <p className="mt-2 text-[10px]" style={{color:C.mute}}>Google may report later than PostHog. Search Console clicks are not the same metric as GA4 sessions, and values must not be added together.</p>
