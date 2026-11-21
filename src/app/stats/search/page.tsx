@@ -45,7 +45,7 @@ export default function SearchPage(){
   const [selected,setSelected]=useState("ballpark");
   const [exporting,setExporting]=useState(false);
   const [exportError,setExportError]=useState("");
-  const {pass,ready,data,error,loading,login}=useStats<Report>("/api/stats/google",{days});
+  const {pass,ready,data,error,loading,login,retry}=useStats<Report>("/api/stats/google",{days});
   async function exportHistory() {
     if(!pass || exporting) return;
     setExporting(true);setExportError("");
@@ -63,7 +63,7 @@ export default function SearchPage(){
     } catch {setExportError("Export unavailable. Please try again later.");}
     finally {setExporting(false);}
   }
-  if(!data) return ready ? <Login onLogin={login} error={error} loading={loading}/> : <main className="min-h-screen" style={{background:C.navy}}/>;
+  if(!data) return ready ? <Login onLogin={login} error={error} loading={loading} retry={retry}/> : <main className="min-h-screen" style={{background:C.navy}}/>;
   const site=data.sites.find(x=>x.id===selected)||data.sites[0];
   return <Shell title="Search performance" subtitle="Historical discovery and traffic · Google Analytics 4 + Google Search Console" active="search" days={days} onDays={setDays} loading={loading} stamp={stampOf(data.generatedAt)} extra={<button className="rounded-lg px-2.5 py-1.5 text-xs font-medium" style={{background:days===365?C.navy:C.track,color:days===365?"white":C.mute}} onClick={()=>setDays(365)}>1 year</button>}>
     {!data.configured ? <Notice tone="warn">Google read-only reporting is prepared, but the server credential has not been configured. Add GOOGLE_SERVICE_ACCOUNT_JSON to Netlify as a secret. No traffic or search figures are shown until the connection is verified.</Notice> : null}

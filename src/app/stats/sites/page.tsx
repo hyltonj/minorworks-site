@@ -20,8 +20,8 @@ export default function SitesIndex() {
   const [days, setDays] = useState(30);
   const [mine, setMine] = useState(false);
   const [view, setView] = useState<"table" | "cards">("table");
-  const { ready, data, error, loading, login } = useStats<Data>("/api/stats", { days, includeInternal: mine });
-  if (!data) return ready ? <Login onLogin={login} error={error} loading={loading} /> : <main className="min-h-screen" style={{ background: C.navy }} />;
+  const { ready, data, error, loading, login, retry } = useStats<Data>("/api/stats", { days, includeInternal: mine });
+  if (!data) return ready ? <Login onLogin={login} error={error} loading={loading} retry={retry} /> : <main className="min-h-screen" style={{ background: C.navy }} />;
 
   const trend = new Map(data.siteTrends.map((t) => [t.site, t]));
   const health = new Map(data.health.sites.map((h) => [h.id, h]));

@@ -22,8 +22,8 @@ const rel = (iso: string | null) => {
 
 export default function HealthPage() {
   const [mine, setMine] = useState(false);
-  const { ready, data, error, loading, login } = useStats<Data>("/api/stats", { days: 7, includeInternal: mine });
-  if (!data) return ready ? <Login onLogin={login} error={error} loading={loading} /> : <main className="min-h-screen" style={{ background: C.navy }} />;
+  const { ready, data, error, loading, login, retry } = useStats<Data>("/api/stats", { days: 7, includeInternal: mine });
+  if (!data) return ready ? <Login onLogin={login} error={error} loading={loading} retry={retry} /> : <main className="min-h-screen" style={{ background: C.navy }} />;
   const sites = data.health.sites;
   const ok = sites.filter((s) => s.status === "ok").length;
   const silent = sites.filter((s) => s.status === "no_data");
