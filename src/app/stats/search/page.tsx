@@ -46,9 +46,9 @@ export default function SearchPage(){
         </SourceCard>
         <SourceCard title="Google Analytics 4" source={site.ga4} details={site.ga4Property ? `Property ${site.ga4Property}` : "No GA4 property"}>
           <div className="mt-3 grid grid-cols-3 gap-2">
-            {[["Active user-days",nf(site.ga4.users)],["Sessions",nf(site.ga4.sessions)],["Page views",nf(site.ga4.views)]].map(([k,v])=><div key={k}><p className="text-[10px]" style={{color:C.mute}}>{k}</p><p className="text-[19px] font-semibold" style={{fontFamily:"Georgia,serif"}}>{v}</p></div>)}
+            {[["Active users",nf(site.ga4.users)],["Sessions",nf(site.ga4.sessions)],["Page views",nf(site.ga4.views)]].map(([k,v])=><div key={k}><p className="text-[10px]" style={{color:C.mute}}>{k}</p><p className="text-[19px] font-semibold" style={{fontFamily:"Georgia,serif"}}>{v}</p></div>)}
           </div>
-          {site.ga4.daily?.length ? <div className="mt-3"><MiniBars rows={site.ga4.daily} field="sessions"/><p className="mt-1 text-[10px]" style={{color:C.mute}}>GA4 sessions by day; active user-days are summed daily active users, not unique people for the whole period.</p></div> : <p className="mt-3 text-xs" style={{color:C.mute}}>No GA4 daily rows in this period.</p>}
+          {site.ga4.daily?.length ? <div className="mt-3"><MiniBars rows={site.ga4.daily} field="sessions"/><p className="mt-1 text-[10px]" style={{color:C.mute}}>GA4 sessions by day; active users are deduplicated over the selected date range.</p></div> : <p className="mt-3 text-xs" style={{color:C.mute}}>No GA4 daily rows in this period.</p>}
         </SourceCard>
       </div>
       <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2">
