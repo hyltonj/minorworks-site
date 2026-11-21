@@ -6,24 +6,30 @@ import { useState } from "react";
 import { DEFINITIONS, NATIVE_BOUNDARY, POSTHOG_HISTORY_START, siteById } from "@/lib/stats/model";
 import { eventsUrl, funnelUrl, pathsUrl } from "@/lib/stats/links";
 import {
-  C, ColumnChart, DataTable, Donut, Empty, ExternalLink, FunnelBars, HBars, Heatmap, Insufficient, Kpi, LineChart, Login, Notice, Pair, Panel, Section, Shell,
+  C, ColumnChart, DataTable, Donut, Empty, ExternalLink, HBars, Heatmap, Insufficient, Kpi, LineChart, Login, Notice, Pair, Panel, Section, Shell, StackedDaily,
   dur, etDay, flag, nf, pct, stampOf, useStats,
 } from "@/components/stats/ui";
+import { CohortHeat, JourneyFlow, LifeStage, ShareLifecycle } from "@/components/stats/Charts";
 
-type Life = { n: number; label: string; kind: string; status: string; note: string; names: string[]; events: number | null; people: number | null; of: number | null };
+type Life = LifeStage;
 type Data = {
   site: { id: string; name: string; host: string; kind: string; sdk: boolean; footer: boolean; note: string; hasProductEvents: boolean };
   days: number; device: string; includeInternal: boolean; generatedAt: string;
   boundary: { native: string; historyStart: string; covers: "full" | "partial" | "none"; nativeDays: number };
   totals: { people: Pair; views: Pair; started: Pair; finished: Pair; startedPeople: Pair; sharerPeople: Pair };
-  native: { sessions: number; avgSessionSeconds: number | null; bounceRate: number | null; pagesPerSession: number | null };
+  native: { basis: "sdk" | "pageview"; withPageview: number; sessions: number; avgSessionSeconds: number | null; bounceRate: number | null; pagesPerSession: number | null };
   daily: { day: string; people: number; views: number; started: number; finished: number; shareTaps: number; sessions: number }[];
   hours: { dow: number; hour: number; n: number }[];
   entry: { path: string; sessions: number; bounced: number }[];
   pages: { path: string; views: number; people: number }[];
   engagement: { sessions: number; reach25: number; reach50: number; reach75: number; reach100: number; activeSecondsPerVisit: number | null; outboundPeople: number; footerSeen: number; footerClicked: number };
   acquisition: { referrers: { name: string; people: number }[]; classes: { name: string; people: number }[]; utm: { source: string; medium: string; campaign: string; people: number; views: number }[] };
-  journey: { unit: string; steps: { label: string; sessions: number }[]; note: string };
+  journey: { unit: string; steps: { label: string; sessions: number; base: number }[]; note: string };
+  channelDaily: ({ day: string } & Record<string, number | string>)[];
+  sessionLen: { bucket: number; sessions: number }[];
+  cohortGrid: { first: string; k: number; people: number }[];
+  sessionMix: { sdk: number; footerOnly: number };
+  footerVersions: { version: string; sessions: number; last: string }[];
   activity: { label: string; events: number; people: number; sessions: number }[];
   lifecycle: Life[];
   coverage: { sdk: boolean; since: string; mwViews: number; nativeViews: number; sdkSessions: number; sdkSessionsWithPageview: number; sessions: number; sessionsWithPageview: number };
@@ -169,8 +175,9 @@ export default function SitePage() {
 
   const journey = d.journey.steps;
   const hasJourney = journey.length > 1 && journey[0].sessions > 0;
-  const qSteps = journey.filter((st) => /^Question \d/.test(st.label));
-  const drop = qSteps.map((st, i) => ({ label: `Q${i + 1}`, value: i ? Math.max(0, qSteps[i - 1].sessions - st.sessions) : Math.max(0, journey[0].sessions - st.sessions), tone: "red" as const }));
+  const short = (l: string) => l.replace(/^Question (\d) answered$/, "Q$1").replace("Game completed", "Done").replace("Share initiated", "Share").replace("Share confirmed", "Sent");
+  const ends = journey.slice(1, -1).map((st, i) => ({ label: short(st.label), value: Math.max(0, st.sessions - journey[i + 2].sessions), tone: "red" as const }));
+  const never = hasJourney ? Math.max(0, journey[0].sessions - journey[1].sessions) : 0;
   const hasShare = d.lifecycle.length > 0;
   const sharedKpi = d.lifecycle.find((l) => l.n === 7);
   const smallCanonLife = (def?.product?.shareLifecycle || []).map((st) => ({ n: st.n, label: st.label, kind: st.kind, status: st.status, note: st.note, names: st.events || [], events: null, people: null, of: null })) as Life[];
@@ -190,8 +197,8 @@ export default function SitePage() {
       <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-6">
         <Kpi label="People" value={nf(t.people.now)} pair={t.people} spark={nums(ppl.values)} />
         <Kpi label="Page views" value={nf(t.views.now)} pair={t.views} spark={nums(views.values)} color={C.navy2} />
-        <Kpi label="Sessions" value={noSessions ? "–" : nf(nat.sessions)} sub={noSessions ? "from 21 Nov" : `${nat.pagesPerSession ?? "–"} pages each`} spark={nums(sess.values)} color={C.blueSoft} />
-        <Kpi label="Avg session" value={noSessions ? "–" : dur(nat.avgSessionSeconds)} sub={noSessions || nat.bounceRate === null ? undefined : `${nat.bounceRate}% bounce`} />
+        <Kpi label={nat.basis === "sdk" ? "SDK sessions" : "Sessions"} value={noSessions ? "–" : nf(nat.sessions)} sub={noSessions ? "from 21 Nov" : nat.basis === "sdk" ? "one per visit" : `${nat.pagesPerSession ?? "–"} pages each`} spark={nums(sess.values)} color={C.blueSoft} />
+        <Kpi label="Avg session" value={noSessions ? "–" : dur(nat.avgSessionSeconds)} sub={noSessions ? undefined : nat.bounceRate === null ? "bounce n/a: no pageviews" : `${nat.bounceRate}% bounce`} />
         {game ? <>
           <Kpi label="Start events" value={nf(t.started.now)} pair={t.started} sub={`${nf(t.startedPeople.now)} people`} spark={nums(started.values)} color={C.red} />
           <Kpi label="Finish events" value={nf(t.finished.now)} pair={t.finished} sub={`${pct(t.finished.now, t.started.now)} of start events`} spark={nums(finished.values)} color={C.green} />
@@ -214,12 +221,13 @@ export default function SitePage() {
         <Panel title="A. Sequential journey" note={<>sessions in order · <ExternalLink href={funnelUrl(s.id, def?.product?.journey || [], d.days)}>Funnel in PostHog</ExternalLink> · <ExternalLink href={pathsUrl(s.id, d.days)}>Paths</ExternalLink> · <ExternalLink href={eventsUrl(s.id)}>Events</ExternalLink></>}>
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
             <div className="lg:col-span-3">
-              <FunnelBars steps={journey.map((st) => ({ label: st.label, value: st.sessions }))} unit="sessions" />
-              <p className="mt-2 text-[11px]" style={{ color: C.mute }}>Each session counts at a step only if it did that step after the one before. The percentage at the right is step to step. {d.journey.note}</p>
+              <JourneyFlow steps={journey} />
+              <p className="mt-1.5 text-[11px]" style={{ color: C.mute }}>{d.journey.note}</p>
             </div>
             <div className="lg:col-span-2">
-              <Sub>Sessions lost at each question</Sub>
-              <ColumnChart items={drop} color={C.red} height={96} />
+              <Sub>Where sessions stop (last step reached)</Sub>
+              <ColumnChart items={ends} color={C.red} height={92} />
+              <p className="mb-2 text-[11px]" style={{ color: C.mute }}>{nf(never)} of {nf(journey[0].sessions)} sessions never answered a question ({pct(never, journey[0].sessions)}); they are the first bar of the journey, not a drop inside the game.</p>
               <Sub>Completion by device (sessions that started)</Sub>
               <DataTable dense rows={d.cohorts.byDevice.filter((r) => r.started > 0)} empty="No starts" cols={[
                 { key: "n", label: "Device", render: (r) => r.name },
@@ -256,20 +264,24 @@ export default function SitePage() {
       )}
 
       {hasShare && (
-        <Panel title="Sharing lifecycle" note="intent is not a send · opening a share sheet is not a share">
-          <DataTable dense rows={d.lifecycle} empty="No lifecycle defined" cols={[
-            { key: "n", label: "#", value: (r) => r.n },
-            { key: "l", label: "Stage", render: (r) => <span className="font-medium">{r.label}</span> },
-            { key: "k", label: "Kind", render: (r) => <Badge bg={KIND[r.kind]?.[1] || C.track} fg={KIND[r.kind]?.[2] || C.mute}>{KIND[r.kind]?.[0] || r.kind}</Badge> },
-            { key: "s", label: "Status", render: (r) => <span className="whitespace-nowrap text-[11.5px] font-medium" style={{ color: STATUS[r.status]?.[1] }}>● {STATUS[r.status]?.[0] || r.status}</span> },
-            { key: "e", label: "Events", align: "right", value: (r) => r.events ?? -1, render: (r) => (r.events === null ? <span style={{ color: C.mute }}>–</span> : nf(r.events)) },
-            { key: "p", label: "People", align: "right", value: (r) => r.people ?? -1, render: (r) => (r.people === null ? <span style={{ color: C.mute }}>–</span> : r.of !== null ? `${nf(r.people)} of ${nf(r.of)}` : nf(r.people)) },
-            { key: "w", label: "Notes", hide: "sm", render: (r) => <span className="text-[11.5px]" style={{ color: C.mute }}>{r.note}</span> },
-          ]} />
+        <Panel title="Sharing lifecycle" note={<>intent is not a send · opening a share sheet is not a share · <ExternalLink href={eventsUrl(s.id)}>Events in PostHog</ExternalLink></>}>
+          <ShareLifecycle stages={d.lifecycle} eventsHref={eventsUrl(s.id)} />
           <p className="mt-2 text-[11px]" style={{ color: C.mute }}>
-            Stage 10 counts people who arrived through someone else’s link (not their own) and later pressed share themselves. Share links carry only the share type, not a per-share id, so a visit is attributable to “a share of this kind” and never to a person or a message. {sharedKpi?.status === "partial" ? "Stage 7 depends on the shared-link event reaching PostHog from the recipient’s browser." : ""}
+            Share links carry only the share type, not a per-share id, so a visit is attributable to “a share of this kind” and never to a person or a message. Stage 10 counts people who arrived through someone else’s link and later pressed share themselves, in the same browser.
           </p>
         </Panel>
+      )}
+
+      {game && (
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-5">
+          <Panel title="Sessions by channel" note="per day · first referrer of each session" className="lg:col-span-3">
+            {d.channelDaily.length ? <StackedDaily keys={[...new Set(d.channelDaily.flatMap((r) => Object.keys(r).filter((k) => k !== "day")))]} rows={d.channelDaily} height={130} ariaLabel="Sessions per day by channel" /> : <Empty text="No sessions in this range" />}
+          </Panel>
+          <Panel title="How long sessions last" note="distribution · sessions" className="lg:col-span-2">
+            {d.sessionLen.length ? <ColumnChart height={96} color={C.navy2} items={["<10s", "10–30s", "30–60s", "1–3m", "3–10m", "10m+"].map((label, bucket) => ({ label, value: d.sessionLen.find((r) => r.bucket === bucket)?.sessions || 0 }))} /> : <Empty text="No sessions in this range" />}
+            <p className="mt-1 text-[11px]" style={{ color: C.mute }}>First to last event of each session. A single-event session lasts 0 seconds.</p>
+          </Panel>
+        </div>
       )}
 
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
@@ -311,34 +323,35 @@ export default function SitePage() {
       </div>
 
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-        <Panel title="Retention" note="Boston-time days">
-          {ret.cohort.people || ret.activeDays.length ? (
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Sub>Days active per person</Sub>
-                <ColumnChart items={ret.activeDays.map((r) => ({ label: r.days >= 5 ? "5+" : String(r.days), value: r.people }))} height={70} />
-              </div>
-              <div className="space-y-2 text-[12px]">
-                <div><Sub>New people who came back</Sub>{lowSample ? <Insufficient text={`Only ${ret.cohort.people} new people: too few`} /> : <span className="text-lg font-bold" style={{ color: C.navy }}>{pct(ret.cohort.returned, ret.cohort.people)}</span>}</div>
-                <div><Sub>Returning</Sub>{shortHistory ? <Insufficient text="History shorter than range" /> : ret.returning.of ? <span className="text-lg font-bold" style={{ color: C.navy }}>{pct(ret.returning.now, ret.returning.of)}</span> : "–"}</div>
-              </div>
+        <Panel title="New people who come back" note="cohorts by first-seen day · share active on each later day">
+          <CohortHeat cells={d.cohortGrid} histStart={b.historyStart} />
+          <div className="mt-2 grid grid-cols-2 gap-3 border-t pt-2" style={{ borderColor: C.line }}>
+            <div><Sub>Days active per person</Sub><ColumnChart items={ret.activeDays.map((r) => ({ label: r.days >= 5 ? "5+" : String(r.days), value: r.people }))} height={54} /></div>
+            <div className="space-y-1 text-[12px]">
+              <div><Sub>Returning</Sub>{shortHistory ? <Insufficient text="History shorter than range" /> : ret.returning.of ? <span className="text-lg font-bold" style={{ color: C.navy }}>{pct(ret.returning.now, ret.returning.of)}</span> : "–"}</div>
+              {lowSample && <Insufficient text={`${ret.cohort.people} new people: too few for a rate`} />}
             </div>
-          ) : <Empty text="No people in this range" />}
-          <p className="mt-2 text-[11px]" style={{ color: C.mute }}>{DEFINITIONS.returning} PostHog only holds data from {b.historyStart}, so “first seen before the range” cannot be told apart from “first seen after history began” until the history is longer than the range.</p>
+          </div>
+          <p className="mt-1.5 text-[11px]" style={{ color: C.mute }}>{DEFINITIONS.returning}</p>
         </Panel>
 
-        <Panel title="Data quality" note="pageview coverage since this site’s tracking was last fixed">
+        <Panel title="Data quality" note="why some numbers are not comparable">
           <DataTable dense rows={[
-            { l: "Footer pageviews (mw_pageview)", v: nf(cov.mwViews), n: "Counted on every footer-equipped load." },
-            { l: "Native pageviews ($pageview)", v: nf(cov.nativeViews), n: cov.mwViews && cov.nativeViews < cov.mwViews * 0.8 ? "Fewer than footer pageviews: cached game bundles or sessions not yet on the new SDK." : "Roughly in line." },
-            { l: "Sessions with a pageview", v: `${nf(cov.sessionsWithPageview)} of ${nf(cov.sessions)}`, n: cov.sessions ? `${pct(cov.sessionsWithPageview, cov.sessions)}. Sessions without one are excluded from sessions, bounce and entry pages.` : "–" },
-            ...(cov.sdk ? [{ l: "SDK sessions with a pageview", v: `${nf(cov.sdkSessionsWithPageview)} of ${nf(cov.sdkSessions)}`, n: "Sessions from the site’s own PostHog SDK." }] : []),
+            ...(s.sdk ? [
+              { l: "Sessions counted", v: nf(d.sessionMix.sdk), n: "Game SDK sessions: one per visit, the basis for the journey, channel and length charts." },
+              { l: "Footer-only session ids", v: nf(d.sessionMix.footerOnly), n: d.sessionMix.footerOnly ? "Older footers on this site use their own session id, so the same visit appears twice. Excluded from session metrics." : "None." },
+              { l: "SDK sessions with a $pageview", v: `${nf(nat.withPageview)} of ${nf(d.sessionMix.sdk)}`, n: nat.withPageview < d.sessionMix.sdk * 0.8 ? "The game SDK rarely sends a pageview on load, so bounce and entry pages are not valid here." : "Pageviews are arriving from the SDK." },
+            ] : [
+              { l: "Footer pageviews (mw_pageview)", v: nf(cov.mwViews), n: "Counted on every footer-equipped load." },
+              { l: "Sessions with a $pageview", v: `${nf(cov.sessionsWithPageview)} of ${nf(cov.sessions)}`, n: "Sessions without one are excluded from sessions, bounce and entry pages." },
+            ]),
+            { l: "Footer versions seen", v: d.footerVersions.map((f) => f.version).join(", ") || "–", n: "Several versions at once means cached or not-yet-updated pages." },
           ]} cols={[
             { key: "l", label: "Check", render: (r) => r.l },
             { key: "v", label: "Value", align: "right", render: (r) => r.v },
             { key: "n", label: "Reading", render: (r) => <span className="text-[11.5px]" style={{ color: C.mute }}>{r.n}</span> },
           ]} />
-          <p className="mt-2 text-[11px]" style={{ color: C.mute }}>Window starts {stampOf(cov.since)} Boston time. GA4 loads only on sites with the footer’s GA switch and never on games, which is why it reports far fewer visitors than PostHog.</p>
+          <p className="mt-2 text-[11px]" style={{ color: C.mute }}>Coverage window starts {stampOf(cov.since)} Boston time. GA4 is compared once the Google integration is connected (see the Search page).</p>
         </Panel>
       </div>
 

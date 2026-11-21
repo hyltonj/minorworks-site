@@ -4,9 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { siteName } from "@/lib/stats/model";
 import { SiteLink } from "@/components/stats/SiteLink";
+import { Portfolio, PortfolioChart, SmallMultiples } from "@/components/stats/PortfolioChart";
 import {
-  C, DataTable, Delta, Donut, Empty, FunnelBars, HBars, Insufficient, Kpi, Login, Notice, Pair, Panel, Section, Seg, Shell, Spark, StackedDaily,
-  dur, flag, nf, pct, stampOf, useStats,
+  C, DataTable, Delta, Donut, Empty, FunnelBars, HBars, Insufficient, Kpi, Login, Notice, Pair, Panel, Section, Seg, Shell, Spark,   dur, flag, nf, pct, stampOf, useStats,
 } from "@/components/stats/ui";
 
 type Trend = { site: string; people: number; views: number; plays: number; finishes: number; spark: number[]; peopleBefore: number; viewsBefore: number };
@@ -18,7 +18,7 @@ type Data = {
   totals: { people: Pair; pageViews: Pair; plays: Pair; finishes: Pair; hops: Pair; returning: { now: number; of: number }; activeSecondsPerVisit: number | null };
   native: { sessions: number; avgSessionSeconds: number | null; bounceRate: number | null; pageviews: number; visitors: number; pageleaves: number; avgPageSeconds: number | null };
   daily: { day: string; people: number; views: number; plays: number; finishes: number }[];
-  dailyBySite: { keys: string[]; days: ({ day: string } & Record<string, number | string>)[] };
+  portfolio: Portfolio;
   siteTrends: Trend[];
   referrers: { name: string; people: number }[];
   acquisition: { classes: { name: string; people: number }[]; utm: { source: string; medium: string; campaign: string; people: number }[] };
@@ -83,10 +83,10 @@ export default function StatsPage() {
         <Kpi label="Tracking health" value={<>{sending} <span className="text-[14px]" style={{ color: C.mute }}>of {data.health.sites.length}</span></>} sub="sites sending events" color={C.green} />
       </div>
 
+      <PortfolioChart data={data.portfolio} />
+
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
-        <Panel title="People across sites" note="per day, top 5 sites" className="lg:col-span-8">
-          <StackedDaily keys={data.dailyBySite.keys} rows={data.dailyBySite.days} nameOf={(k) => (k === "Other" ? "Other" : siteName(k))} />
-        </Panel>
+        <div className="lg:col-span-8"><SmallMultiples data={data.portfolio} /></div>
         <Panel title="Acquisition" note="people · all sites" className="lg:col-span-4">
           <Donut rows={data.acquisition.classes.map((c) => ({ name: c.name, value: c.people }))} />
           <div className="mt-2.5 border-t pt-2" style={{ borderColor: C.line }}>

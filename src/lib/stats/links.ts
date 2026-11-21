@@ -47,3 +47,18 @@ export function pathsUrl(site: string, days: number): string {
 /** Raw events for the site, newest first. */
 export const eventsUrl = (site: string) =>
   `${PH}/activity/explore#q=${encodeURIComponent(JSON.stringify({ kind: "DataTableNode", source: { kind: "EventsQuery", select: ["*", "event", "person", "timestamp"], properties: [{ key: "site", value: [site], operator: "exact", type: "event" }], after: "-24h", orderBy: ["timestamp DESC"] } }))}`;
+
+/** Unique people per day, broken down by site, over the same range as the portfolio chart. */
+export function trendsUrl(days: number): string {
+  return open({
+    kind: "InsightVizNode",
+    source: {
+      kind: "TrendsQuery",
+      series: [{ kind: "EventsNode", event: null, name: "All events", math: "dau" }],
+      breakdownFilter: { breakdown: "site", breakdown_type: "event" },
+      interval: "day",
+      dateRange: { date_from: `-${days}d` },
+      filterTestAccounts: true,
+    },
+  });
+}

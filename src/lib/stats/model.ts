@@ -10,7 +10,8 @@ export const POSTHOG_HISTORY_START = "2026-11-18";
 export type SiteKind = "game" | "tool" | "product" | "studio";
 
 /** Product events a site sends, so the dashboard never guesses. Event names are PostHog event names. */
-export type JourneyStep = { label: string; events: string[]; where?: { prop: string; value: string } };
+/** `base` is the index of the step whose sessions are the valid denominator for this step's "of cohort" percentage (default 0, the arrival). */
+export type JourneyStep = { label: string; events: string[]; where?: { prop: string; value: string }; base?: number };
 export type ShareStage = {
   n: number;
   label: string;
@@ -22,6 +23,8 @@ export type ShareStage = {
   /** Ignore visits from a link this same browser shared (own_link = true). */
   excludeOwn?: boolean;
   note: string;
+  /** Exactly what instrumentation would make this stage measurable (shown for partial and not observable stages). */
+  needs?: string;
 };
 
 export type ProductEvents = {
@@ -74,24 +77,24 @@ export const SITES: SiteDef[] = [
       conversion: [{ label: "Footer card clicks", event: "footer_click" }],
       journey: [
         { label: "Arrival (any event)", events: ["*"] },
-        ...[1, 2, 3, 4, 5].map((i) => ({ label: `Question ${i} answered`, events: ["bp_guess_submitted"], where: { prop: "question_index", value: String(i) } })),
-        { label: "Game completed", events: ["bp_set_completed"] },
-        { label: "Share initiated", events: ["share_pressed", "bp_share_pressed"] },
-        { label: "Share confirmed", events: ["share_completed"] },
+        ...[1, 2, 3, 4, 5].map((i) => ({ label: `Question ${i} answered`, events: ["bp_guess_submitted"], where: { prop: "question_index", value: String(i) }, base: i === 1 ? 0 : 1 })),
+        { label: "Game completed", events: ["bp_set_completed"], base: 1 },
+        { label: "Share initiated", events: ["share_pressed", "bp_share_pressed"], base: 6 },
+        { label: "Share confirmed", events: ["share_completed"], base: 6 },
       ],
-      journeyNote: "Ordered within each session using first occurrence. “Started a set” is not a step: in about a third of sessions the first guess is recorded before bp_set_started, so its timing cannot be trusted. Question-viewed events also fire out of order (a variant with questions_total 0), so guesses are used instead.",
+      journeyNote: "Sessions are SDK sessions (the game’s own PostHog session). Steps are matched in order within a 6-hour window, the same way PostHog funnels do. Verified against an independent walk of the raw events. “Started a set” is not a step: in about a third of sessions the first guess is recorded before bp_set_started, so its timing cannot be trusted. Question-viewed events also fire out of order (a variant with questions_total 0), so guesses are used instead.",
       arrivalEvents: ["shared_link_opened", "started_from_share"],
       shareLifecycle: [
         { n: 1, label: "Share opportunity presented", kind: "opportunity", status: "measured", events: ["share_card_viewed"], note: "Fact-card preview opens and the post-set share button showing." },
         { n: 2, label: "Share button clicked", kind: "intent", status: "measured", events: ["share_pressed", "bp_share_pressed"], note: "Intent. bp_share_pressed is the older event that fires with share_pressed." },
-        { n: 3, label: "Sharing interface opened", kind: "intent", status: "not_observable", note: "The browser does not report that the native sheet opened; no event exists." },
-        { n: 4, label: "Share method selected", kind: "intent", status: "partial", events: ["share_pressed"], note: "share_pressed carries a method property, but it is the method requested, not proof of a send." },
+        { n: 3, label: "Sharing interface opened", kind: "intent", status: "not_observable", note: "The browser does not report that the native sheet opened; no event exists.", needs: "Emit bp_share_sheet_opened when navigator.share() is called; the browser still cannot report that the sheet was shown." },
+        { n: 4, label: "Share method selected", kind: "intent", status: "partial", events: ["share_pressed"], note: "share_pressed carries a method property, but it is the method requested, not proof of a send.", needs: "Send share_method_selected only when the user picks a target; today the method is the one requested." },
         { n: 5, label: "Link copied", kind: "confirmed", status: "measured", events: ["share_completed"], where: { prop: "method", value: "copy" }, note: "Confirmed: the clipboard write succeeded. Not proof anyone pasted it." },
-        { n: 6, label: "Native share completed", kind: "confirmed", status: "partial", events: ["share_completed"], where: { prop: "method", value: "native" }, note: "Confirmed by the browser when it reports success. Dismissed shares are not observable." },
-        { n: 7, label: "Shared link opened", kind: "attributable", status: "measured", events: ["shared_link_opened"], excludeOwn: true, note: "Attributable to a share type (?s=round, challenge, fact, index), not to one sender. Own-browser opens excluded." },
+        { n: 6, label: "Native share completed", kind: "confirmed", status: "partial", events: ["share_completed"], where: { prop: "method", value: "native" }, note: "Confirmed by the browser when it reports success. Dismissed shares are not observable.", needs: "Emit bp_share_dismissed when navigator.share() rejects with AbortError so dismissals are visible." },
+        { n: 7, label: "Shared link opened", kind: "attributable", status: "measured", events: ["shared_link_opened"], excludeOwn: true, note: "Attributable to a share type (?s=round, challenge, fact, index), not to one sender. Own-browser opens excluded.", needs: "Add an opaque per-share id (sid) to the link and to shared_link_opened, so a visit ties to one share action rather than to a share type." },
         { n: 8, label: "Recipient engaged", kind: "engagement", status: "measured", events: ["started_from_share"], note: "Recipient made a first guess." },
         { n: 9, label: "Recipient completed a set", kind: "engagement", status: "measured", events: ["completed_from_share"], note: "Recipient finished a set." },
-        { n: 10, label: "Recipient generated another share", kind: "engagement", status: "partial", note: "People who arrived through a share and later pressed share. Same browser only." },
+        { n: 10, label: "Recipient generated another share", kind: "engagement", status: "partial", note: "People who arrived through a share and later pressed share. Same browser only.", needs: "Carry the arriving sid onto the recipient’s own share events (parent_sid) so a chain of shares can be followed." },
       ],
       counters: [
         { label: "Questions viewed", event: "bp_question_viewed" },

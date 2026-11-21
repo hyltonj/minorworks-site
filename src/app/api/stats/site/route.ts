@@ -32,11 +32,13 @@ async function build(siteId: string, days: number, includeInternal: boolean, dev
   const counters = p.counters || [];
   const conv = p.conversion || [];
   const sessionHaving = "having pv > 0";
-  const journeySql = journey.length ? `select ${journey.map((_, i) => `sum(f${i})`).join(", ")} from (select ${
-      journey.map((_, i) => (i === 0 ? "if(t0 > 0, 1, 0) f0" : `if(f${i - 1} = 1 and t${i} >= t${i - 1} and t${i} > 0, 1, 0) f${i}`)).join(", ")
-    } from (select properties.$session_id sid, ${
-      journey.map((st, i) => `toUnixTimestamp64Milli(minIf(timestamp, ${eventCond(st.events, st.where)})) t${i}`).join(", ")
-    } from events where ${cur} and ${real} and properties.$session_id is not null group by sid))` : "";
+  // Sites that run the PostHog SDK have two session ids per visit when the footer cannot see the SDK. Session analyses use the SDK's.
+  const sdkOnly = def.sdk ? " and properties.$lib = 'web'" : "";
+  // Ordered journey per session, same matching PostHog funnels use (windowFunnel). Step 0 "any event" is the cohort, not part of the chain.
+  const chain = journey.slice(1);
+  const journeySql = journey.length > 1 ? `select count(), ${chain.map((_, i) => `countIf(lvl >= ${i + 1})`).join(", ")} from (
+      select properties.$session_id sid, windowFunnel(21600)(toDateTime(timestamp), ${chain.map((st) => eventCond(st.events, st.where)).join(", ")}) lvl
+      from events where ${cur} and ${real}${sdkOnly} and properties.$session_id is not null group by sid)` : "";
 
   const T: Record<string, () => Promise<unknown[][]>> = {
     head: () => hq("site.head", `select
@@ -54,10 +56,10 @@ async function build(siteId: string, days: number, includeInternal: boolean, dev
     hours: () => hq("site.hours", `select toDayOfWeek(toTimeZone(timestamp, 'America/New_York')) dow,
         toHour(toTimeZone(timestamp, 'America/New_York')) h, count()
       from events where event = 'mw_pageview' and ${cur} and ${real} group by dow, h`),
-    native: () => hq("site.native", `select count(), avg(dur), countIf(pv <= 1 and dur < 10), avg(pv) from (
+    native: () => hq("site.native", `select count(), avg(dur), countIf(pv <= 1 and dur < 10), avg(pv), countIf(pv > 0) from (
         select properties.$session_id sid, dateDiff('second', min(timestamp), max(timestamp)) dur, countIf(event = '$pageview') pv
-        from events where timestamp >= ${W.nativeFrom} and ${real} and properties.$session_id is not null
-        group by sid ${sessionHaving})`),
+        from events where timestamp >= ${W.nativeFrom} and ${real}${sdkOnly} and properties.$session_id is not null
+        group by sid ${def.sdk ? "" : sessionHaving})`),
     entry: () => hq("site.entry", `select path, count(), countIf(pv <= 1 and dur < 10) from (
         select properties.$session_id sid, argMinIf(properties.$pathname, timestamp, event = '$pageview') path,
           dateDiff('second', min(timestamp), max(timestamp)) dur, countIf(event = '$pageview') pv
@@ -79,6 +81,21 @@ async function build(siteId: string, days: number, includeInternal: boolean, dev
         coalesce(properties.utm_campaign, '') c, uniq(person_id), count()
       from events where event = 'mw_pageview' and ${cur} and ${real} and properties.utm_source is not null
       group by a, b, c order by 4 desc limit 15`),
+    channelDaily: () => hq("site.channelDaily", `select d, src, count() from (select properties.$session_id sid, min(${DAY}) d,
+            argMin(coalesce(properties.$referring_domain, '$direct'), timestamp) src
+          from events where ${cur} and ${real}${sdkOnly} and properties.$session_id is not null group by sid) group by d, src order by d`),
+    sessionLen: () => hq("site.sessionLen", `select multiIf(dur < 10, 0, dur < 30, 1, dur < 60, 2, dur < 180, 3, dur < 600, 4, 5) b, count() from (
+          select properties.$session_id sid, dateDiff('second', min(timestamp), max(timestamp)) dur
+          from events where ${cur} and ${real}${sdkOnly} and properties.$session_id is not null group by sid) group by b order by b`),
+    cohortGrid: () => hq("site.cohortGrid", `select f, dateDiff('day', f, d) k, count() from (
+          select person_id, ${DAY} d from events where ${real} and timestamp >= now() - interval 90 day group by person_id, d) a
+          inner join (select person_id, min(${DAY}) f from events where ${real} group by person_id) b on a.person_id = b.person_id
+          where f >= toDate(toTimeZone(now() - interval ${days} day, 'America/New_York')) group by f, k order by f, k`),
+    sessionMix: () => hq("site.sessionMix", `select kind, count() from (select properties.$session_id sid,
+            multiIf(countIf(properties.$lib = 'web') > 0, 'sdk', 'footer') kind
+          from events where ${cur} and ${real} and properties.$session_id is not null group by sid) group by kind`),
+    footerVersions: () => hq("site.footerVersions", `select toString(properties.$lib_version), uniq(properties.$session_id), toString(max(timestamp))
+          from events where ${cur} and ${real} and properties.$lib = 'mw-footer' group by 1 order by 2 desc limit 6`),
     journey: () => journey.length ? hq("site.journey", journeySql) : Promise.resolve([]),
     activity: () => activity.length
       ? hq("site.activity", `select ${activity.map((a) => `countIf(${eventCond(a.events)}), uniqIf(person_id, ${eventCond(a.events)}), uniqIf(properties.$session_id, ${eventCond(a.events)})`).join(", ")}
@@ -102,13 +119,13 @@ async function build(siteId: string, days: number, includeInternal: boolean, dev
     byDevice: () => p.started
       ? hq("site.byDevice", `select d, count(), countIf(st > 0), countIf(fin > 0) from (select properties.$session_id sid, any(${DEV}) d,
             countIf(event in ${started}) st, countIf(event in ${finished}) fin
-          from events where ${cur} and ${real} and properties.$session_id is not null group by sid) group by d order by 2 desc`)
+          from events where ${cur} and ${real}${sdkOnly} and properties.$session_id is not null group by sid) group by d order by 2 desc`)
       : Promise.resolve([]),
     bySource: () => p.started
       ? hq("site.bySource", `select src, count(), countIf(st > 0), countIf(fin > 0) from (select properties.$session_id sid,
             if(countIf(event in ${from}) > 0, 'Shared link', argMin(coalesce(properties.$referring_domain, '$direct'), timestamp)) src,
             countIf(event in ${started}) st, countIf(event in ${finished}) fin
-          from events where ${cur} and ${real} and properties.$session_id is not null group by sid) group by src order by 2 desc limit 40`)
+          from events where ${cur} and ${real}${sdkOnly} and properties.$session_id is not null group by sid) group by src order by 2 desc limit 40`)
       : Promise.resolve([]),
     counters: () => counters.length
       ? hq("site.counters", `select ${counters.map((c) => `countIf(event = '${c.event}'), uniqIf(person_id, event = '${c.event}')`).join(", ")}
@@ -170,8 +187,9 @@ async function build(siteId: string, days: number, includeInternal: boolean, dev
       people: pair(0, 1), views: pair(2, 3), started: pair(4, 5), finished: pair(6, 7), startedPeople: pair(8, 9), sharerPeople: pair(10, 11),
     },
     native: {
+      basis: def.sdk ? "sdk" : "pageview", withPageview: n(nat[4]),
       sessions: n(nat[0]), avgSessionSeconds: nat[1] === null || nat[1] === undefined ? null : Math.round(n(nat[1])),
-      bounceRate: n(nat[0]) ? Math.round((n(nat[2]) / n(nat[0])) * 100) : null, pagesPerSession: nat[3] === null || nat[3] === undefined ? null : Math.round(n(nat[3]) * 10) / 10,
+      bounceRate: !def.sdk && n(nat[0]) ? Math.round((n(nat[2]) / n(nat[0])) * 100) : null, pagesPerSession: nat[3] === null || nat[3] === undefined ? null : Math.round(n(nat[3]) * 10) / 10,
     },
     daily: R.daily.map((r) => ({ day: s(r[0]), people: n(r[1]), views: n(r[2]), started: n(r[3]), finished: n(r[4]), shareTaps: n(r[5]), sessions: n(r[6]) })),
     hours: R.hours.map((r) => ({ dow: n(r[0]), hour: n(r[1]), n: n(r[2]) })),
@@ -189,7 +207,7 @@ async function build(siteId: string, days: number, includeInternal: boolean, dev
     },
     journey: {
       unit: "sessions",
-      steps: journey.map((st, i) => ({ label: st.label, sessions: n(jRow[i]) })),
+      steps: journey.map((st, i) => ({ label: st.label, sessions: n(jRow[i]), base: st.base ?? 0 })),
       note: p.journeyNote || "",
     },
     activity: activity.map((a, i) => ({ label: a.label, events: n(aRow[i * 3]), people: n(aRow[i * 3 + 1]), sessions: n(aRow[i * 3 + 2]) })),
@@ -197,12 +215,24 @@ async function build(siteId: string, days: number, includeInternal: boolean, dev
       let k = 0;
       return (p.shareLifecycle || []).map((st) => {
         const has = !def.external && st.events && st.events.length;
-        const row = { n: st.n, label: st.label, kind: st.kind, status: st.status, note: st.note, names: st.events || [], where: st.where || null, events: null as number | null, people: null as number | null, of: null as number | null };
+        const row = { n: st.n, label: st.label, kind: st.kind, status: st.status, note: st.note, names: st.events || [], needs: st.needs || "", where: st.where || null, events: null as number | null, people: null as number | null, of: null as number | null };
         if (has) { row.events = n(lRow[k * 2]); row.people = n(lRow[k * 2 + 1]); k++; }
         if (st.n === 10 && p.arrivalEvents) { row.people = n(rsRow[1]); row.of = n(rsRow[0]); row.status = n(rsRow[0]) ? "partial" : st.status; }
         return row;
       });
     })(),
+    channelDaily: (() => {
+      const m = new Map<string, Record<string, number>>();
+      for (const r of R.channelDaily) {
+        const d = s(r[0]); const k = classify(s(r[1]));
+        const row = m.get(d) || {}; row[k] = (row[k] || 0) + n(r[2]); m.set(d, row);
+      }
+      return [...m.entries()].map(([day, v]) => ({ day, ...v }));
+    })(),
+    sessionLen: R.sessionLen.map((r) => ({ bucket: n(r[0]), sessions: n(r[1]) })),
+    cohortGrid: R.cohortGrid.map((r) => ({ first: s(r[0]), k: n(r[1]), people: n(r[2]) })),
+    sessionMix: { sdk: n((R.sessionMix.find((r) => s(r[0]) === "sdk") || [])[1]), footerOnly: n((R.sessionMix.find((r) => s(r[0]) === "footer") || [])[1]) },
+    footerVersions: R.footerVersions.map((r) => ({ version: s(r[0]), sessions: n(r[1]), last: s(r[2]) })),
     coverage: {
       sdk: !!def.sdk, since: new Date(covMs).toISOString(), mwViews: n(cv[0]), nativeViews: n(cv[1]),
       sdkSessions: n(cv[2]), sdkSessionsWithPageview: n(cv[3]), sessions: n(cv[4]), sessionsWithPageview: n(cv[5]),

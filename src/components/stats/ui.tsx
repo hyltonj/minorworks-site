@@ -252,7 +252,7 @@ export function Donut({ rows, size = 96 }: { rows: { name: string; value: number
 }
 
 /** People per day, stacked by site (top sites plus Other). */
-export function StackedDaily({ keys, rows, nameOf = (k: string) => k, height = 150 }: { keys: string[]; rows: ({ day: string } & Record<string, number | string>)[]; nameOf?: (k: string) => string; height?: number }) {
+export function StackedDaily({ keys, rows, nameOf = (k: string) => k, height = 150, ariaLabel = "People per day by site" }: { keys: string[]; rows: ({ day: string } & Record<string, number | string>)[]; nameOf?: (k: string) => string; height?: number; ariaLabel?: string }) {
   const [hover, setHover] = useState<number | null>(null);
   if (!rows.length) return <Empty />;
   const w = 640, h = height, padL = 28;
@@ -262,7 +262,7 @@ export function StackedDaily({ keys, rows, nameOf = (k: string) => k, height = 1
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3">
       <div className="relative">
-        <svg viewBox={`0 0 ${w} ${h + 16}`} className="w-full" role="img" aria-label="People per day by site" onPointerLeave={() => setHover(null)}>
+        <svg viewBox={`0 0 ${w} ${h + 16}`} className="w-full" role="img" aria-label={ariaLabel} onPointerLeave={() => setHover(null)}>
           {[0, 0.5, 1].map((t) => (
             <g key={t}><line x1={padL} x2={w} y1={h - t * (h - 8)} y2={h - t * (h - 8)} stroke={C.line} /><text x={padL - 4} y={h - t * (h - 8) + 3} fontSize="9" fill={C.mute} textAnchor="end">{nf(Math.round(t * max))}</text></g>
           ))}

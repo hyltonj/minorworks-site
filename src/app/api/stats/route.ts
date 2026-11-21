@@ -71,7 +71,8 @@ async function build(days: number, includeInternal: boolean) {
           having sharers > 0 or arrived > 0 or site_sharers > 0 order by sharers desc limit 20`),
     // ---- Studio Stats 2.0 additions ----
     dailyBySite: () => hq("dailyBySite", `select ${DAY} d, properties.site s, uniq(person_id)
-          from events where ${cur} and ${REAL_} group by d, s order by d`),
+          from events where ${span} and ${REAL_} group by d, s order by d`),
+    dailyAll: () => hq("dailyAll", `select ${DAY} d, uniq(person_id) from events where ${span} and ${REAL_} group by d order by d`),
     trend: () => hq("trend", `select properties.site s, ${DAY} d, uniq(person_id)
           from events where event = 'mw_pageview' and timestamp >= now() - interval 14 day and ${REAL_}
           group by s, d order by s, d`),
@@ -197,15 +198,12 @@ async function build(days: number, includeInternal: boolean) {
       pageviews: n(natV[0]), visitors: n(natV[1]), pageleaves: n(natV[2]),
       avgPageSeconds: natV[3] === null || natV[3] === undefined ? null : Math.round(n(natV[3])),
     },
-    dailyBySite: (() => {
-      const top = R.sites.slice(0, 5).map((r) => s(r[0]));
-      const m = new Map<string, Record<string, number>>();
-      for (const r of R.dailyBySite) {
-        const d = s(r[0]); const k = top.includes(s(r[1])) ? s(r[1]) : "Other";
-        const row = m.get(d) || {}; row[k] = (row[k] || 0) + n(r[2]); m.set(d, row);
-      }
-      return { keys: [...top, "Other"], days: [...m.entries()].map(([day, v]) => ({ day, ...v })) };
-    })(),
+    // Two periods of per-site daily people (current and previous) so the chart can compare. Sum across sites counts a person once per site; `all` is de-duplicated.
+    portfolio: {
+      days,
+      rows: R.dailyBySite.map((r) => [s(r[0]), s(r[1]), n(r[2])] as [string, string, number]),
+      all: R.dailyAll.map((r) => [s(r[0]), n(r[1])] as [string, number]),
+    },
     daily: R.daily.map((r) => ({ day: s(r[0]), people: n(r[1]), views: n(r[2]), plays: n(r[3]), finishes: n(r[4]) })),
     sites: R.sites.map((r) => ({ site: s(r[0]), people: n(r[1]), views: n(r[2]), plays: n(r[3]), finishes: n(r[4]) })),
     siteTrends: trends,
