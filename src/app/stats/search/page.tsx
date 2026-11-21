@@ -45,6 +45,8 @@ export default function SearchPage(){
   const [selected,setSelected]=useState("ballpark");
   const [exporting,setExporting]=useState(false);
   const [exportError,setExportError]=useState("");
+  const [archiveState,setArchiveState]=useState("");
+  const [archiveChecking,setArchiveChecking]=useState(false);
   const {pass,ready,data,error,loading,login}=useStats<Report>("/api/stats/google",{days});
   async function exportHistory() {
     if(!pass || exporting) return;
@@ -63,6 +65,26 @@ export default function SearchPage(){
     } catch {setExportError("Export unavailable. Please try again later.");}
     finally {setExporting(false);}
   }
+  async function checkArchive() {
+    if (!pass || archiveChecking) return;
+    setArchiveChecking(true);setArchiveState("");
+    try {
+      const response=await fetch("/api/stats/google/archive",{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({action:"status",passphrase:pass}),
+      });
+      if (!response.ok) {
+        setArchiveState("Not connected yet — check the production database secret and deployment.");
+      } else {
+        const result=await response.json() as {rows?:number;lastImport?:string|null};
+        setArchiveState(`Connected to Neon · ${result.rows||0} archived daily rows${result.lastImport?" · Last import "+new Date(result.lastImport).toLocaleString():" · No import yet"}`);
+      }
+    } catch {
+      setArchiveState("Archive connection check failed.");
+    } finally {
+      setArchiveChecking(false);
+    }
+  }
   if(!data) return ready ? <Login onLogin={login} error={error} loading={loading}/> : <main className="min-h-screen" style={{background:C.navy}}/>;
   const site=data.sites.find(x=>x.id===selected)||data.sites[0];
   return <Shell title="Search performance" subtitle="Historical discovery and traffic · Google Analytics 4 + Google Search Console" active="search" days={days} onDays={setDays} loading={loading} stamp={stampOf(data.generatedAt)} extra={<button className="rounded-lg px-2.5 py-1.5 text-xs font-medium" style={{background:days===365?C.navy:C.track,color:days===365?"white":C.mute}} onClick={()=>setDays(365)}>1 year</button>}>
@@ -73,6 +95,10 @@ export default function SearchPage(){
       <button onClick={exportHistory} disabled={exporting||!data.configured} className="rounded-lg px-3 py-1.5 text-xs font-semibold disabled:opacity-50" style={{background:C.navy,color:"white"}}>{exporting?"Preparing export…":"Export historical data"}</button>
     </div>
     {exportError && <Notice tone="warn">{exportError}</Notice>}
+    <div className="mb-3 flex flex-wrap items-center gap-3 text-xs" style={{color:C.mute}}>
+      <button onClick={checkArchive} disabled={archiveChecking} className="rounded-lg border px-3 py-1.5 disabled:opacity-50" style={{borderColor:C.line,background:C.card,color:C.ink}}>{archiveChecking?"Checking Neon…":"Check archive connection"}</button>
+      {archiveState && <span role="status">{archiveState}</span>}
+    </div>
     <div className="mb-3 flex flex-wrap gap-1.5">
       {data.sites.map(s=><button key={s.id} onClick={()=>setSelected(s.id)} className="rounded-lg border px-3 py-1.5 text-xs" style={{borderColor:C.line,background:selected===s.id?C.navy:C.card,color:selected===s.id?"white":C.ink}}>{s.name}</button>)}
     </div>
