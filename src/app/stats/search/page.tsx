@@ -4,12 +4,12 @@ import { useState } from "react";
 import { C, Login, Notice, Panel, Shell, stampOf, useStats } from "@/components/stats/ui";
 
 type Day = { date:string; users:number; sessions:number; views:number; clicks:number; impressions:number };
-type Source = { status:"connected"|"missing"|"error"; message?:string; users?:number; sessions?:number; views?:number; clicks?:number; impressions?:number; ctr?:number; position?:number; daily?:Day[]; queries?:{term:string;clicks:number;impressions:number;ctr:number;position:number}[]; pages?:{url:string;clicks:number;impressions:number}[] };
+type Source = { status:"connected"|"no_data"|"missing"|"error"; message?:string; users?:number; sessions?:number; views?:number; clicks?:number; impressions?:number; ctr?:number; position?:number; daily?:Day[]; queries?:{term:string;clicks:number;impressions:number;ctr:number;position:number}[]; pages?:{url:string;clicks:number;impressions:number}[] };
 type Site = { id:string;name:string;ga4Property:string|null;gscProperty:string|null;ga4:Source;gsc:Source };
 type Report = {configured:boolean;generatedAt:string;sites:Site[];message?:string};
 const nf=(x?:number) => x===undefined ? "—" : Intl.NumberFormat("en-US",{maximumFractionDigits:0}).format(x);
 const pct=(x?:number) => x===undefined ? "—" : (x*100).toFixed(1)+"%";
-const stat=(s:Source)=>s.status==="connected"?"Connected":s.status==="error"?"Error":"Not configured";
+const stat=(s:Source)=>s.status==="connected"?"Connected":s.status==="no_data"?"No reporting data":s.status==="error"?"Error":"Not configured";
 function MiniBars({rows,field}:{rows:Day[];field:"clicks"|"impressions"|"sessions"|"views"}) {
   // Preserve daily granularity for short periods, but bucket 90/365-day
   // histories to fit the chart. A flex gap per day made annual bars invisible.
@@ -35,8 +35,9 @@ function SourceCard({title,source,details,children}:{title:string;source:Source;
   return <Panel title={title} note={stat(source)}>
     <div className="text-[11px]" style={{color:C.mute}}>{details}</div>
     {source.status==="error" && <p className="mt-2 rounded-md px-2 py-2 text-[12px]" style={{background:"#fff2de",color:"#8c501b"}}>{source.message || "Google did not return this report"}; check property access and ID.</p>}
+    {source.status==="no_data" && <p className="mt-2 rounded-md px-2 py-2 text-[12px]" style={{background:"#fff2de",color:"#8c501b"}}>{source.message || "API access works, but no report rows exist in this period."}</p>}
     {source.status==="missing" && <p className="mt-2 text-[12px]" style={{color:C.mute}}>No property configured for this site.</p>}
-    {source.status==="connected" && children}
+    {(source.status==="connected" || source.status==="no_data") && children}
   </Panel>;
 }
 export default function SearchPage(){
