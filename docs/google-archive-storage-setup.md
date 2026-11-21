@@ -1,27 +1,39 @@
-# Private Google history store — optional phase two of #26
+# Neon-backed historical Google archive (#26)
 
-This change adds an **off-by-default** one-year historical backfill, not a live scheduled job. It complements the existing owner-only manual JSON export from PR #31.
+Project: **minorworks-stats** (`silent-paper-17420277`), `production` branch, `neondb` database, US East.
+All analytics data is daily aggregates; no individual visitor identifiers, event bodies, query strings, or Google credentials are written here.
 
-## Why off by default?
-The Minor Works Studio Stats repository does not include an approved private persistent database connection. The game repo has a separate Supabase schema for Venny users; do **not** reuse that application database without explicit approval. No Google credential or Supabase key belongs in GitHub or public client code.
+## Verified database setup (2026-11-21)
 
-## Setup when an appropriate Supabase project is approved
-1. Run `docs/sql/stats-google-archive.sql` in its SQL editor. The private table has RLS enabled and no anon/authenticated policies.
-2. In the **Minor Works Netlify project, Functions scope, Production context only**, set:
-   - `STATS_ARCHIVE_SUPABASE_URL` — project HTTPS URL, e.g. `https://YOURPROJECT.supabase.co`;
-   - `STATS_ARCHIVE_SUPABASE_SERVICE_ROLE_KEY` — secret server-only key (never in screenshots/chat);
-   - `STATS_ARCHIVE_ENABLED=true` only after review/approval.
-3. Trigger a new production deployment to load the variables.
-4. Invoke protected POST `/api/stats/google/archive` with `{"passphrase":"[existing Studio Stats passphrase]","confirm":true}` from an owner-controlled authenticated environment. Do not paste the passphrase in public issue comments.
-5. Verify source coverage and upsert counts. Rerunning is idempotent by `(source, property, report_date)`.
+The schema in `docs/sql/stats-google-archive.sql` was run and validated on a Neon temporary migration branch, then successfully applied to production:
+- `studio_stats.google_daily`: per-day Google data, idempotent composite primary key `(source,property,report_date)`.
+- `studio_stats.google_import_runs`: audit log for backfill attempts.
+- Both tables are in a private `studio_stats` schema; schema/table PUBLIC privileges revoked.
+- No test rows were copied into production. Initial production counts: zero data rows, zero import runs.
 
-This endpoint returns only counts/status and no private credentials. It fails closed on per-source errors. Zero-activity GA4 is not mistaken for a healthy tracking setup. `no_data` properties are captured in coverage but do not create imaginary daily zeros.
+## Next app-side step (Netlify configuration)
 
-## Next required development
-- Choose approved storage destination and validate first run.
-- Add private server-side read endpoint and archive freshness display (avoid public Supabase access).
-- Schedule nightly import **only after owner approval**; re-read the last 7–14 days on each run to capture reporting revisions. GA4 daily unique users cannot be summed to claim monthly unique users.
-- Add audits for import failure, missing dates, runtime quota, GA4 property changes, data retention and GSC latency. Keep PostHog metrics separate.
-- Extend backfill beyond 365 days using explicit bounded date windows after validation; this first phase is a rolling 365-day snapshot.
+For the **minorworks.co** Netlify site, add ONE secret environment variable in **Production / Functions**:
 
-No cron/task was installed by this PR, and no database writes can happen without the three configuration variables and an explicit owner request.
+```text
+STATS_ARCHIVE_DATABASE_URL = <Neon pooled PostgreSQL connection string for production/neondb>
+```
+
+Get the value from Neon → project `minorworks-stats` → `production` → **Connect**. Choose **Pooled connection**, database `neondb`, and copy the `postgresql://...` URI. Never put the URI into chat, GitHub, browser JavaScript or screenshots.
+
+No extra Node package is needed: this implementation uses Neon's SQL-over-HTTPS protocol with built-in Node.js `fetch`, parameterized SQL, and a server-only `Neon-Connection-String` header. Validate the hosted Netlify build and round trip in a Deploy Preview before enabling writes. HTTP/TLS access is restricted to a `*.neon.tech` host.
+
+**Keep imports off initially.** `STATS_ARCHIVE_ENABLED` defaults to false. After reviewing and deploying the PR with the database URI configured:
+1. Authenticated POST `/api/stats/google/archive` JSON `{"action":"status","passphrase":"<your existing stats passphrase>"}` verifies the database connection, table access, and current row count without writing anything. Do this from a private client; never paste the passphrase publicly.
+2. When status succeeds, approve the initial backfill and set `STATS_ARCHIVE_ENABLED=true` in Netlify Production Functions and redeploy.
+3. Authenticated POST with `{"action":"import","passphrase":"<passphrase>","confirm":true}` requests 365 days of all configured Google properties and upserts existing daily rows. The response contains coverage, source statuses and rows written. Google API errors block the import; a property with no rows is flagged, not filled with fabricated zeroes.
+4. Cross-check GA4 daily session/view totals and GSC date sums against live Google data; confirm 2nd run is idempotent (same row count).
+5. Only after these validations, implement and approve a protected scheduled refresh with status monitoring. Schedule code is **not deployed** by this PR.
+
+## Review notes
+
+- Current annual GA4 active users are unique per range, but stored `daily_active_users` cannot be summed to reconstruct those unique users.
+- Google reports end yesterday (Boston local day), and Search Console final data can lag. A daily job should re-import recent 7–14 days for corrections.
+- Client-side PostHog session counts and GA4 sessions have different definitions; never add them.
+- The SQL-over-HTTPS adapter is intentionally small and dependency-free. If later adopting the official `@neondatabase/serverless` driver, change and lock dependencies together, test without breaking Next.js 14 Netlify builds.
+- Do not mark issue #26 complete until storage connection, one successful backfill and scheduled updates are tested.
