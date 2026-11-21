@@ -77,7 +77,7 @@ export default function StatsPage() {
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
         <Kpi label="People" value={nf(t.people.now)} pair={t.people} spark={spark("people")} />
         <Kpi label="Page views" value={nf(t.pageViews.now)} pair={t.pageViews} spark={spark("views")} />
-        <Kpi label="Sessions" value={noSessions ? "–" : nf(nat.sessions)} sub={noSessions ? "not collected here" : `${dur(nat.avgSessionSeconds)} avg · ${nat.bounceRate ?? "–"}% bounce`} color={C.navy2} />
+        <Kpi label="Sessions" value={noSessions ? "–" : nf(nat.sessions)} sub={noSessions ? "not collected here" : `${dur(nat.avgSessionSeconds)} avg · ${nat.bounceRate ?? "–"}% bounce · counts only sessions with a page view, so game sites are undercounted`} color={C.navy2} />
         <Kpi label="Starts (events)" value={nf(t.plays.now)} pair={t.plays} spark={spark("plays")} color={C.red} />
         <Kpi label="Finishes (events)" value={nf(t.finishes.now)} pair={t.finishes} sub={finishRate === null ? undefined : `${finishRate}% of starts`} spark={spark("finishes")} color={C.red} />
         <Kpi label="Tracking health" value={<>{sending} <span className="text-[14px]" style={{ color: C.mute }}>of {data.health.sites.length}</span></>} sub="sites sending events" color={C.green} />

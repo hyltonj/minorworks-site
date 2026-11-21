@@ -291,7 +291,7 @@ export default function SitePage() {
           <div className="mt-3"><Sub>Top referrers</Sub></div>
           <HBars rows={d.acquisition.referrers.slice(0, 6).map((r) => ({ name: r.name, value: r.people }))} label={(n) => (n === "$direct" ? "Direct" : n)} />
         </Panel>
-        <Panel title="Entry and top pages" note={noSessions ? "entry pages from 21 Nov" : "sessions · views"}>
+        <Panel title={!noSessions && s.sdk && nat.withPageview < d.sessionMix.sdk * 0.5 ? "Top pages" : "Entry and top pages"} note={noSessions ? "entry pages from 21 Nov" : s.sdk && nat.withPageview < d.sessionMix.sdk * 0.5 ? "views" : "sessions · views"}>
           {noSessions ? <Empty text="Entry pages come from sessions, which start 21 Nov 2026" /> : s.sdk && nat.withPageview < d.sessionMix.sdk * 0.5 ? <Insufficient text={`Only ${nat.withPageview} of ${d.sessionMix.sdk} sessions sent a pageview: entry pages and bounce are not reliable`} /> : (
             <DataTable dense limit={5} initialSort="sessions" rows={d.entry} cols={[
               { key: "p", label: "Entry", render: (r) => <span className="break-all">{r.path}</span> },

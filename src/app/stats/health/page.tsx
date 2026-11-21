@@ -53,7 +53,7 @@ export default function HealthPage() {
             { key: "note", label: "Note", hide: "sm", render: (r) => <span style={{ color: C.mute }}>{r.note || (r.libs.includes("web") && r.libs.includes("mw-footer") ? "SDK + footer" : "")}</span> },
           ]} />
           {data.health.unregistered.length > 0 && <p className="mt-2 text-[11px]" style={{ color: C.red }}>Sending data but not in the site list: {data.health.unregistered.join(", ")}.</p>}
-          <p className="mt-2 text-[11px]" style={{ color: C.mute }}>“Valid sessions” is the share of native page views carrying a UUID v7 session id (should be 100% after 21 Nov 2026). Native views on Ballpark and Venny are still low while cached app versions turn over.</p>
+          <p className="mt-2 text-[11px]" style={{ color: C.mute }}>“Valid sessions” is the share of native page views carrying a UUID v7 session id (should be 100% after 21 Nov 2026). Ballpark and Venny send few native page views because their game SDK rarely sends one on load; their session counts use SDK sessions instead (see each site page).</p>
         </div>
       </Panel>
       <Panel title="Data sources" note="what this dashboard can and cannot read">
