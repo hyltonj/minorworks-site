@@ -154,7 +154,7 @@ export const SITES: SiteDef[] = [
         { n: 5, label: "Link copied", kind: "confirmed", status: "measured", events: ["link_copy", "share_link_copied"], note: "Confirmed clipboard write." },
         { n: 6, label: "Poster downloaded", kind: "confirmed", status: "partial", events: ["poster_download"], note: "A download is confirmed by the browser but is not a share." },
         { n: 7, label: "Shared poster opened", kind: "attributable", status: "not_observable", note: "Poster links carry no share marker, so a visit cannot be tied to a share. Needs ?s=<type> (and ideally an opaque id)." },
-        { n: 8, label: "Recipient engaged", kind: "engagement", status: "partial", events: ["landing_view", "remix_open"], note: "landing_view and remix_open exist but cannot be tied to a shared poster." },
+        { n: 8, label: "Recipient engaged", kind: "engagement", status: "not_observable", note: "visit and search events exist but carry no share marker, so they cannot be tied to a shared poster.", needs: "Poster links need a share marker (?s=poster and an opaque sid); the visit event then records it." },
         { n: 9, label: "Recipient created their own", kind: "engagement", status: "partial", events: ["shelf_started", "book_added"], note: "Counts all creators, not only those who arrived through a share." },
         { n: 10, label: "Recipient generated another share", kind: "engagement", status: "not_observable", note: "Needs an opaque share id on both the opened and the sent event." },
       ],
