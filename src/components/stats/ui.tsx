@@ -476,12 +476,16 @@ export function useStats<T>(url: string, params: Record<string, unknown>) {
   const [ready, setReady] = useState(false);
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  // Start pending while restoring a passphrase from sessionStorage. Otherwise a
+  // valid returning visitor briefly sees the login form on every route change.
+  const [loading, setLoading] = useState(true);
   const key = JSON.stringify(params);
   const seq = useRef(0);
 
   useEffect(() => {
-    try { const p = sessionStorage.getItem(KEY); if (p) setPass(p); } catch {}
+    let stored = false;
+    try { const p = sessionStorage.getItem(KEY); if (p) { setPass(p); stored = true; } } catch {}
+    if (!stored) setLoading(false);
     setReady(true);
   }, []);
 
@@ -526,6 +530,15 @@ export function useStats<T>(url: string, params: Record<string, unknown>) {
 
 export function Login({ onLogin, error, loading }: { onLogin: (p: string) => void; error: string; loading: boolean }) {
   const [v, setV] = useState("");
+  // A saved passphrase is being checked against the API. Do not flash an empty
+  // login form while navigating between already-authorized /stats pages.
+  if (loading && !error) {
+    return (
+      <main className="flex min-h-screen items-center justify-center px-4" style={{ background: C.navy }} aria-busy="true">
+        <p className="text-sm font-medium" role="status" style={{ color: "#d1def4" }}>Opening Studio Stats…</p>
+      </main>
+    );
+  }
   const submit = (e: FormEvent) => { e.preventDefault(); if (v) onLogin(v); };
   return (
     <main className="flex min-h-screen items-center justify-center px-4" style={{ background: C.navy }}>
