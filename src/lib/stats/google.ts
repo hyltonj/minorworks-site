@@ -82,16 +82,23 @@ function dates(days: number) {
 }
 async function ga4(id: string, bearer: string, days: number): Promise<GoogleSite["ga4"]> {
   const period = dates(days);
-  const report = await googlePost<GaResp>(`https://analyticsdata.googleapis.com/v1beta/properties/${encodeURIComponent(id)}:runReport`,bearer,{
-    dateRanges: [period], dimensions: [{name:"date"}], metrics: [{name:"activeUsers"},{name:"sessions"},{name:"screenPageViews"}],
-    limit: "100", orderBys: [{ dimension: { dimensionName:"date" } }],
-  });
+  const endpoint=`https://analyticsdata.googleapis.com/v1beta/properties/${encodeURIComponent(id)}:runReport`;
+  const metrics=[{name:"activeUsers"},{name:"sessions"},{name:"screenPageViews"}];
+  // A separate undimensioned report is essential: summing daily active users
+  // overcounts people who visited more than one day in the requested period.
+  const [report,total] = await Promise.all([
+    googlePost<GaResp>(endpoint,bearer,{
+      dateRanges:[period],dimensions:[{name:"date"}],metrics,
+      limit:"100",orderBys:[{dimension:{dimensionName:"date"}}],
+    }),
+    googlePost<GaResp>(endpoint,bearer,{dateRanges:[period],metrics}),
+  ]);
   const daily = (report.rows || []).map(r => {
     const raw = r.dimensionValues?.[0]?.value || "";
     const date = raw.length===8 ? `${raw.slice(0,4)}-${raw.slice(4,6)}-${raw.slice(6,8)}` : raw;
     return { date, users:val(r.metricValues?.[0]?.value), sessions:val(r.metricValues?.[1]?.value), views:val(r.metricValues?.[2]?.value), clicks:0, impressions:0 };
   });
-  return { status:"connected", users:daily.reduce((a,r)=>a+r.users,0), sessions:daily.reduce((a,r)=>a+r.sessions,0), views:daily.reduce((a,r)=>a+r.views,0), daily };
+  return { status:"connected", users:val(total.rows?.[0]?.metricValues?.[0]?.value), sessions:val(total.rows?.[0]?.metricValues?.[1]?.value), views:val(total.rows?.[0]?.metricValues?.[2]?.value), daily };
 }
 async function searchConsole(property: string, bearer: string, days: number): Promise<GoogleSite["gsc"]> {
   const {startDate,endDate} = dates(days);
