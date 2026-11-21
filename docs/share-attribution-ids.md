@@ -34,7 +34,8 @@ Small Canon already has artifact lineage: `shelves.parent` records which shelf a
 | `share_initiated` | `sid`, `artifact_type`, `artifact_id`, `share_type`, `parent_sid?` | 2 Button clicked |
 | `share_sheet_opened` | `sid` | 3 Interface opened (native sheet: fired when `navigator.share()` is called; the browser cannot confirm it was shown) |
 | `share_method_selected` | `sid`, `method` | 4 Method selected |
-| `share_completed` | `sid`, `method` (`copy`, `native`) | 5 and 6 Confirmed **browser action**, not delivery |\n| `share_export_completed` | `artifact_type`, `artifact_id`, `format` | Independent export/download (not a link send) |
+| `share_completed` | `sid`, `method` (`copy`, `native`) | 5 and 6 Confirmed **browser action**, not delivery |
+| `share_export_completed` | `artifact_type`, `artifact_id`, `format` | Independent export/download (not a link send) |
 | `share_dismissed` | `sid` | native sheet rejected with AbortError |
 | `shared_link_opened` | `sid`, `artifact_id`, `own_link` | 7 Attributable visit |
 | `share_recipient_engaged` | `sid` (from the session property), `kind` (`first_guess`, `first_pick`, `first_shelf`) | 8 Recipient engaged |
@@ -51,7 +52,7 @@ Cannot, by design: who received the link, through which app, whether a message w
 ## 5. Privacy review
 
 - The id is random and rotates per press; it identifies no one and no device.
-- It is not set as a cookie or sent to third-party analytics. The app must sanitize its initial URL **before** GA4/PostHog or other scripts can capture it. Verify this ordering in production; never claim that GA4 cannot see it purely because the app later removes it.
+- It is not set as a cookie and is **never sent to GA4 or any advertising tool**. It is recorded only in the two systems named in section 8 (PostHog as a processor, and Small Canon's own database). The app must sanitize its initial URL **before** GA4/PostHog or other scripts can capture it. Verify this ordering in production; never claim that GA4 cannot see it purely because the app later removes it.
 - Recipient events carry the sid only for the attributed session, as a property. No permanent identify/alias, long-lived super property, or cross-session visitor linkage.
 - Retention: keep in line with the existing PostHog retention; nothing new to purge.
 - No recipient or private-communication tracking is added. The change fits the existing privacy page wording (“anonymous, no cross-site tracking”); the privacy text should add one sentence about share links.
@@ -81,3 +82,34 @@ Each app is its own small PR, reviewed separately from the dashboard.
 8. Provide before/after sample queries, a reversible flag or rollback plan, collision handling, and a privacy review before deployment.
 
 **Rollout gate:** Finish the known SDK/footer native pageview/session validation before relying on session-level share conversion metrics.
+
+## 8. Clarifications from review (21 Nov 2026)
+
+These close the ambiguities raised in review. Approve them with the rest of the spec before any app code changes.
+
+**Where the sid is recorded, and by whom**
+- PostHog (US cloud): a processor for Minor Works. The sid is an event property (and a session property for recipients), nothing else. Retention follows the PostHog project setting; confirm the current value and write it into the privacy page before launch.
+- Small Canon: its own Supabase `shelf_events` table (column or `props`). Retention is whatever that table already has; state it.
+- GA4: never receives the sid. Initial URLs are sanitized before the GA4 tag can read them.
+- Owner decision (21 Nov 2026): storing random share ids in PostHog and in Small Canon's analytics tables is acceptable, with the rules above documented.
+
+**What the lifecycle can truly observe**
+- `share_sheet_opened` records that `navigator.share()` was called. The browser does not confirm the sheet appeared, so the dashboard marks stage 3 as *not observable* for native sharing.
+- `share_method_selected` is observable only for sheets Minor Works draws itself (copy, link, poster). A native sheet does not report the chosen app, so stage 4 is *partial*.
+- Stages 5 and 6 are confirmed browser actions only. No stage claims delivery or reading.
+
+**Attribution rules (v1)**
+- One attributed sid per session: the first valid sid in a session wins. Later share links opened in the same session are still recorded as `shared_link_opened` but do not replace the session's `arrived_via_sid`.
+- Reopening or refreshing the same link in one session records one attributed visit (dedupe on sid plus session). Total opens are still counted separately.
+- A forwarded link is the same sid reaching more people. Counts are visits per sid, never people.
+- Self-visits: `own_link` is set only when the sid was created in the same tab session. Opening your own link elsewhere counts as a recipient and is a stated limitation.
+- An unknown, malformed or expired sid is ignored and removed from the URL.
+
+**Leakage paths to test before building**
+- Referrer: share landing pages send `Referrer-Policy: strict-origin-when-cross-origin` so the full URL, including the sid, is not passed on to other sites.
+- Redirects: a redirect must keep the query string only if the destination page sanitizes it first.
+- Link previews and crawlers fetch the full URL and will appear in hosting access logs. This cannot be prevented, and the sid is random and identifies no one, so it is accepted and documented.
+- Script order: sanitize before PostHog `capture_pageview` and the GA4 `config` call run, not after.
+
+**Consent**
+- DNT, GPC and the existing footer opt-out stop all share events, including `shared_link_opened`. When analytics is not allowed the sid is still removed from the URL but is not recorded.
