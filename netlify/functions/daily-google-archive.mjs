@@ -17,7 +17,7 @@ export default async function dailyGoogleArchive() {
     const result=await fetch("https://minorworks.co/api/stats/google/archive",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({action:"import",confirm:true,passphrase}),
+      body:JSON.stringify({action:"import",days:14,confirm:true,passphrase}),
       cache:"no-store",
       signal:AbortSignal.timeout(25000),
     });
