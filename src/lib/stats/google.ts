@@ -6,7 +6,7 @@ import { createSign } from "node:crypto";
 export type DayPoint = { date: string; users: number; sessions: number; views: number; clicks: number; impressions: number };
 export type GoogleSite = {
   id: string; name: string; ga4Property: string | null; gscProperty: string | null;
-  ga4: { status: "connected" | "missing" | "error"; message?: string; users?: number; sessions?: number; views?: number; daily?: DayPoint[] };
+  ga4: { status: "connected" | "no_data" | "missing" | "error"; message?: string; users?: number; sessions?: number; views?: number; daily?: DayPoint[] };
   gsc: { status: "connected" | "missing" | "error"; message?: string; clicks?: number; impressions?: number; ctr?: number; position?: number; daily?: DayPoint[]; queries?: { term: string; clicks: number; impressions: number; ctr: number; position: number }[]; pages?: { url: string; clicks: number; impressions: number }[] };
 };
 type Credential = { client_email: string; private_key: string; token_uri?: string };
@@ -102,7 +102,9 @@ async function ga4(id: string, bearer: string, days: number): Promise<GoogleSite
     const date = raw.length===8 ? `${raw.slice(0,4)}-${raw.slice(4,6)}-${raw.slice(6,8)}` : raw;
     return { date, users:val(r.metricValues?.[0]?.value), sessions:val(r.metricValues?.[1]?.value), views:val(r.metricValues?.[2]?.value), clicks:0, impressions:0 };
   });
-  return { status:"connected", users:val(total.rows?.[0]?.metricValues?.[0]?.value), sessions:val(total.rows?.[0]?.metricValues?.[1]?.value), views:val(total.rows?.[0]?.metricValues?.[2]?.value), daily };
+  const users=val(total.rows?.[0]?.metricValues?.[0]?.value), sessions=val(total.rows?.[0]?.metricValues?.[1]?.value), views=val(total.rows?.[0]?.metricValues?.[2]?.value);
+  return { status:daily.length===0 && users===0 && sessions===0 && views===0?"no_data":"connected", users,sessions,views,daily,
+    message: daily.length===0 && users===0 && sessions===0 && views===0?"Google returned no GA4 activity for the selected period. API access succeeded; verify that this property receives the deployed site's measurement ID.":undefined };
 }
 async function searchConsole(property: string, bearer: string, days: number): Promise<GoogleSite["gsc"]> {
   const {startDate,endDate} = dates(days);
