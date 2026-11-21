@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '1.8.2';
+  var VERSION = '1.9.0';
   if (window.__mwFooter) return;
 
   /* ---------- script context & options ---------- */
@@ -349,6 +349,8 @@
     };
     var vs = psid();
     if (vs) p.$session_id = vs.id;
+    var ss = sdkSession();
+    if (ss) p.$session_id = ss;
     try {
       var q = new URLSearchParams(location.search);
       ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach(function (n) {
@@ -408,21 +410,90 @@
     return null;
   }
 
-  // Visit ID: UUID-shaped, kept in session storage for this tab (no cookie), renewed after 30 quiet minutes.
+  // Visit ID: a UUID version 7 (the time is baked into the first 48 bits), because PostHog's session tables read the
+  // start time from it. Kept in session storage for this tab (no cookie), renewed after 30 quiet minutes or 24 hours.
+  function uuid7() {
+    var a = new Uint8Array(16), ts = Date.now(), i, h = '';
+    (window.crypto || window.msCrypto).getRandomValues(a);
+    for (i = 5; i >= 0; i--) { a[i] = ts % 256; ts = Math.floor(ts / 256); }
+    a[6] = (a[6] & 15) | 112; a[8] = (a[8] & 63) | 128;
+    for (i = 0; i < 16; i++) h += (a[i] + 256).toString(16).slice(1);
+    return h.slice(0, 8) + '-' + h.slice(8, 12) + '-' + h.slice(12, 16) + '-' + h.slice(16, 20) + '-' + h.slice(20);
+  }
   function psid() {
     try {
       var k = 'mw:ps', now = Date.now(), v = JSON.parse(sessionStorage.getItem(k) || 'null');
-      if (!v || !v.id || now - v.t > 1800000) {
-        var a = new Uint8Array(16), h = '';
-        (window.crypto || window.msCrypto).getRandomValues(a);
-        a[6] = (a[6] & 15) | 64; a[8] = (a[8] & 63) | 128;
-        for (var i = 0; i < 16; i++) h += (a[i] + 256).toString(16).slice(1);
-        v = { id: h.slice(0, 8) + '-' + h.slice(8, 12) + '-' + h.slice(12, 16) + '-' + h.slice(16, 20) + '-' + h.slice(20), t: now, n: 0 };
+      // An older footer stored version 4 IDs: start a fresh, readable one.
+      if (!v || !v.id || v.id.charAt(14) !== '7' || now - v.t > 1800000 || now - (v.s || v.t) > 86400000) {
+        v = { id: uuid7(), t: now, s: now, n: 0 };
       }
       v.t = now;
       sessionStorage.setItem(k, JSON.stringify(v));
       return v;
     } catch (e) { return null; }
+  }
+
+  // A site that runs the PostHog SDK itself: use its session so both agree, and leave $pageview to it when it sends them.
+  function sdk() {
+    try { var p = window.posthog; return p && p.__loaded && typeof p.get_session_id === 'function' ? p : null; } catch (e) { return null; }
+  }
+  function sdkSession() {
+    try { var p = sdk(); var id = p && p.get_session_id(); return id && /^[0-9a-f-]{36}$/i.test(id) ? id : ''; } catch (e) { return ''; }
+  }
+  function sdkSendsPageviews() {
+    try { var p = sdk(); return !!(p && p.config && p.config.capture_pageview !== false); } catch (e) { return false; }
+  }
+
+  /* ---------- PostHog's own pageview events, for its Web Analytics screens ---------- */
+  // $pageview and $pageleave are sent next to our mw_* events (which stay exactly as they were).
+  // Switched on per site from the manifest (analytics.native: true, or a list of site ids) or data-native="on".
+  var np = { path: '', t: 0, scroll: 0, left: true };
+  function nativeOn() {
+    if (ds.native === 'off') return false;
+    if (ds.native === 'on') return true;
+    var n = M.analytics && M.analytics.native;
+    return n === true || (Array.isArray(n) && !!current && n.indexOf(current.id) > -1);
+  }
+  function startNativeView() {
+    if (!nativeOn() || sdkSendsPageviews()) return;
+    np = { path: location.pathname, t: Date.now(), scroll: 0, left: false };
+    phSend('$pageview', phProps({ $raw_user_agent: String(navigator.userAgent || '').slice(0, 300) }));
+    hookHistory();
+  }
+  function endNativeView() {
+    if (np.left || !np.path) return;
+    np.left = true;
+    var secs = Math.max(0, Math.round((Date.now() - np.t) / 1000));
+    phSend('$pageleave', phProps({
+      $prev_pageview_pathname: np.path,
+      $prev_pageview_duration: Math.min(secs, 86400),
+      $prev_pageview_max_scroll_percentage: Math.min(1, np.scroll / 100),
+      $prev_pageview_last_scroll_percentage: Math.min(1, np.scroll / 100)
+    }));
+  }
+  // Single-page apps change the address without loading a new page: count each new path as a page view.
+  var hooked = false, routeTimer = 0;
+  function routeChanged() {
+    clearTimeout(routeTimer);
+    routeTimer = setTimeout(function () {
+      if (!np.path || location.pathname === np.path) return; // the same page (a query or hash change is not a new page)
+      endNativeView();
+      startNativeView();
+    }, 60);
+  }
+  function hookHistory() {
+    if (hooked) return;
+    hooked = true;
+    try {
+      ['pushState', 'replaceState'].forEach(function (m) {
+        var orig = history[m];
+        if (typeof orig !== 'function') return;
+        history[m] = function () { var r = orig.apply(this, arguments); routeChanged(); return r; };
+      });
+      window.addEventListener('popstate', routeChanged);
+      window.addEventListener('pagehide', endNativeView);
+      document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') endNativeView(); });
+    } catch (e) {}
   }
 
   // One count per page load, so sites with no analytics of their own still show up.
@@ -441,6 +512,7 @@
       extra.session_page_number = vs.n;
     }
     phSend('mw_pageview', phProps(extra));
+    startNativeView();
     startEngagement();
     // Arrived from another Minor Works site: link the two anonymous IDs so a journey reads as one person.
     try {
@@ -486,6 +558,7 @@
     if (!vh || h <= vh + 20) return; // the page fits on screen: no scrolling to measure
     var pct = Math.min(100, Math.round(((window.pageYOffset || de.scrollTop || 0) + vh) / h * 100));
     if (pct > eng.scroll) eng.scroll = pct;
+    if (pct > np.scroll) np.scroll = pct;
     [25, 50, 75, 100].forEach(function (m) {
       if (pct >= (m === 100 ? 98 : m) && !eng.marks[m]) { eng.marks[m] = 1; phSend('mw_scroll', phProps({ depth: m })); }
     });
