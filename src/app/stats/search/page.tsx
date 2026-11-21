@@ -30,7 +30,7 @@ export default function SearchPage(){
   const {ready,data,error,loading,login}=useStats<Report>("/api/stats/google",{days});
   if(!data) return ready ? <Login onLogin={login} error={error} loading={loading}/> : <main className="min-h-screen" style={{background:C.navy}}/>;
   const site=data.sites.find(x=>x.id===selected)||data.sites[0];
-  return <Shell title="Search performance" subtitle="Historical discovery and traffic · Google Analytics 4 + Google Search Console" active="search" days={days} onDays={setDays} loading={loading} stamp={stampOf(data.generatedAt)}>
+  return <Shell title="Search performance" subtitle="Historical discovery and traffic · Google Analytics 4 + Google Search Console" active="search" days={days} onDays={setDays} loading={loading} stamp={stampOf(data.generatedAt)} extra={<button className="rounded-lg px-2.5 py-1.5 text-xs font-medium" style={{background:days===365?C.navy:C.track,color:days===365?"white":C.mute}} onClick={()=>setDays(365)}>1 year</button>}>
     {!data.configured ? <Notice tone="warn">Google read-only reporting is prepared, but the server credential has not been configured. Add GOOGLE_SERVICE_ACCOUNT_JSON to Netlify as a secret. No traffic or search figures are shown until the connection is verified.</Notice> : null}
     {error && <Notice tone="warn">{error}</Notice>}
     <div className="mb-3 flex flex-wrap gap-1.5">
