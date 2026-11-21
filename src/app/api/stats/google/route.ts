@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   try { body=await req.json(); } catch { /* require gate even on invalid JSON */ }
   const denied=await gate(body.passphrase);
   if(denied) return denied;
-  const days=[7,30,90].includes(Number(body.days))?Number(body.days):30;
+  const days=[7,30,90,365].includes(Number(body.days))?Number(body.days):30;
   try {
     return NextResponse.json(await googleReports(days),{headers:JSON_HEADERS});
   } catch(e) {
